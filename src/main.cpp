@@ -29,6 +29,9 @@
 
 int main(int argc, char *argv[])
 {
+	QCoreApplication::setOrganizationName("Presence VNC");
+	QCoreApplication::setApplicationName("Presence VNC");
+
 	QApplication app(argc, argv);
 
 	QString url;
@@ -41,12 +44,6 @@ int main(int argc, char *argv[])
 		url = arguments.at(1);
 		if(arguments.count() > 2)
 			quality = arguments.at(2).toInt();
-	} else {
-		url = QInputDialog::getText(0, "Connect to Host", "VNC Server:");
-		if(url.isEmpty()) { //dialog dismissed or nothing entered
-			return 1;
-		}
-		url = "vnc://" + url;
 	}
 	MainWindow main(url, quality);
 	main.show();

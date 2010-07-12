@@ -1,7 +1,7 @@
-
 #include "mainwindow.h"
 #include "vncview.h"
 
+#include <QtMaemo5>
 #include <QX11Info>
 
 #include <X11/Xlib.h>
@@ -10,19 +10,33 @@
 #include <iostream>
 
 MainWindow::MainWindow(QString url, int quality):
-	QScrollArea(0)
+	QMainWindow(0),
+	vnc_view(0),
+	scroll_area(new QScrollArea(0))
 {
 	swipe_start = QPoint(0,0);
 	setAttribute(Qt::WA_Maemo5StackedWindow);
+
+	//set up toolbar
+	toolbar = new QToolBar(0);
+	toolbar->addAction("Esc", this, SLOT(sendEsc()));
+	toolbar->addAction("Tab", this, SLOT(sendTab()));
+	addToolBar(toolbar);
 
 	//set up menu
 	QMenuBar *menu = new QMenuBar(this);
 	QAction *connect_action = new QAction("Connect", this);
 	disconnect_action = new QAction("Disconnect", this);
+	menu->addAction(connect_action);
+	menu->addAction(disconnect_action);
 	scaling = new QAction("Rescale Remote Screen", this);
 	scaling->setCheckable(true);
 	scaling->setChecked(true);
 	menu->addAction(scaling);
+	QAction *show_toolbar = new QAction("Show Toolbar", this);
+	show_toolbar->setCheckable(true);
+	show_toolbar->setChecked(true);
+	menu->addAction(show_toolbar);
 	QAction *about_action = new QAction("About", this);
 	menu->addAction(about_action);
 
@@ -35,6 +49,10 @@ MainWindow::MainWindow(QString url, int quality):
 		this, SLOT(connectDialog()));
 	connect(disconnect_action, SIGNAL(triggered()),
 		this, SLOT(disconnectFromHost()));
+	connect(show_toolbar, SIGNAL(toggled(bool)),
+		toolbar, SLOT(setVisible(bool)));
+
+	setCentralWidget(scroll_area);
 
 	grabZoomKeys(true);
 	setAttribute(Qt::WA_Maemo5AutoOrientation, true);
@@ -47,7 +65,9 @@ MainWindow::MainWindow(QString url, int quality):
 		vnc_view = new VncView(0, url, RemoteView::Quality(quality));
 		connect(scaling, SIGNAL(toggled(bool)),
 			vnc_view, SLOT(enableScaling(bool)));
-		setWidget(vnc_view);
+		connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
+			this, SLOT(statusChanged(RemoteView::RemoteStatus)));
+		scroll_area->setWidget(vnc_view);
 		vnc_view->start();
 	}
 }
@@ -67,7 +87,7 @@ void MainWindow::grabZoomKeys(bool grab)
 void MainWindow::closeEvent(QCloseEvent*) {
 	hide();
 	grabZoomKeys(false);
-	vnc_view->startQuitting();
+	disconnectFromHost();
 }
 
 void MainWindow::about() {
@@ -108,31 +128,63 @@ virtual bool event(QEvent *event) {
 
 void MainWindow::connectDialog()
 {
-	QString url = QInputDialog::getText(this, "Connect to Host", "VNC Server:");
+	QSettings settings;
+	QString url = QInputDialog::getText(this, "Connect to Host", "VNC Server:", QLineEdit::Normal, settings.value("last_hostname", "").toString());
 	if(url.isEmpty()) { //dialog dismissed or nothing entered
 		return;
 	}
+	settings.setValue("last_hostname", url);
 	url = "vnc://" + url;
 
 	disconnectFromHost();
 
 	vnc_view = new VncView(0, url, RemoteView::Quality(2)); //TODO: get quality in dialog
-	setWidget(vnc_view);
+	scroll_area->setWidget(vnc_view);
 
 	connect(scaling, SIGNAL(toggled(bool)),
 		vnc_view, SLOT(enableScaling(bool)));
+	connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
+		this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 	vnc_view->start();
 	disconnect_action->setEnabled(true);
 }
 
 void MainWindow::disconnectFromHost()
 {
-	vnc_view->startQuitting();
-	setWidget(0);
+	if(!vnc_view)
+		return;
 
-	disconnect(scaling, SIGNAL(toggled(bool)),
-		vnc_view, SLOT(enableScaling(bool)));
+	vnc_view->startQuitting();
+	scroll_area->setWidget(0);
+
+	vnc_view->disconnect(); //remove all connections
 	delete vnc_view;
 	vnc_view = 0;
 	disconnect_action->setEnabled(false);
+}
+
+void MainWindow::statusChanged(RemoteView::RemoteStatus status)
+{
+	static RemoteView::RemoteStatus old_status = RemoteView::Disconnected;
+
+	switch(status) {
+	case RemoteView::Connecting:
+		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+		break;
+	case RemoteView::Connected:
+		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+		break;
+	case RemoteView::Disconnecting:
+		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
+			QMaemo5InformationBox::information(this, "Connection lost");
+		}
+		break;
+	case RemoteView::Disconnected:
+		if(old_status == RemoteView::Disconnecting) {
+			scroll_area->setWidget(0); //remove widget
+		}
+		break;
+	}
+
+	old_status = status;
 }

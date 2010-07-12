@@ -55,6 +55,7 @@ public:
     void setQuality(int q);
     void setViewOnly(bool viewOnly);
     void showDotCursor(DotCursorState state);
+    void sendKey(Qt::Key key);
     
     virtual void updateConfiguration();
 

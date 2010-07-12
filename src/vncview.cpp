@@ -586,14 +586,12 @@ void VncView::keyEventHandler(QKeyEvent *e)
 	else
 		m_buttonMask &= 0xfe;
 	vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-	kDebug(5011) << "left zoom";
     } else if(e->key() == Qt::Key_F7) {
 	if(pressed)
 		m_buttonMask |= 0x04;
 	else
 		m_buttonMask &= 0xfb;
 	vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-	kDebug(5011) << "right zoom";
     } else if (k) {
         vncThread.keyEvent(k, pressed);
     }
@@ -638,6 +636,27 @@ void VncView::clipboardDataChanged()
     const QString text = m_clipboard->text(QClipboard::Clipboard);
 
     vncThread.clientCut(text);
+}
+
+//fake key events
+void VncView::sendKey(Qt::Key key)
+{
+	rfbKeySym k = 0;
+	if(key == Qt::Key_Escape)
+	switch(key) {
+	case Qt::Key_Escape:
+		k = 0xff1b;
+		break;
+	case Qt::Key_Tab:
+		k = 0xff09;
+		break;
+	default:
+		kDebug(5011) << "unhandled Qt::Key value " << key;
+		return;
+	}
+
+        vncThread.keyEvent(k, true);
+        vncThread.keyEvent(k, false);
 }
 
 #include "moc_vncview.cpp"
