@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Presence VNC
+Comment=A touch-screen friendly VNC client
+Exec=presencevnc
+Icon=presencevnc
+Type=Application
+Categories=Utility;
