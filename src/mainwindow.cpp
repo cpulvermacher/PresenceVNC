@@ -14,6 +14,7 @@ MainWindow::MainWindow(QString url, int quality):
 	vnc_view(0),
 	scroll_area(new QScrollArea(0))
 {
+	setWindowTitle("Presence VNC");
 	swipe_start = QPoint(0,0);
 	setAttribute(Qt::WA_Maemo5StackedWindow);
 
@@ -60,6 +61,7 @@ MainWindow::MainWindow(QString url, int quality):
 
 	if(url.isNull()) {
 		disconnect_action->setEnabled(false);
+		toolbar->setEnabled(false);
 		connectDialog();
 	} else {
 		vnc_view = new VncView(0, url, RemoteView::Quality(quality));
@@ -147,6 +149,7 @@ void MainWindow::connectDialog()
 		this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 	vnc_view->start();
 	disconnect_action->setEnabled(true);
+	toolbar->setEnabled(true);
 }
 
 void MainWindow::disconnectFromHost()
@@ -161,6 +164,7 @@ void MainWindow::disconnectFromHost()
 	delete vnc_view;
 	vnc_view = 0;
 	disconnect_action->setEnabled(false);
+	toolbar->setEnabled(false);
 }
 
 void MainWindow::statusChanged(RemoteView::RemoteStatus status)
