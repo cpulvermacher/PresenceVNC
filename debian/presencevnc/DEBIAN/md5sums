@@ -1,9 +1,0 @@
-ec3e686497cf7e4f20d4602705fa889b  opt/presencevnc/libvncclient.so.0
-18aada71b1ca104806e22322581cbe77  opt/presencevnc/presencevnc-bin
-05ccc4071ccb856168496891cf17bb3a  usr/bin/presencevnc
-5dc267662e3cde3a1ca5c5506d698fd9  usr/share/doc/presencevnc/copyright
-4eb7893a6df5959ab3784db07fe5c799  usr/share/doc/presencevnc/changelog.gz
-32feab457663b3afc27977cdede0d7ac  usr/share/applications/hildon/presencevnc.desktop
-91c83e05ea52fc344c43448f20d5c4b6  usr/share/icons/hicolor/48x48/apps/presencevnc.png
-1f306c502a3771722a9f27f2ab0fe562  usr/share/icons/hicolor/26x26/apps/presencevnc.png
-c07c09e659218af2d0a76b3d1b05f9ed  usr/share/icons/hicolor/64x64/apps/presencevnc.png
