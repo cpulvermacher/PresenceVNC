@@ -5,7 +5,7 @@ export DH_VERBOSE=1
 #currently builds a maemo-only package
 
 #comment this line for quick builds
-buildlibs=foo
+#buildlibs=foo
 
 SOURCEDIR=./
 BUILDDIR=debian/build/
