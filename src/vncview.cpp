@@ -641,14 +641,19 @@ void VncView::clipboardDataChanged()
 //fake key events
 void VncView::sendKey(Qt::Key key)
 {
-	rfbKeySym k = 0;
-	if(key == Qt::Key_Escape)
+	int k = 0; //X11 keysym
 	switch(key) {
 	case Qt::Key_Escape:
 		k = 0xff1b;
 		break;
 	case Qt::Key_Tab:
 		k = 0xff09;
+		break;
+	case Qt::Key_PageUp:
+		k = 0xff55;
+		break;
+	case Qt::Key_PageDown:
+		k = 0xff56;
 		break;
 	default:
 		kDebug(5011) << "unhandled Qt::Key value " << key;

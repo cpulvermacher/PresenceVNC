@@ -20,8 +20,12 @@ MainWindow::MainWindow(QString url, int quality):
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
-	toolbar->addAction("Esc", this, SLOT(sendEsc()));
+	toolbar->addAction("Mod"); //TODO
 	toolbar->addAction("Tab", this, SLOT(sendTab()));
+	toolbar->addAction("Esc", this, SLOT(sendEsc()));
+	toolbar->addAction("PgUp", this, SLOT(sendPgUp()));
+	toolbar->addAction("PgDn", this, SLOT(sendPgDn()));
+	toolbar->addAction("Fullscreen", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
 
 	//set up menu

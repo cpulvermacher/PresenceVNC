@@ -29,7 +29,10 @@ private:
 	QAction *disconnect_action;
 
 private slots:
-	void sendEsc() { vnc_view->sendKey(Qt::Key_Escape); }
 	void sendTab() { vnc_view->sendKey(Qt::Key_Tab); }
+	void sendEsc() { vnc_view->sendKey(Qt::Key_Escape); }
+	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
+	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
+	void toggleFullscreen() { setWindowState(windowState() ^ Qt::WindowFullScreen); }
 };
 #endif
