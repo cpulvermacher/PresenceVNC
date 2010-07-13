@@ -65,6 +65,9 @@ MainWindow::MainWindow(QString url, int quality):
 	setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 	//setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
 
+	connect(QApplication::desktop(), SIGNAL(resized(int)),
+		this, SLOT(forceResize()));
+
 	if(url.isNull()) {
 		disconnect_action->setEnabled(false);
 		toolbar->setEnabled(false);
