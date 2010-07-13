@@ -15,7 +15,7 @@ MainWindow::MainWindow(QString url, int quality):
 	scroll_area(new QScrollArea(0))
 {
 	setWindowTitle("Presence VNC");
-	swipe_start = QPoint(0,0);
+//	swipe_start = QPoint(0,0);
 	setAttribute(Qt::WA_Maemo5StackedWindow);
 
 	//set up toolbar
@@ -25,7 +25,7 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction("Esc", this, SLOT(sendEsc()));
 	toolbar->addAction("PgUp", this, SLOT(sendPgUp()));
 	toolbar->addAction("PgDn", this, SLOT(sendPgDn()));
-	toolbar->addAction("Fullscreen", this, SLOT(toggleFullscreen()));
+	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
 
 	//set up menu
@@ -56,6 +56,8 @@ MainWindow::MainWindow(QString url, int quality):
 		this, SLOT(disconnectFromHost()));
 	connect(show_toolbar, SIGNAL(toggled(bool)),
 		toolbar, SLOT(setVisible(bool)));
+	connect(show_toolbar, SIGNAL(toggled(bool)),
+		this, SLOT(forceResizeDelayed()));
 
 	setCentralWidget(scroll_area);
 
@@ -71,6 +73,8 @@ MainWindow::MainWindow(QString url, int quality):
 		vnc_view = new VncView(0, url, RemoteView::Quality(quality));
 		connect(scaling, SIGNAL(toggled(bool)),
 			vnc_view, SLOT(enableScaling(bool)));
+		connect(scaling, SIGNAL(toggled(bool)),
+			scroll_area, SLOT(setWidgetResizable(bool)));
 		connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 			this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 		scroll_area->setWidget(vnc_view);
@@ -149,6 +153,8 @@ void MainWindow::connectDialog()
 
 	connect(scaling, SIGNAL(toggled(bool)),
 		vnc_view, SLOT(enableScaling(bool)));
+	connect(scaling, SIGNAL(toggled(bool)),
+		scroll_area, SLOT(setWidgetResizable(bool)));
 	connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 		this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 	vnc_view->start();
@@ -195,4 +201,24 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 	}
 
 	old_status = status;
+}
+
+//when rescaling is enabled, this resizes the widget to use available screen space
+//necessary when rotating, showing fullscreen, etc.
+void MainWindow::forceResize()
+{
+	if(vnc_view and scaling->isChecked()) {
+		vnc_view->resize(scroll_area->size());
+	}
+} 
+
+void MainWindow::forceResizeDelayed()
+{
+	QTimer::singleShot(500, this, SLOT(forceResize()));
+}
+
+void MainWindow::toggleFullscreen()
+{
+	setWindowState(windowState() ^ Qt::WindowFullScreen); 
+	forceResizeDelayed();
 }

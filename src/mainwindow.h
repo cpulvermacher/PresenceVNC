@@ -11,10 +11,17 @@ class MainWindow : public QMainWindow {
 public:
 	MainWindow(QString url, int quality);
 public slots:
+	void about();
 	void connectDialog();
 	void disconnectFromHost();
-	void about();
+	void forceResize();
+	void forceResizeDelayed();
+	void sendTab() { vnc_view->sendKey(Qt::Key_Tab); }
+	void sendEsc() { vnc_view->sendKey(Qt::Key_Escape); }
+	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
+	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
 	void statusChanged(RemoteView::RemoteStatus status);
+	void toggleFullscreen();
 protected:
 	//virtual bool event(QEvent *event);
 	void closeEvent(QCloseEvent*);
@@ -24,15 +31,8 @@ private:
 	QScrollArea *scroll_area;
 	//QWidget *menu;
 	QToolBar *toolbar;	
-	QPoint swipe_start;
+	//QPoint swipe_start;
 	QAction *scaling;
 	QAction *disconnect_action;
-
-private slots:
-	void sendTab() { vnc_view->sendKey(Qt::Key_Tab); }
-	void sendEsc() { vnc_view->sendKey(Qt::Key_Escape); }
-	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
-	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
-	void toggleFullscreen() { setWindowState(windowState() ^ Qt::WindowFullScreen); }
 };
 #endif
