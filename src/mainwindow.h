@@ -20,6 +20,7 @@ public slots:
 	void sendEsc() { vnc_view->sendKey(Qt::Key_Escape); }
 	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
 	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
+	void showModifierMenu();
 	void statusChanged(RemoteView::RemoteStatus status);
 	void toggleFullscreen();
 protected:

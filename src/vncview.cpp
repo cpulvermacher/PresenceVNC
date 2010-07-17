@@ -655,13 +655,29 @@ void VncView::sendKey(Qt::Key key)
 	case Qt::Key_PageDown:
 		k = 0xff56;
 		break;
+	case Qt::Key_Meta: //TODO: test this.
+		k = XK_Super_L;
+		break;
+	case Qt::Key_Alt:
+		k = XK_Alt_L;
+		break;
 	default:
 		kDebug(5011) << "unhandled Qt::Key value " << key;
 		return;
 	}
 
-        vncThread.keyEvent(k, true);
-        vncThread.keyEvent(k, false);
+	if (k == XK_Shift_L || k == XK_Control_L || k == XK_Meta_L || k == XK_Alt_L || k == XK_Super_L) {
+		if (m_mods.contains(k)) { //release
+			m_mods.remove(k);
+			vncThread.keyEvent(k, false);
+		} else { //press
+			m_mods[k] = true;
+			vncThread.keyEvent(k, true);
+		}
+	} else { //normal key
+		vncThread.keyEvent(k, true);
+		vncThread.keyEvent(k, false);
+	}
 }
 
 #include "moc_vncview.cpp"

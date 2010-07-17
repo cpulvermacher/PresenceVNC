@@ -17,16 +17,18 @@ MainWindow::MainWindow(QString url, int quality):
 	setWindowTitle("Presence VNC");
 //	swipe_start = QPoint(0,0);
 	setAttribute(Qt::WA_Maemo5StackedWindow);
+	QSettings settings;
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
-	toolbar->addAction("Mod"); //TODO
+	toolbar->addAction("Mod", this, SLOT(showModifierMenu()));
 	toolbar->addAction("Tab", this, SLOT(sendTab()));
 	toolbar->addAction("Esc", this, SLOT(sendEsc()));
 	toolbar->addAction("PgUp", this, SLOT(sendPgUp()));
 	toolbar->addAction("PgDn", this, SLOT(sendPgDn()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
+	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
 
 	//set up menu
 	QMenuBar *menu = new QMenuBar(this);
@@ -36,11 +38,11 @@ MainWindow::MainWindow(QString url, int quality):
 	menu->addAction(disconnect_action);
 	scaling = new QAction("Rescale Remote Screen", this);
 	scaling->setCheckable(true);
-	scaling->setChecked(true);
+	scaling->setChecked(settings.value("rescale", true).toBool());
 	menu->addAction(scaling);
 	QAction *show_toolbar = new QAction("Show Toolbar", this);
 	show_toolbar->setCheckable(true);
-	show_toolbar->setChecked(true);
+	show_toolbar->setChecked(settings.value("show_toolbar", true).toBool());
 	menu->addAction(show_toolbar);
 	QAction *about_action = new QAction("About", this);
 	menu->addAction(about_action);
@@ -76,12 +78,11 @@ MainWindow::MainWindow(QString url, int quality):
 		vnc_view = new VncView(0, url, RemoteView::Quality(quality));
 		connect(scaling, SIGNAL(toggled(bool)),
 			vnc_view, SLOT(enableScaling(bool)));
-		connect(scaling, SIGNAL(toggled(bool)),
-			scroll_area, SLOT(setWidgetResizable(bool)));
 		connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 			this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 		scroll_area->setWidget(vnc_view);
 		vnc_view->start();
+		vnc_view->enableScaling(scaling->isChecked());
 	}
 }
 
@@ -98,14 +99,21 @@ void MainWindow::grabZoomKeys(bool grab)
 }
 
 void MainWindow::closeEvent(QCloseEvent*) {
-	hide();
 	grabZoomKeys(false);
+
+	QSettings settings;
+	settings.setValue("show_toolbar", toolbar->isVisible());
+	settings.setValue("rescale", scaling->isChecked());
+	settings.sync();
+
+	hide();
+
 	disconnectFromHost();
 }
 
 void MainWindow::about() {
 	QMessageBox::about(this, tr("About Presence VNC"),
-		tr("<center><h1>Presence VNC 0.1 alpha</h1>\
+		tr("<center><h1>Presence VNC 0.1 beta</h1>\
 A touch screen friendly VNC client\
 <small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt</p>\
 <p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</small></center>\
@@ -156,11 +164,10 @@ void MainWindow::connectDialog()
 
 	connect(scaling, SIGNAL(toggled(bool)),
 		vnc_view, SLOT(enableScaling(bool)));
-	connect(scaling, SIGNAL(toggled(bool)),
-		scroll_area, SLOT(setWidgetResizable(bool)));
 	connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 		this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 	vnc_view->start();
+	vnc_view->enableScaling(scaling->isChecked());
 	disconnect_action->setEnabled(true);
 	toolbar->setEnabled(true);
 }
@@ -224,4 +231,25 @@ void MainWindow::toggleFullscreen()
 {
 	setWindowState(windowState() ^ Qt::WindowFullScreen); 
 	forceResizeDelayed();
+}
+
+void MainWindow::showModifierMenu()
+{
+	static QMenu *mod_menu = new QMenu(tr("Modifiers"), this);
+	static QAction *win = mod_menu->addAction(tr("Win"));
+	static QAction *alt = mod_menu->addAction(tr("Alt"));
+	win->setCheckable(true);
+	alt->setCheckable(true);
+
+	//show menu at top-left corner of toolbar
+	QAction *chosen = mod_menu->exec(toolbar->mapToGlobal(QPoint(0,0)));
+	if(!chosen) {
+		return;
+	} else if(chosen == alt) {
+		vnc_view->sendKey(Qt::Key_Alt);
+	} else if(chosen == win) {
+		vnc_view->sendKey(Qt::Key_Meta);
+	} else {
+		std::cout << "unhandled action?\n";
+	}
 }
