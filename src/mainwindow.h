@@ -21,6 +21,7 @@ public slots:
 	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
 	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
 	void showModifierMenu();
+	void showPreferences();
 	void statusChanged(RemoteView::RemoteStatus status);
 	void toggleFullscreen();
 protected:
@@ -28,6 +29,7 @@ protected:
 	void closeEvent(QCloseEvent*);
 private:
 	void grabZoomKeys(bool grab);
+	void loadPreferences();
 	VncView *vnc_view;
 	QScrollArea *scroll_area;
 	//QWidget *menu;

@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "preferences.h"
 #include "vncview.h"
 
 #include <QtMaemo5>
@@ -44,6 +45,8 @@ MainWindow::MainWindow(QString url, int quality):
 	show_toolbar->setCheckable(true);
 	show_toolbar->setChecked(settings.value("show_toolbar", true).toBool());
 	menu->addAction(show_toolbar);
+	QAction *pref_action = new QAction("Preferences", this);
+	menu->addAction(pref_action);
 	QAction *about_action = new QAction("About", this);
 	menu->addAction(about_action);
 
@@ -52,6 +55,8 @@ MainWindow::MainWindow(QString url, int quality):
 
 	connect(about_action, SIGNAL(triggered()),
 		this, SLOT(about()));
+	connect(pref_action, SIGNAL(triggered()),
+		this, SLOT(showPreferences()));
 	connect(connect_action, SIGNAL(triggered()),
 		this, SLOT(connectDialog()));
 	connect(disconnect_action, SIGNAL(triggered()),
@@ -64,8 +69,7 @@ MainWindow::MainWindow(QString url, int quality):
 	setCentralWidget(scroll_area);
 
 	grabZoomKeys(true);
-	setAttribute(Qt::WA_Maemo5AutoOrientation, true);
-	//setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+	loadPreferences();
 
 	connect(QApplication::desktop(), SIGNAL(resized(int)),
 		this, SLOT(forceResize()));
@@ -252,4 +256,22 @@ void MainWindow::showModifierMenu()
 	} else {
 		std::cout << "unhandled action?\n";
 	}
+}
+
+void MainWindow::showPreferences()
+{
+	Preferences *p = new Preferences(this);
+	p->exec();
+	delete p;
+
+	loadPreferences();
+}
+
+void MainWindow::loadPreferences()
+{
+	QSettings settings;
+	int rotation = settings.value("screen_rotation", 0).toInt();
+	setAttribute(Qt::WA_Maemo5AutoOrientation, rotation == 0);
+	setAttribute(Qt::WA_Maemo5LandscapeOrientation, rotation == 1);
+	setAttribute(Qt::WA_Maemo5PortraitOrientation, rotation == 2);
 }

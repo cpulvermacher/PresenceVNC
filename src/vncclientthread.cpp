@@ -176,6 +176,7 @@ VncClientThread::~VncClientThread()
     kDebug(5011) << "Quit VNC thread success:" << quitSuccess;
     
     delete [] frameBuffer;
+    delete cl;
 }
 
 void VncClientThread::checkOutputErrorMessage()
