@@ -454,7 +454,9 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	static bool tap_drag_detected = false;
 	static QTime press_time;
 	static QTime up_time; //used for double clicks/tap&drag, for time after first tap
-static QTime foo;
+
+	const int TAP_PRESS_TIME = 200;
+	const int DOUBLE_TAP_UP_TIME = 500;
 
 	if(!e) { //flush held taps
 		if(tap_detected) {
@@ -463,10 +465,9 @@ static QTime foo;
 			m_buttonMask &= 0xfe;
 			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 			tap_detected = false;
-		} else if(double_tap_detected and press_time.elapsed() > 200) { //got tap + another press -> tap & drag
+		} else if(double_tap_detected and press_time.elapsed() > TAP_PRESS_TIME) { //got tap + another press -> tap & drag
 			m_buttonMask |= 0x01;
 			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-			foo.start();
 			double_tap_detected = false;
 			tap_drag_detected = true;
 		}
@@ -485,11 +486,11 @@ static QTime foo;
 
 	if(e->type() == QEvent::MouseButtonPress or e->type() == QEvent::MouseButtonDblClick) {
 		press_time.start();
-		if(tap_detected and up_time.elapsed() < 500) {
+		if(tap_detected and up_time.elapsed() < DOUBLE_TAP_UP_TIME) {
 			tap_detected = false;
 			double_tap_detected = true;
 
-			QTimer::singleShot(200, this, SLOT(mouseEventHandler()));
+			QTimer::singleShot(TAP_PRESS_TIME, this, SLOT(mouseEventHandler()));
 		}
 	} else if(e->type() == QEvent::MouseButtonRelease) {
 		if(tap_drag_detected) {
@@ -507,10 +508,10 @@ static QTime foo;
 			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 			m_buttonMask &= 0xfe;
 			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-		} else if(press_time.elapsed() < 200) { //tap
+		} else if(press_time.elapsed() < TAP_PRESS_TIME) { //tap
 			up_time.start();
 			tap_detected = true;
-			QTimer::singleShot(500, this, SLOT(mouseEventHandler()));
+			QTimer::singleShot(DOUBLE_TAP_UP_TIME, this, SLOT(mouseEventHandler()));
 		}
 
 	}
