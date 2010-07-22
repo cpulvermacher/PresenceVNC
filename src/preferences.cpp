@@ -87,7 +87,8 @@ Preferences::~Preferences()
 void Preferences::save()
 {
 	settings.setValue("screen_rotation", rotation_selector->currentIndex());
-	//TODO: save zoom stuf
+	settings.setValue("left_zoom", leftzoom_selector->currentIndex());
+	settings.setValue("right_zoom", rightzoom_selector->currentIndex());
 
 	settings.sync();
 }
