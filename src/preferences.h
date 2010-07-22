@@ -34,5 +34,7 @@ private slots:
 private:
 	QSettings settings;
 	QMaemo5ListPickSelector *rotation_selector;
+	QMaemo5ListPickSelector *leftzoom_selector;
+	QMaemo5ListPickSelector *rightzoom_selector;
 };
 #endif

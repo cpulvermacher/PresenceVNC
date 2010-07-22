@@ -22,11 +22,13 @@ MainWindow::MainWindow(QString url, int quality):
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
+	toolbar->setAttribute(Qt::WA_InputMethodEnabled, true);
 	toolbar->addAction("Mod", this, SLOT(showModifierMenu()));
 	toolbar->addAction("Tab", this, SLOT(sendTab()));
 	toolbar->addAction("Esc", this, SLOT(sendEsc()));
 	toolbar->addAction("PgUp", this, SLOT(sendPgUp()));
 	toolbar->addAction("PgDn", this, SLOT(sendPgDn()));
+	toolbar->addAction("IM", toolbar, SLOT(setFocus())); //doesn't work
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
 	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
@@ -69,7 +71,7 @@ MainWindow::MainWindow(QString url, int quality):
 	setCentralWidget(scroll_area);
 
 	grabZoomKeys(true);
-	loadPreferences();
+	reloadSettings();
 
 	connect(QApplication::desktop(), SIGNAL(resized(int)),
 		this, SLOT(forceResize()));
@@ -208,6 +210,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		}
 		break;
 	case RemoteView::Disconnected:
+		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 		if(old_status == RemoteView::Disconnecting) {
 			scroll_area->setWidget(0); //remove widget
 		}
@@ -264,14 +267,17 @@ void MainWindow::showPreferences()
 	p->exec();
 	delete p;
 
-	loadPreferences();
+	reloadSettings();
 }
 
-void MainWindow::loadPreferences()
+void MainWindow::reloadSettings()
 {
 	QSettings settings;
 	int rotation = settings.value("screen_rotation", 0).toInt();
 	setAttribute(Qt::WA_Maemo5AutoOrientation, rotation == 0);
 	setAttribute(Qt::WA_Maemo5LandscapeOrientation, rotation == 1);
 	setAttribute(Qt::WA_Maemo5PortraitOrientation, rotation == 2);
+
+	if(vnc_view)
+		vnc_view->reloadSettings();
 }

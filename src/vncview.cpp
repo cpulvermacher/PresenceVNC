@@ -34,6 +34,7 @@ critical(parent, caption, message)
 #include <QPainter>
 #include <QMouseEvent>
 #include <QEvent>
+#include <QSettings>
 #include <QTime>
 #include <QTimer>
 
@@ -73,6 +74,8 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality)
     m_clipboard = QApplication::clipboard();
     connect(m_clipboard, SIGNAL(selectionChanged()), this, SLOT(clipboardSelectionChanged()));
     connect(m_clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+
+    reloadSettings();
 }
 
 VncView::~VncView()
@@ -580,22 +583,43 @@ void VncView::keyEventHandler(QKeyEvent *e)
     }
 
 
-    //handle clicks via zoom buttons
-    if(e->key() == Qt::Key_F8) {
-	if(pressed)
-		m_buttonMask |= 0x01;
-	else
-		m_buttonMask &= 0xfe;
-	vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-    } else if(e->key() == Qt::Key_F7) {
-	if(pressed)
-		m_buttonMask |= 0x04;
-	else
-		m_buttonMask &= 0xfb;
-	vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-    } else if (k) {
-        vncThread.keyEvent(k, pressed);
-    }
+	int current_zoom = -1;
+	if(e->key() == Qt::Key_F8)
+		current_zoom = left_zoom;
+	else if(e->key() == Qt::Key_F7)
+		current_zoom = right_zoom;
+	else if (k)
+		vncThread.keyEvent(k, pressed);
+	
+	if(current_zoom == -1)
+		return;
+
+	//handle zoom buttons
+	if(current_zoom == 0) { //left click
+		if(pressed)
+			m_buttonMask |= 0x01;
+		else
+			m_buttonMask &= 0xfe;
+		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+	} else if(current_zoom == 1) { //right click
+		if(pressed)
+			m_buttonMask |= 0x04;
+		else
+			m_buttonMask &= 0xfb;
+		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+	} else if(current_zoom == 2) { //wheel up
+		int eb = 0x10;
+		vncThread.mouseEvent(cursor_x, cursor_y, eb | m_buttonMask);
+		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+	} else if(current_zoom == 3) { //wheel down
+		int eb = 0x8;
+		vncThread.mouseEvent(cursor_x, cursor_y, eb | m_buttonMask);
+		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+	} else if(current_zoom == 4) { //page up
+		vncThread.keyEvent(0xff55, pressed);
+	} else if(current_zoom == 5) { //page down
+		vncThread.keyEvent(0xff56, pressed);
+	}
 }
 
 void VncView::unpressModifiers()
@@ -679,6 +703,13 @@ void VncView::sendKey(Qt::Key key)
 		vncThread.keyEvent(k, true);
 		vncThread.keyEvent(k, false);
 	}
+}
+
+void VncView::reloadSettings()
+{
+	QSettings settings;
+	left_zoom = settings.value("left_zoom", 0).toInt();
+	right_zoom = settings.value("right_zoom", 1).toInt();
 }
 
 #include "moc_vncview.cpp"

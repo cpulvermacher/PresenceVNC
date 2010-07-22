@@ -48,6 +48,7 @@ public:
     QSize minimumSizeHint() const;
     void startQuitting();
     bool isQuitting();
+    void reloadSettings();
     bool start();
     bool supportsScaling() const;
     bool supportsLocalCursor() const;
@@ -89,6 +90,7 @@ private:
     bool m_forceLocalCursor;
     bool force_full_repaint;
     RemoteView::Quality quality;
+    int left_zoom, right_zoom;
 
     void keyEventHandler(QKeyEvent *e);
     void unpressModifiers();

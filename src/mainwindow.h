@@ -29,7 +29,7 @@ protected:
 	void closeEvent(QCloseEvent*);
 private:
 	void grabZoomKeys(bool grab);
-	void loadPreferences();
+	void reloadSettings();
 	VncView *vnc_view;
 	QScrollArea *scroll_area;
 	//QWidget *menu;

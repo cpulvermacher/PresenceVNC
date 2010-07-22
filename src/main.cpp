@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 	QCoreApplication::setApplicationName("Presence VNC");
 
 	QApplication app(argc, argv);
+	app.setAutoSipEnabled(true);
 
 	QString url;
 	int quality = 2;
