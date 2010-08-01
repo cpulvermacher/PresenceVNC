@@ -2,12 +2,12 @@ Source: presencevnc
 Section: user/utilities
 Priority: optional
 Maintainer: Christian Pulvermacher <pulvermacher@gmx.de>
-Build-Depends: libqt4-dev, debhelper (>= 5.0.0), mce-dev, libx11-dev
+Build-Depends: libqt4-dev, debhelper (>= 5.0.0), mce-dev, libx11-dev, zlib1g-dev, libjpeg62-dev
 #Homepage: 
 Standards-Version: 3.7.3
 
 Package: presencevnc
-Architecture: any
+Architecture: armel
 Depends: ${shlibs:Depends}, ${misc:Depends}, mce
 Description: A touchscreen friendly VNC client
  Features:
