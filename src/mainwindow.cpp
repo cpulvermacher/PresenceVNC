@@ -28,7 +28,7 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction("Esc", this, SLOT(sendEsc()));
 	toolbar->addAction("PgUp", this, SLOT(sendPgUp()));
 	toolbar->addAction("PgDn", this, SLOT(sendPgDn()));
-	toolbar->addAction("IM", toolbar, SLOT(setFocus())); //doesn't work
+//	toolbar->addAction("IM", toolbar, SLOT(setFocus())); //doesn't work
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
 	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
@@ -37,9 +37,9 @@ MainWindow::MainWindow(QString url, int quality):
 	QMenuBar *menu = new QMenuBar(this);
 	QAction *connect_action = new QAction("Connect", this);
 	disconnect_action = new QAction("Disconnect", this);
-	menu->addAction(connect_action);
-	menu->addAction(disconnect_action);
-	scaling = new QAction("Rescale Remote Screen", this);
+//	menu->addAction(connect_action);
+//	menu->addAction(disconnect_action);
+	scaling = new QAction("Fit to Screen", this);
 	scaling->setCheckable(true);
 	scaling->setChecked(settings.value("rescale", true).toBool());
 	menu->addAction(scaling);
@@ -81,7 +81,7 @@ MainWindow::MainWindow(QString url, int quality):
 		toolbar->setEnabled(false);
 		connectDialog();
 	} else {
-		vnc_view = new VncView(0, url, RemoteView::Quality(quality));
+		vnc_view = new VncView(this, url, RemoteView::Quality(quality));
 		connect(scaling, SIGNAL(toggled(bool)),
 			vnc_view, SLOT(enableScaling(bool)));
 		connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
@@ -90,6 +90,9 @@ MainWindow::MainWindow(QString url, int quality):
 		vnc_view->start();
 		vnc_view->enableScaling(scaling->isChecked());
 	}
+
+	if(!vnc_view) //not connected
+		QTimer::singleShot(100, this, SLOT(close()));
 }
 
 void MainWindow::grabZoomKeys(bool grab)
@@ -119,8 +122,8 @@ void MainWindow::closeEvent(QCloseEvent*) {
 
 void MainWindow::about() {
 	QMessageBox::about(this, tr("About Presence VNC"),
-		tr("<center><h1>Presence VNC 0.1 beta</h1>\
-A touch screen friendly VNC client\
+		tr("<center><h1>Presence VNC 0.1</h1>\
+A touchscreen friendly VNC client\
 <small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt</p>\
 <p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</small></center>\
 <p>This program is free software; License: <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU GPL 2</a> or later.</p>"));
@@ -165,7 +168,7 @@ void MainWindow::connectDialog()
 
 	disconnectFromHost();
 
-	vnc_view = new VncView(0, url, RemoteView::Quality(2)); //TODO: get quality in dialog
+	vnc_view = new VncView(this, url, RemoteView::Quality(2)); //TODO: get quality in dialog
 	scroll_area->setWidget(vnc_view);
 
 	connect(scaling, SIGNAL(toggled(bool)),
@@ -183,12 +186,13 @@ void MainWindow::disconnectFromHost()
 	if(!vnc_view)
 		return;
 
-	vnc_view->startQuitting();
-	scroll_area->setWidget(0);
+//TODO: crashes when deleting vnc_view - no idea why
+	//vnc_view->startQuitting();
+	//scroll_area->setWidget(0);
 
-	vnc_view->disconnect(); //remove all connections
-	delete vnc_view;
-	vnc_view = 0;
+//	vnc_view->disconnect(); //remove all connections
+	//delete vnc_view;
+	//vnc_view = 0;
 	disconnect_action->setEnabled(false);
 	toolbar->setEnabled(false);
 }
@@ -207,6 +211,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 	case RemoteView::Disconnecting:
 		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
 			QMaemo5InformationBox::information(this, "Connection lost");
+			close();
 		}
 		break;
 	case RemoteView::Disconnected:

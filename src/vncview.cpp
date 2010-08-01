@@ -608,11 +608,11 @@ void VncView::keyEventHandler(QKeyEvent *e)
 			m_buttonMask &= 0xfb;
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	} else if(current_zoom == 2 and pressed) { //wheel up
-		int eb = 0x10;
+		int eb = 0x8;
 		vncThread.mouseEvent(cursor_x, cursor_y, eb | m_buttonMask);
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	} else if(current_zoom == 3 and pressed) { //wheel down
-		int eb = 0x8;
+		int eb = 0x10;
 		vncThread.mouseEvent(cursor_x, cursor_y, eb | m_buttonMask);
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	} else if(current_zoom == 4) { //page up

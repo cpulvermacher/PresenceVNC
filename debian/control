@@ -9,8 +9,15 @@ Standards-Version: 3.7.3
 Package: presencevnc
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, mce
-Description: A touch-screen friendly VNC client
- more text here
+Description: A touchscreen friendly VNC client
+ Features:
+  * Viewport can be dragged around without using scrollbars
+  * Touchpad-like mouse input: Tap the screen for a single
+    click, tap twice for a double click, single tap plus
+    dragging motion to drag objects on the remote desktop
+  * Fit remote desktop to screen
+  * Configurable zoom buttons
+  * Portrait mode support
 XB-Maemo-Display-Name: Presence VNC
 #XSBC-Bugtracker: 
 XB-Maemo-Icon-26: 
