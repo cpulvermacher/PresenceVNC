@@ -249,8 +249,8 @@ void VncClientThread::run()
 {
     QMutexLocker locker(&mutex);
 
+    int passwd_failures = 0;
     while (!m_stopped) { // try to connect as long as the server allows
-	    kDebug(5011) << "enter loop";
         m_passwordError = false;
 
         rfbClientLog = outputHandler;
@@ -277,8 +277,12 @@ void VncClientThread::run()
         if (rfbInitClient(cl, 0, 0))
             break;
 
-        if (m_passwordError)
+        if (m_passwordError) {
+	    passwd_failures++;
+	    if(passwd_failures > 2)
+		    m_stopped = true;
             continue;
+	}
 
         return;
     }
@@ -287,7 +291,6 @@ void VncClientThread::run()
 
     // Main VNC event loop
     while (!m_stopped) {
-	    kDebug(5011) << "entering main event loop";
         const int i = WaitForMessage(cl, 500);
         if (i < 0)
             break;
