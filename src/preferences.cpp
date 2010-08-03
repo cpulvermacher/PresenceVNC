@@ -66,6 +66,7 @@ Preferences::Preferences(QWidget *parent):
 	layout2->addWidget(rightzoom);
 
 	QPushButton *ok = new QPushButton("OK");
+	ok->setMaximumWidth(100);
 
 	layout1->addLayout(layout2);
 	layout1->addWidget(ok);
@@ -78,11 +79,7 @@ Preferences::Preferences(QWidget *parent):
 		this, SLOT(save()));
 }
 
-Preferences::~Preferences()
-{
-
-}
-
+Preferences::~Preferences() { }
 
 void Preferences::save()
 {

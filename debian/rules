@@ -5,7 +5,7 @@ export DH_VERBOSE=1
 #currently builds a maemo-only package
 
 #comment this line for quick builds
-buildlibs=foo
+#buildlibs=foo
 
 SOURCEDIR=./
 BUILDDIR=debian/build/
@@ -42,7 +42,7 @@ binary-arch: build install
 	dh_testroot
 	dh_installdocs
 	dh_installchangelogs
-	dh_strip
+	#dh_strip
 	dh_compress
 	dh_fixperms
 	dh_installdeb

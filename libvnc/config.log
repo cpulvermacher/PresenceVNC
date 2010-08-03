@@ -1383,9 +1383,9 @@ configure:26983: $? = 0
 configure:26995: result: yes
 configure:27002: checking for _doprnt
 configure:27059: gcc -o conftest -g -O2   conftest.c -lpthread -lz -ljpeg  >&5
-/tmp/ccYsUjHg.o: In function `main':
+/tmp/cc6wOTSk.o: In function `main':
 /home/christian/presencevnc/libvnc/conftest.c:91: undefined reference to `_doprnt'
-/tmp/ccYsUjHg.o:(.data+0x0): undefined reference to `_doprnt'
+/tmp/cc6wOTSk.o:(.data+0x0): undefined reference to `_doprnt'
 collect2: ld returned 1 exit status
 configure:27065: $? = 1
 configure: failed program was:

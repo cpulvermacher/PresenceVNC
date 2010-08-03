@@ -1,3 +1,21 @@
+/*
+    Presence VNC
+    Copyright (C) 2010 Christian Pulvermacher
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
 #include "mainwindow.h"
 #include "preferences.h"
 #include "vncview.h"
@@ -123,8 +141,9 @@ void MainWindow::about() {
 	QMessageBox::about(this, tr("About Presence VNC"),
 		tr("<center><h1>Presence VNC 0.3</h1>\
 A touchscreen friendly VNC client\
-<small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt</p>\
-<p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</small></center>\
+<small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;</p>\
+<p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</p>\
+<p>and LibVNCServer, &copy; 2001-2003 Johannes E. Schindelin</p></small></center>\
 <p>This program is free software; License: <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU GPL 2</a> or later.</p>"));
 }
 
@@ -158,13 +177,12 @@ void MainWindow::disconnectFromHost()
 	if(!vnc_view)
 		return;
 
-//TODO: crashes when deleting vnc_view - no idea why
-	vnc_view->startQuitting();
+//	vnc_view->startQuitting();
 	scroll_area->setWidget(0);
 
-	vnc_view->disconnect(); //remove all connections
-	//delete vnc_view;
-	//vnc_view = 0;
+	vnc_view->disconnect(); //remove all signal-slot connections
+	delete vnc_view;
+	vnc_view = 0;
 	disconnect_action->setEnabled(false);
 	toolbar->setEnabled(false);
 }

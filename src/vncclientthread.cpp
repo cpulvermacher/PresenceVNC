@@ -173,10 +173,10 @@ VncClientThread::~VncClientThread()
 
     const bool quitSuccess = wait(500);
 
-    kDebug(5011) << "Quit VNC thread success:" << quitSuccess;
+    kDebug(5011) << "~VncClientThread(): Quit VNC thread success:" << quitSuccess;
     
     delete [] frameBuffer;
-    delete cl;
+    //cl is free()d when event loop exits.
 }
 
 void VncClientThread::checkOutputErrorMessage()
@@ -241,7 +241,7 @@ void VncClientThread::emitGotCut(const QString &text)
 
 void VncClientThread::stop()
 {
-    QMutexLocker locker(&mutex);
+//TODO: not locking the mutex leads to a crash, but at least it stops.
     m_stopped = true;
 }
 
@@ -250,6 +250,7 @@ void VncClientThread::run()
     QMutexLocker locker(&mutex);
 
     while (!m_stopped) { // try to connect as long as the server allows
+	    kDebug(5011) << "enter loop";
         m_passwordError = false;
 
         rfbClientLog = outputHandler;
@@ -286,6 +287,7 @@ void VncClientThread::run()
 
     // Main VNC event loop
     while (!m_stopped) {
+	    kDebug(5011) << "entering main event loop";
         const int i = WaitForMessage(cl, 500);
         if (i < 0)
             break;

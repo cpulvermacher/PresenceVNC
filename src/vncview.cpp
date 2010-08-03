@@ -54,7 +54,6 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality)
         m_repaint(false),
         m_quitFlag(false),
         m_firstPasswordTry(true),
-        m_authenticaionCanceled(false),
         m_dontSendClipboard(false),
         m_horizontalFactor(1.0),
         m_verticalFactor(1.0),
@@ -83,10 +82,13 @@ VncView::~VncView()
     unpressModifiers();
 
     // Disconnect all signals so that we don't get any more callbacks from the client thread
+    vncThread.disconnect();
+    /*
     disconnect(&vncThread, SIGNAL(imageUpdated(int, int, int, int)), this, SLOT(updateImage(int, int, int, int)));
     disconnect(&vncThread, SIGNAL(gotCut(const QString&)), this, SLOT(setCut(const QString&)));
     disconnect(&vncThread, SIGNAL(passwordRequest()), this, SLOT(requestPassword()));
     disconnect(&vncThread, SIGNAL(outputErrorMessage(QString)), this, SLOT(outputErrorMessage(QString)));
+    */
 
     startQuitting();
 }
@@ -177,7 +179,7 @@ void VncView::startQuitting()
 
     const bool quitSuccess = vncThread.wait(500);
 
-    kDebug(5011) << "Quit VNC thread success:" << quitSuccess;
+    kDebug(5011) << "startQuitting(): Quit VNC thread success:" << quitSuccess;
 
     setStatus(Disconnected);
 }
@@ -219,11 +221,6 @@ void VncView::requestPassword()
 {
     kDebug(5011) << "request password";
 
-    if (m_authenticaionCanceled) {
-        startQuitting();
-        return;
-    }
-
     setStatus(Authenticating);
 
     if (!m_url.password().isNull()) {
@@ -237,10 +234,11 @@ void VncView::requestPassword()
                                              tr("Please enter the password for the remote desktop:"),
                                              QLineEdit::Password, QString(), &ok);
     m_firstPasswordTry = false;
-    if (ok)
+    if (ok) {
         vncThread.setPassword(password);
-    else
-        m_authenticaionCanceled = true;
+    } else {
+        startQuitting();
+    }
 }
 
 void VncView::outputErrorMessage(const QString &message)
