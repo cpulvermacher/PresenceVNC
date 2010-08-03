@@ -29,6 +29,9 @@ clean:
 	dh_testroot
 	rm -f build
 	[ ! -f Makefile ] || $(MAKE) clean
+ifdef buildlibs
+	[ ! -f libvnc/Makefile ] || cd libvnc && make clean
+endif
 	dh_clean
 	rm -rf ${BUILDDIR}
 

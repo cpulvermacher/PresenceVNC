@@ -16,13 +16,12 @@ MainWindow::MainWindow(QString url, int quality):
 	scroll_area(new QScrollArea(0))
 {
 	setWindowTitle("Presence VNC");
-//	swipe_start = QPoint(0,0);
 	setAttribute(Qt::WA_Maemo5StackedWindow);
 	QSettings settings;
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
-	toolbar->setAttribute(Qt::WA_InputMethodEnabled, true);
+	//toolbar->setAttribute(Qt::WA_InputMethodEnabled, true);
 	toolbar->addAction("Mod", this, SLOT(showModifierMenu()));
 	toolbar->addAction("Tab", this, SLOT(sendTab()));
 	toolbar->addAction("Esc", this, SLOT(sendEsc()));
@@ -122,39 +121,12 @@ void MainWindow::closeEvent(QCloseEvent*) {
 
 void MainWindow::about() {
 	QMessageBox::about(this, tr("About Presence VNC"),
-		tr("<center><h1>Presence VNC 0.2</h1>\
+		tr("<center><h1>Presence VNC 0.3</h1>\
 A touchscreen friendly VNC client\
 <small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt</p>\
 <p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</small></center>\
 <p>This program is free software; License: <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU GPL 2</a> or later.</p>"));
 }
-
-/* swipe not used, and doesn't work without scaling anyway :/
-virtual bool event(QEvent *event) {
-	if(event->type() == QEvent::MouseMove) {
-		QMouseEvent *ev = dynamic_cast<QMouseEvent* >(event);
-		if(!swipe_start.isNull()) {
-			QPoint diff = swipe_start - ev->pos();
-			const int swipe_dist = 60;
-			if(diff.x() > swipe_dist and diff.y() < swipe_dist and diff.y() > -swipe_dist) { //
-				menu->show();
-				swipe_start = QPoint(0,0);
-			}
-		} else if((width() - ev->x()) < 10) {
-			swipe_start = ev->pos();
-		}
-		std::cout << "mousex: " << width() - ev->x() << "\n";
-		//TODO: make scrolling over border result in wheel events? i get weird (out of range) mouse events when that happens
-		return true;
-	} else if(event->type() == QEvent::MouseButtonRelease) {
-		swipe_start = QPoint(0,0);
-		return true;
-	} else {
-//			std::cout << "event " << event->type() << "\n";
-		return QScrollArea::event(event);
-	}
-}
-*/
 
 void MainWindow::connectDialog()
 {
@@ -187,10 +159,10 @@ void MainWindow::disconnectFromHost()
 		return;
 
 //TODO: crashes when deleting vnc_view - no idea why
-	//vnc_view->startQuitting();
-	//scroll_area->setWidget(0);
+	vnc_view->startQuitting();
+	scroll_area->setWidget(0);
 
-//	vnc_view->disconnect(); //remove all connections
+	vnc_view->disconnect(); //remove all connections
 	//delete vnc_view;
 	//vnc_view = 0;
 	disconnect_action->setEnabled(false);
