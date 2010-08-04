@@ -1,6 +1,8 @@
 presencevnc (0.3) unstable; urgency=low
 
   * Compatibility fix for RealVNC Personal/Enterprise
+  * Fix crash on exit
+  * Add option to disable tapping
 
  -- Christian Pulvermacher <pulvermacher@gmx.de>  Tue, 03 Aug 2010 18:35:57 +0200
 

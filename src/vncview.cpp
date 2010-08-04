@@ -83,18 +83,13 @@ VncView::~VncView()
 
     // Disconnect all signals so that we don't get any more callbacks from the client thread
     vncThread.disconnect();
-    /*
-    disconnect(&vncThread, SIGNAL(imageUpdated(int, int, int, int)), this, SLOT(updateImage(int, int, int, int)));
-    disconnect(&vncThread, SIGNAL(gotCut(const QString&)), this, SLOT(setCut(const QString&)));
-    disconnect(&vncThread, SIGNAL(passwordRequest()), this, SLOT(requestPassword()));
-    disconnect(&vncThread, SIGNAL(outputErrorMessage(QString)), this, SLOT(outputErrorMessage(QString)));
-    */
 
     startQuitting();
 }
 
 void VncView::forceFullRepaint()
 {
+	kDebug(5011) << "forceFullRepaint()";
 	force_full_repaint = true;
 	repaint();
 }
@@ -150,16 +145,6 @@ void VncView::scaleResize(int w, int h)
     } 
 }
 
-void VncView::updateConfiguration()
-{
-    RemoteView::updateConfiguration();
-
-    // Update the scaling mode in case KeepAspectRatio changed
-    if(parentWidget())
-	    scaleResize(parentWidget()->width(), parentWidget()->height());
-    else
-	scaleResize(width(), height());
-}
 
 void VncView::startQuitting()
 {
@@ -371,7 +356,7 @@ void VncView::setCut(const QString &text)
 
 void VncView::paintEvent(QPaintEvent *event)
 {
-//     kDebug(5011) << "paint event: x: " << m_x << ", y: " << m_y << ", w: " << m_w << ", h: " << m_h;
+     //kDebug(5011) << "paint event: x: " << m_x << ", y: " << m_y << ", w: " << m_w << ", h: " << m_h;
     if (m_frame.isNull() || m_frame.format() == QImage::Format_Invalid) {
         kDebug(5011) << "no valid image to paint";
         RemoteView::paintEvent(event);
@@ -382,7 +367,7 @@ void VncView::paintEvent(QPaintEvent *event)
 
     QPainter painter(this);
 
-    if (m_repaint) {
+    if (m_repaint and !force_full_repaint) {
 //         kDebug(5011) << "normal repaint";
         painter.drawImage(QRect(qRound(m_x*m_horizontalFactor), qRound(m_y*m_verticalFactor),
                                 qRound(m_w*m_horizontalFactor), qRound(m_h*m_verticalFactor)), 
@@ -447,7 +432,7 @@ bool VncView::event(QEvent *event)
     }
 }
 
-
+//call with e == 0 to flush held events
 void VncView::mouseEventHandler(QMouseEvent *e)
 {
 	static bool tap_detected = false;
@@ -484,6 +469,11 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	cursor_x = qRound(e->x()/m_horizontalFactor);
 	cursor_y = qRound(e->y()/m_verticalFactor);
 	vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask); // plain move event
+
+	if(disable_tapping) { //only move cursor
+		e->ignore();
+		return;
+	}
 
 	if(e->type() == QEvent::MouseButtonPress or e->type() == QEvent::MouseButtonDblClick) {
 		press_time.start();
@@ -605,17 +595,23 @@ void VncView::keyEventHandler(QKeyEvent *e)
 		else
 			m_buttonMask &= 0xfb;
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-	} else if(current_zoom == 2 and pressed) { //wheel up
+	} else if(current_zoom == 2) { //middle click
+		if(pressed)
+			m_buttonMask |= 0x02;
+		else
+			m_buttonMask &= 0xfd;
+		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+	} else if(current_zoom == 3 and pressed) { //wheel up
 		int eb = 0x8;
 		vncThread.mouseEvent(cursor_x, cursor_y, eb | m_buttonMask);
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-	} else if(current_zoom == 3 and pressed) { //wheel down
+	} else if(current_zoom == 4 and pressed) { //wheel down
 		int eb = 0x10;
 		vncThread.mouseEvent(cursor_x, cursor_y, eb | m_buttonMask);
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-	} else if(current_zoom == 4) { //page up
+	} else if(current_zoom == 5) { //page up
 		vncThread.keyEvent(0xff55, pressed);
-	} else if(current_zoom == 5) { //page down
+	} else if(current_zoom == 6) { //page down
 		vncThread.keyEvent(0xff56, pressed);
 	}
 }
@@ -708,6 +704,7 @@ void VncView::reloadSettings()
 	QSettings settings;
 	left_zoom = settings.value("left_zoom", 0).toInt();
 	right_zoom = settings.value("right_zoom", 1).toInt();
+	disable_tapping = settings.value("disable_tapping", false).toBool();
 }
 
 #include "moc_vncview.cpp"

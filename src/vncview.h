@@ -58,8 +58,6 @@ public:
     void showDotCursor(DotCursorState state);
     void sendKey(Qt::Key key);
     
-    virtual void updateConfiguration();
-
 public slots:
     void enableScaling(bool scale);
     void scaleResize(int w, int h);
@@ -90,6 +88,7 @@ private:
     bool force_full_repaint;
     RemoteView::Quality quality;
     int left_zoom, right_zoom;
+    bool disable_tapping;
 
     void keyEventHandler(QKeyEvent *e);
     void unpressModifiers();

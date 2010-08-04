@@ -35,6 +35,9 @@ MainWindow::MainWindow(QString url, int quality):
 {
 	setWindowTitle("Presence VNC");
 	setAttribute(Qt::WA_Maemo5StackedWindow);
+
+	migrateConfiguration();
+
 	QSettings settings;
 
 	//set up toolbar
@@ -54,8 +57,8 @@ MainWindow::MainWindow(QString url, int quality):
 	QMenuBar *menu = new QMenuBar(this);
 	QAction *connect_action = new QAction("Connect", this);
 	disconnect_action = new QAction("Disconnect", this);
-//	menu->addAction(connect_action);
-//	menu->addAction(disconnect_action);
+	menu->addAction(connect_action);
+	menu->addAction(disconnect_action);
 	scaling = new QAction("Fit to Screen", this);
 	scaling->setCheckable(true);
 	scaling->setChecked(settings.value("rescale", true).toBool());
@@ -107,9 +110,6 @@ MainWindow::MainWindow(QString url, int quality):
 		vnc_view->start();
 		vnc_view->enableScaling(scaling->isChecked());
 	}
-
-	if(!vnc_view) //not connected
-		QTimer::singleShot(100, this, SLOT(close()));
 }
 
 void MainWindow::grabZoomKeys(bool grab)
@@ -160,12 +160,12 @@ void MainWindow::connectDialog()
 	disconnectFromHost();
 
 	vnc_view = new VncView(this, url, RemoteView::Quality(2)); //TODO: get quality in dialog
-	scroll_area->setWidget(vnc_view);
 
 	connect(scaling, SIGNAL(toggled(bool)),
 		vnc_view, SLOT(enableScaling(bool)));
 	connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 		this, SLOT(statusChanged(RemoteView::RemoteStatus)));
+	scroll_area->setWidget(vnc_view);
 	vnc_view->start();
 	vnc_view->enableScaling(scaling->isChecked());
 	disconnect_action->setEnabled(true);
@@ -177,7 +177,6 @@ void MainWindow::disconnectFromHost()
 	if(!vnc_view)
 		return;
 
-//	vnc_view->startQuitting();
 	scroll_area->setWidget(0);
 
 	vnc_view->disconnect(); //remove all signal-slot connections
@@ -197,11 +196,26 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		break;
 	case RemoteView::Connected:
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+		if(!scaling->isChecked()) {
+			//if remote desktop is shown in full size, 2nd connection will have black screen
+			//ugly hack to force a refresh (forceFullRepaint() doesn't repaint?? -> vnc_view hidden???)
+			vnc_view->resize(scroll_area->size());
+			vnc_view->enableScaling(false);
+		}
 		break;
 	case RemoteView::Disconnecting:
 		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
 			QMaemo5InformationBox::information(this, "Connection lost");
-			close();
+			
+			//clean up
+			scroll_area->setWidget(0);
+			vnc_view = 0;
+			disconnect_action->setEnabled(false);
+			toolbar->setEnabled(false);
+
+			//exit fullscreen mode
+			if(windowState() & Qt::WindowFullScreen)
+				setWindowState(windowState() ^ Qt::WindowFullScreen);
 		}
 		break;
 	case RemoteView::Disconnected:

@@ -24,6 +24,8 @@
 
 class QMaemo5ListPickSelector;
 
+void migrateConfiguration(); //checks for old configuration and migrates them if necessary
+
 class Preferences : public QDialog {
 	Q_OBJECT
 public:
@@ -36,5 +38,6 @@ private:
 	QMaemo5ListPickSelector *rotation_selector;
 	QMaemo5ListPickSelector *leftzoom_selector;
 	QMaemo5ListPickSelector *rightzoom_selector;
+	QCheckBox *disable_tapping;
 };
 #endif

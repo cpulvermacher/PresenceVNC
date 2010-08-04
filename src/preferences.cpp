@@ -22,6 +22,31 @@
 
 #include "preferences.h"
 
+#include <iostream>
+
+void migrateConfiguration()
+{
+	QSettings settings;
+	int config_ver = settings.value("config_version", 0).toInt();
+	if(config_ver == 1) //config file up-to-date
+		return;
+
+	std::cout << "Migrating from configuration ver. " << config_ver << "\n";
+
+	if(config_ver == 0) {
+		int left_zoom = settings.value("left_zoom", 0).toInt();
+		int right_zoom = settings.value("left_zoom", 0).toInt();
+		if(left_zoom >= 2)
+			settings.setValue("left_zoom", left_zoom+1);
+		if(right_zoom >= 2)
+			settings.setValue("left_zoom", right_zoom+1);
+		config_ver = 1;
+	}
+	settings.setValue("config_version", config_ver);
+	settings.sync();
+}
+
+
 Preferences::Preferences(QWidget *parent):
 	QDialog(parent)
 {
@@ -45,12 +70,13 @@ Preferences::Preferences(QWidget *parent):
 	QMaemo5ValueButton *leftzoom = new QMaemo5ValueButton(tr("Left Zoom Button"), this);
 	leftzoom_selector = new QMaemo5ListPickSelector(this);
 	QStandardItemModel *key_model = new QStandardItemModel(0, 1, this);
-	key_model->appendRow(new QStandardItem(tr("Left Click"))); //0
-	key_model->appendRow(new QStandardItem(tr("Right Click")));//1
-	key_model->appendRow(new QStandardItem(tr("Wheel Up")));//2
-	key_model->appendRow(new QStandardItem(tr("Wheel Down")));//3
-	key_model->appendRow(new QStandardItem(tr("Page Up")));//4
-	key_model->appendRow(new QStandardItem(tr("Page Down")));//5
+	key_model->insertRow(0, new QStandardItem(tr("Left Click")));
+	key_model->insertRow(1, new QStandardItem(tr("Right Click")));
+	key_model->insertRow(2, new QStandardItem(tr("Middle Click")));
+	key_model->insertRow(3, new QStandardItem(tr("Wheel Up")));
+	key_model->insertRow(4, new QStandardItem(tr("Wheel Down")));
+	key_model->insertRow(5, new QStandardItem(tr("Page Up")));
+	key_model->insertRow(6, new QStandardItem(tr("Page Down")));
 	leftzoom_selector->setModel(key_model);
 	leftzoom_selector->setCurrentIndex(settings.value("left_zoom", 0).toInt());
 	leftzoom->setPickSelector(leftzoom_selector);
@@ -64,6 +90,10 @@ Preferences::Preferences(QWidget *parent):
 	rightzoom->setPickSelector(rightzoom_selector);
 	rightzoom->setValueLayout(QMaemo5ValueButton::ValueBesideText);
 	layout2->addWidget(rightzoom);
+
+	disable_tapping = new QCheckBox(tr("Disable Tapping"), this);
+	disable_tapping->setChecked(settings.value("disable_tapping", false).toBool());
+	layout2->addWidget(disable_tapping);
 
 	QPushButton *ok = new QPushButton("OK");
 	ok->setMaximumWidth(100);
@@ -86,6 +116,7 @@ void Preferences::save()
 	settings.setValue("screen_rotation", rotation_selector->currentIndex());
 	settings.setValue("left_zoom", leftzoom_selector->currentIndex());
 	settings.setValue("right_zoom", rightzoom_selector->currentIndex());
+	settings.setValue("disable_tapping", disable_tapping->isChecked());
 
 	settings.sync();
 }
