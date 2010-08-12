@@ -68,6 +68,7 @@ protected:
     bool event(QEvent *event);
     void resizeEvent(QResizeEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);
+    void inputMethodEvent(QInputMethodEvent *event);
 
 private:
     VncClientThread vncThread;

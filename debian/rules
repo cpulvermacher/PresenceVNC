@@ -5,7 +5,7 @@ export DH_VERBOSE=1
 #currently builds a maemo-only package
 
 #comment this line for quick builds
-buildlibs=foo
+#buildlibs=foo
 
 SOURCEDIR=./
 BUILDDIR=debian/build/
@@ -30,7 +30,7 @@ clean:
 	rm -f build
 	[ ! -f Makefile ] || $(MAKE) clean
 ifdef buildlibs
-	[ ! -f libvnc/Makefile ] || cd libvnc && make clean
+	[ ! -f libvnc/Makefile ] || ( cd libvnc && make clean )
 endif
 	dh_clean
 	rm -rf ${BUILDDIR}

@@ -16,6 +16,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+#include "connectdialog.h"
 #include "mainwindow.h"
 #include "preferences.h"
 #include "vncview.h"
@@ -42,13 +43,12 @@ MainWindow::MainWindow(QString url, int quality):
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
-	//toolbar->setAttribute(Qt::WA_InputMethodEnabled, true);
 	toolbar->addAction("Mod", this, SLOT(showModifierMenu()));
 	toolbar->addAction("Tab", this, SLOT(sendTab()));
 	toolbar->addAction("Esc", this, SLOT(sendEsc()));
 	toolbar->addAction("PgUp", this, SLOT(sendPgUp()));
 	toolbar->addAction("PgDn", this, SLOT(sendPgDn()));
-//	toolbar->addAction("IM", toolbar, SLOT(setFocus())); //doesn't work
+	toolbar->addAction("IM", this, SLOT(showInputPanel()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
 	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
@@ -80,7 +80,7 @@ MainWindow::MainWindow(QString url, int quality):
 	connect(pref_action, SIGNAL(triggered()),
 		this, SLOT(showPreferences()));
 	connect(connect_action, SIGNAL(triggered()),
-		this, SLOT(connectDialog()));
+		this, SLOT(showConnectDialog()));
 	connect(disconnect_action, SIGNAL(triggered()),
 		this, SLOT(disconnectFromHost()));
 	connect(show_toolbar, SIGNAL(toggled(bool)),
@@ -99,7 +99,7 @@ MainWindow::MainWindow(QString url, int quality):
 	if(url.isNull()) {
 		disconnect_action->setEnabled(false);
 		toolbar->setEnabled(false);
-		connectDialog();
+		showConnectDialog();
 	} else {
 		vnc_view = new VncView(this, url, RemoteView::Quality(quality));
 		connect(scaling, SIGNAL(toggled(bool)),
@@ -139,7 +139,7 @@ void MainWindow::closeEvent(QCloseEvent*) {
 
 void MainWindow::about() {
 	QMessageBox::about(this, tr("About Presence VNC"),
-		tr("<center><h1>Presence VNC 0.3</h1>\
+		tr("<center><h1>Presence VNC 0.4</h1>\
 A touchscreen friendly VNC client\
 <small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;</p>\
 <p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</p>\
@@ -147,15 +147,24 @@ A touchscreen friendly VNC client\
 <p>This program is free software; License: <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU GPL 2</a> or later.</p>"));
 }
 
-void MainWindow::connectDialog()
+void MainWindow::showConnectDialog()
 {
+	/*
 	QSettings settings;
 	QString url = QInputDialog::getText(this, "Connect to Host", "VNC Server:", QLineEdit::Normal, settings.value("last_hostname", "").toString());
 	if(url.isEmpty()) { //dialog dismissed or nothing entered
 		return;
 	}
-	settings.setValue("last_hostname", url);
-	url = "vnc://" + url;
+	*/
+
+	ConnectDialog *connect_dialog = new ConnectDialog(this);
+	if(!connect_dialog->exec()) { //dialog rejected
+		delete connect_dialog;
+		return;
+	}
+
+	QString url = connect_dialog->getUrl();
+	delete connect_dialog;
 
 	disconnectFromHost();
 
@@ -289,4 +298,11 @@ void MainWindow::reloadSettings()
 
 	if(vnc_view)
 		vnc_view->reloadSettings();
+}
+
+void MainWindow::showInputPanel()
+{
+	vnc_view->setAttribute(Qt::WA_InputMethodEnabled, true);
+	QEvent event(QEvent::RequestSoftwareInputPanel);
+	QApplication::sendEvent(vnc_view, &event);
 }

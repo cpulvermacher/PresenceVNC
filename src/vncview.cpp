@@ -106,6 +106,8 @@ bool VncView::eventFilter(QObject *obj, QEvent *event)
                 event->type() == QEvent::MouseMove)
             return true;
     }
+    if(event->type() == 200)
+	    kDebug(5011) << "eventFilter: 200";
     return RemoteView::eventFilter(obj, event);
 }
 
@@ -427,6 +429,9 @@ bool VncView::event(QEvent *event)
         wheelEventHandler(static_cast<QWheelEvent*>(event));
         return true;
         break;
+    case QEvent::WindowActivate: //input panel may have been closed, prevent IM from interfering with hardware keyboard
+	setAttribute(Qt::WA_InputMethodEnabled, false);
+	//fall through
     default:
         return RemoteView::event(event);
     }
@@ -441,7 +446,7 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	static QTime press_time;
 	static QTime up_time; //used for double clicks/tap&drag, for time after first tap
 
-	const int TAP_PRESS_TIME = 200;
+	const int TAP_PRESS_TIME = 180;
 	const int DOUBLE_TAP_UP_TIME = 500;
 
 	if(!e) { //flush held taps
@@ -578,6 +583,10 @@ void VncView::keyEventHandler(QKeyEvent *e)
 		current_zoom = right_zoom;
 	else if (k)
 		vncThread.keyEvent(k, pressed);
+	else {
+		kDebug(5011) << "nativeVirtualKey() for '" << e->text() << "' failed.";
+		return;
+	}	
 	
 	if(current_zoom == -1)
 		return;
@@ -705,6 +714,24 @@ void VncView::reloadSettings()
 	left_zoom = settings.value("left_zoom", 0).toInt();
 	right_zoom = settings.value("right_zoom", 1).toInt();
 	disable_tapping = settings.value("disable_tapping", false).toBool();
+}
+
+//convert commitString into keyevents
+void VncView::inputMethodEvent(QInputMethodEvent *event)
+{
+	//TODO handle replacements
+	//TODO convert utf8 to X11 keysyms myself, should work with umlauts, kana...
+	//TODO Enter?
+	QString letters = event->commitString();
+	for(int i = 0; i < letters.length(); i++) {
+		char k = letters.at(i).toLatin1(); //works with all 'normal' keys, not umlauts.
+		if(!k) {
+			kDebug(5011) << "unhandled key";
+			continue;
+		}
+		vncThread.keyEvent(k, true);
+		vncThread.keyEvent(k, false);
+	}
 }
 
 #include "moc_vncview.cpp"

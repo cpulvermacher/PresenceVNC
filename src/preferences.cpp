@@ -95,7 +95,7 @@ Preferences::Preferences(QWidget *parent):
 	disable_tapping->setChecked(settings.value("disable_tapping", false).toBool());
 	layout2->addWidget(disable_tapping);
 
-	QPushButton *ok = new QPushButton("OK");
+	QPushButton *ok = new QPushButton("Done");
 	ok->setMaximumWidth(100);
 
 	layout1->addLayout(layout2);
