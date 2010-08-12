@@ -30,6 +30,7 @@
 class KConfigGroup{};
 
 #include <QClipboard>
+#include <QTextEdit>
 
 extern "C" {
 #include <rfb/rfbclient.h>

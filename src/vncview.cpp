@@ -75,6 +75,7 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality)
     connect(m_clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
     reloadSettings();
+
 }
 
 VncView::~VncView()
@@ -550,8 +551,9 @@ void VncView::wheelEventHandler(QWheelEvent *event)
 void VncView::keyEventHandler(QKeyEvent *e)
 {
     // strip away autorepeating KeyRelease; see bug #206598
-    if (e->isAutoRepeat() && (e->type() == QEvent::KeyRelease))
+    if (e->isAutoRepeat() && (e->type() == QEvent::KeyRelease)) {
         return;
+    }
 
 // parts of this code are based on http://italc.sourcearchive.com/documentation/1.0.9.1/vncview_8cpp-source.html
     rfbKeySym k = e->nativeVirtualKey();
@@ -581,9 +583,10 @@ void VncView::keyEventHandler(QKeyEvent *e)
 		current_zoom = left_zoom;
 	else if(e->key() == Qt::Key_F7)
 		current_zoom = right_zoom;
-	else if (k)
+	else if (k) {
+	//	kDebug(5011) << "got '" << e->text() << "'.";
 		vncThread.keyEvent(k, pressed);
-	else {
+	} else {
 		kDebug(5011) << "nativeVirtualKey() for '" << e->text() << "' failed.";
 		return;
 	}	
@@ -683,6 +686,9 @@ void VncView::sendKey(Qt::Key key)
 	case Qt::Key_PageDown:
 		k = 0xff56;
 		break;
+	case Qt::Key_Return:
+		k = 0xff0d;
+		break;
 	case Qt::Key_Meta: //TODO: test this.
 		k = XK_Super_L;
 		break;
@@ -690,7 +696,7 @@ void VncView::sendKey(Qt::Key key)
 		k = XK_Alt_L;
 		break;
 	default:
-		kDebug(5011) << "unhandled Qt::Key value " << key;
+		kDebug(5011) << "sendKey(): Unhandled Qt::Key value " << key;
 		return;
 	}
 
@@ -721,7 +727,9 @@ void VncView::inputMethodEvent(QInputMethodEvent *event)
 {
 	//TODO handle replacements
 	//TODO convert utf8 to X11 keysyms myself, should work with umlauts, kana...
-	//TODO Enter?
+	//NOTE for the return key to work Qt needs to enable multiline input, which only works for Q(Plain)TextEdit
+
+	//kDebug(5011) << event->commitString() << "|" << event->preeditString() << "|" << event->replacementLength() << "|" << event->replacementStart();
 	QString letters = event->commitString();
 	for(int i = 0; i < letters.length(); i++) {
 		char k = letters.at(i).toLatin1(); //works with all 'normal' keys, not umlauts.
@@ -729,9 +737,11 @@ void VncView::inputMethodEvent(QInputMethodEvent *event)
 			kDebug(5011) << "unhandled key";
 			continue;
 		}
+		kDebug(5011) << "key: " << int(k);
 		vncThread.keyEvent(k, true);
 		vncThread.keyEvent(k, false);
 	}
 }
+
 
 #include "moc_vncview.cpp"
