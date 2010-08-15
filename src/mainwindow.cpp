@@ -17,6 +17,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "connectdialog.h"
+#include "fullscreenexitbutton.h"
 #include "mainwindow.h"
 #include "preferences.h"
 #include "vncview.h"
@@ -50,6 +51,12 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction("PgDn", this, SLOT(sendPgDn()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/chat_enter.png"), "", this, SLOT(sendReturn()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel()));
+
+	//move fullscreen button to the right
+	QWidget *spacer = new QWidget();
+	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	toolbar->addWidget(spacer);
+
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
 	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
@@ -64,7 +71,7 @@ MainWindow::MainWindow(QString url, int quality):
 	scaling->setCheckable(true);
 	scaling->setChecked(settings.value("rescale", true).toBool());
 	menu->addAction(scaling);
-	QAction *show_toolbar = new QAction("Show Toolbar", this);
+	show_toolbar = new QAction("Show Toolbar", this);
 	show_toolbar->setCheckable(true);
 	show_toolbar->setChecked(settings.value("show_toolbar", true).toBool());
 	menu->addAction(show_toolbar);
@@ -72,9 +79,6 @@ MainWindow::MainWindow(QString url, int quality):
 	menu->addAction(pref_action);
 	QAction *about_action = new QAction("About", this);
 	menu->addAction(about_action);
-
-	//menu->setAttribute(Qt::WA_Maemo5StackedWindow);
-	//menu->hide();
 
 	connect(about_action, SIGNAL(triggered()),
 		this, SLOT(about()));
@@ -90,6 +94,7 @@ MainWindow::MainWindow(QString url, int quality):
 		this, SLOT(forceResizeDelayed()));
 
 	setCentralWidget(scroll_area);
+	new FullScreenExitButton(this);
 
 	grabZoomKeys(true);
 	reloadSettings();
@@ -129,7 +134,7 @@ void MainWindow::closeEvent(QCloseEvent*) {
 	grabZoomKeys(false);
 
 	QSettings settings;
-	settings.setValue("show_toolbar", toolbar->isVisible());
+	settings.setValue("show_toolbar", show_toolbar->isChecked());
 	settings.setValue("rescale", scaling->isChecked());
 	settings.sync();
 
@@ -256,6 +261,7 @@ void MainWindow::forceResizeDelayed()
 void MainWindow::toggleFullscreen()
 {
 	setWindowState(windowState() ^ Qt::WindowFullScreen); 
+	toolbar->setVisible(show_toolbar->isChecked() and !(windowState() & Qt::WindowFullScreen)); //hide toolbar in fullscreen
 	forceResizeDelayed();
 }
 

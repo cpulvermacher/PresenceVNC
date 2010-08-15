@@ -10,5 +10,5 @@ MOC_DIR = $${PWD}/tmp
 VPATH = $${PWD}/src
 INCLUDEPATH = $${PWD}/src
 
-HEADERS += remoteview.h vncclientthread.h vncview.h mainwindow.h preferences.h connectdialog.h
+HEADERS += remoteview.h vncclientthread.h vncview.h mainwindow.h preferences.h connectdialog.h fullscreenexitbutton.h
 SOURCES += main.cpp remoteview.cpp vncclientthread.cpp vncview.cpp mainwindow.cpp preferences.cpp connectdialog.cpp

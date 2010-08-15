@@ -31,7 +31,7 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	QVBoxLayout *layout2 = new QVBoxLayout();
 
 	hostname = new QLineEdit(settings.value("last_hostname", "").toString(), this);
-	hostname->setInputMethodHints(Qt::ImhLowercaseOnly);
+	hostname->setInputMethodHints(Qt::ImhLowercaseOnly); //doesn't work, but I tried.
 	layout2->addWidget(hostname);
 
 	QPushButton *ok = new QPushButton("Done");
@@ -44,6 +44,8 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 
 	connect(ok, SIGNAL(clicked()),
 		this, SLOT(accept()));
+	connect(hostname, SIGNAL(textEdited()),
+		this, SLOT(convertToLowercase()));
 }
 
 QString ConnectDialog::getUrl()
@@ -53,4 +55,9 @@ QString ConnectDialog::getUrl()
 	settings.sync();
 
 	return QString("vnc://") + hostname->text();
+}
+
+void ConnectDialog::convertToLowercase()
+{
+	hostname->setText(hostname->text().toLower());
 }

@@ -38,6 +38,7 @@ critical(parent, caption, message)
 #include <QTime>
 #include <QTimer>
 
+
 // Definition of key modifier mask constants
 #define KMOD_Alt_R 	0x01
 #define KMOD_Alt_L 	0x02
@@ -75,7 +76,6 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality)
     connect(m_clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
     reloadSettings();
-
 }
 
 VncView::~VncView()

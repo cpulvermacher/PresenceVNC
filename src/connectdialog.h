@@ -27,6 +27,8 @@ class ConnectDialog : public QDialog {
 public:
 	ConnectDialog(QWidget *parent);
 	QString getUrl();
+private slots:
+	void convertToLowercase();
 private:
 	QLineEdit *hostname;
 };

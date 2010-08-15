@@ -52,7 +52,6 @@ private:
 	VncView *vnc_view;
 	QScrollArea *scroll_area;
 	QToolBar *toolbar;	
-	QAction *scaling;
-	QAction *disconnect_action;
+	QAction *scaling, *show_toolbar, *disconnect_action;
 };
 #endif
