@@ -20,44 +20,82 @@
 
 #include "connectdialog.h"
 
+#include <iostream>
+
 
 ConnectDialog::ConnectDialog(QWidget *parent):
 	QDialog(parent)
 {
-	setWindowTitle("Connect to Host");
+	setWindowTitle(tr("Connect to VNC Server"));
 	QSettings settings;
 
-	QHBoxLayout *layout1 = new QHBoxLayout();
-	QVBoxLayout *layout2 = new QVBoxLayout();
+	int i = 0;
+	for(;;) { //read history
+		QString hostname = settings.value(QString("host%1").arg(i), "").toString();
+		if(hostname.isEmpty())
+			break;
 
-	hostname = new QLineEdit(settings.value("last_hostname", "").toString(), this);
-	hostname->setInputMethodHints(Qt::ImhLowercaseOnly); //doesn't work, but I tried.
-	layout2->addWidget(hostname);
+		hosts.addItem(hostname);
+		i++;
+	}
+	hosts.setEditable(true);
+	hosts.lineEdit()->setInputMethodHints(Qt::ImhLowercaseOnly); //doesn't work, but I tried.
+	connect(&hosts, SIGNAL(editTextChanged(QString)),
+		this, SLOT(convertToLowercase(QString)));
+	layout.addWidget(&hosts);
 
-	QPushButton *ok = new QPushButton("Done");
-	ok->setMaximumWidth(100);
-
-	layout1->addLayout(layout2);
-	layout1->addWidget(ok);
-
-	setLayout(layout1);
-
-	connect(ok, SIGNAL(clicked()),
+	QPushButton *done = new QPushButton(tr("Done"));
+	done->setMaximumWidth(100);
+	connect(done, SIGNAL(clicked()),
 		this, SLOT(accept()));
-	connect(hostname, SIGNAL(textEdited()),
-		this, SLOT(convertToLowercase()));
+	layout.addWidget(done);
+
+	setLayout(&layout);
 }
 
-QString ConnectDialog::getUrl()
+void ConnectDialog::convertToLowercase(QString newtext)
 {
+	hosts.lineEdit()->setText(newtext.toLower());
+}
+
+void ConnectDialog::accept()
+{
+	QDialog::accept();
+
+	if(hosts.currentText().isEmpty()) {
+		deleteLater();
+		return;
+	}
+
+	//save url?
 	QSettings settings;
-	settings.setValue("last_hostname", hostname->text());
-	settings.sync();
+	bool new_item = hosts.itemText(hosts.currentIndex()) != hosts.currentText();
+	bool used_old_host = !new_item and hosts.currentIndex() > 0;
+	int rearrange_from_idx;
+	if(new_item) {
+		std::cout << "adding new item to history\n";
+		int i = 0;
+		for(;;) { //find first unused key
+			QString hostname = settings.value(QString("host%1").arg(i), "").toString();
+			if(hostname.isEmpty())
+				break;
+			i++;
+		}
+		rearrange_from_idx = i;
+	} else if(used_old_host) {
+		rearrange_from_idx = hosts.currentIndex();
+	}
 
-	return QString("vnc://") + hostname->text();
-}
+	if(new_item or used_old_host) {
+		std::cout << "rearranging history,  last index " << rearrange_from_idx << "\n";
 
-void ConnectDialog::convertToLowercase()
-{
-	hostname->setText(hostname->text().toLower());
+		for(int i = rearrange_from_idx-1; i >= 0; i--) { //increment index for each entry newer than the selected one
+			QString hostname = settings.value(QString("host%1").arg(i), "").toString();
+			settings.setValue(QString("host%1").arg(i+1), hostname);
+		}
+		settings.setValue(QString("host0"), hosts.currentText());
+	}
+
+	emit connectToHost(QString("vnc://") + hosts.currentText());
+	deleteLater();
 }

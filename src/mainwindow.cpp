@@ -155,23 +155,14 @@ A touchscreen friendly VNC client\
 
 void MainWindow::showConnectDialog()
 {
-	/*
-	QSettings settings;
-	QString url = QInputDialog::getText(this, "Connect to Host", "VNC Server:", QLineEdit::Normal, settings.value("last_hostname", "").toString());
-	if(url.isEmpty()) { //dialog dismissed or nothing entered
-		return;
-	}
-	*/
-
 	ConnectDialog *connect_dialog = new ConnectDialog(this);
-	if(!connect_dialog->exec()) { //dialog rejected
-		delete connect_dialog;
-		return;
-	}
+	connect(connect_dialog, SIGNAL(connectToHost(QString)),
+		this, SLOT(connectToHost(QString)));
+	connect_dialog->exec();
+}
 
-	QString url = connect_dialog->getUrl();
-	delete connect_dialog;
-
+void MainWindow::connectToHost(QString url)
+{
 	disconnectFromHost();
 
 	vnc_view = new VncView(this, url, RemoteView::Quality(2)); //TODO: get quality in dialog

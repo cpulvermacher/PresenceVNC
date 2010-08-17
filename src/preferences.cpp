@@ -28,7 +28,7 @@ void migrateConfiguration()
 {
 	QSettings settings;
 	int config_ver = settings.value("config_version", 0).toInt();
-	if(config_ver == 1) //config file up-to-date
+	if(config_ver == 2) //config file up-to-date
 		return;
 
 	std::cout << "Migrating from configuration ver. " << config_ver << "\n";
@@ -41,6 +41,14 @@ void migrateConfiguration()
 		if(right_zoom >= 2)
 			settings.setValue("left_zoom", right_zoom+1);
 		config_ver = 1;
+	}
+	if(config_ver == 1) {
+		QString last_hostname = settings.value("last_hostname", "").toString();
+		settings.remove("last_hostname");
+		if(!last_hostname.isEmpty())
+			settings.setValue("host0", last_hostname);
+		
+		config_ver = 2;
 	}
 	settings.setValue("config_version", config_ver);
 	settings.sync();
@@ -95,7 +103,7 @@ Preferences::Preferences(QWidget *parent):
 	disable_tapping->setChecked(settings.value("disable_tapping", false).toBool());
 	layout2->addWidget(disable_tapping);
 
-	QPushButton *ok = new QPushButton("Done");
+	QPushButton *ok = new QPushButton(tr("Done"));
 	ok->setMaximumWidth(100);
 
 	layout1->addLayout(layout2);

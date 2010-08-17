@@ -26,10 +26,14 @@ class ConnectDialog : public QDialog {
 	Q_OBJECT
 public:
 	ConnectDialog(QWidget *parent);
-	QString getUrl();
+public slots:
+	virtual void accept();
+signals:
+	void connectToHost(QString url);
 private slots:
-	void convertToLowercase();
+	void convertToLowercase(QString newtext);
 private:
-	QLineEdit *hostname;
+	QHBoxLayout layout;
+	QComboBox hosts;
 };
 #endif
