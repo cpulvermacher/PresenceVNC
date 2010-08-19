@@ -24,6 +24,19 @@
 #include "remoteview.h"
 #include "vncview.h"
 
+//fix tearing during scrolling
+class ScrollArea : public QScrollArea {
+public:
+	ScrollArea(QWidget *parent) : QScrollArea(parent) { }
+protected:
+	virtual void scrollContentsBy(int dx, int dy)
+	{
+		QScrollArea::scrollContentsBy(dx, dy);
+		if(widget())
+			widget()->update(); //update whole widget
+	}
+};
+
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
@@ -51,7 +64,7 @@ private:
 	void grabZoomKeys(bool grab);
 	void reloadSettings();
 	VncView *vnc_view;
-	QScrollArea *scroll_area;
+	ScrollArea *scroll_area;
 	QToolBar *toolbar;	
 	QAction *scaling, *show_toolbar, *disconnect_action;
 };

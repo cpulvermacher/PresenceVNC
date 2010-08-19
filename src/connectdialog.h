@@ -31,7 +31,7 @@ public slots:
 signals:
 	void connectToHost(QString url);
 private slots:
-	void convertToLowercase(QString newtext);
+	void cleanHostname(QString newtext);
 private:
 	QHBoxLayout layout;
 	QComboBox hosts;

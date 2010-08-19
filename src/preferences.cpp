@@ -45,8 +45,14 @@ void migrateConfiguration()
 	if(config_ver == 1) {
 		QString last_hostname = settings.value("last_hostname", "").toString();
 		settings.remove("last_hostname");
-		if(!last_hostname.isEmpty())
-			settings.setValue("host0", last_hostname);
+		if(!last_hostname.isEmpty()) {
+			//make sure hostname is sane
+			last_hostname.remove(QChar('/'));
+			last_hostname.remove(QChar('\\'));
+			last_hostname = last_hostname.toLower();
+
+			settings.setValue(QString("hosts/%1/position").arg(last_hostname), 0);
+		}
 		
 		config_ver = 2;
 	}
@@ -58,7 +64,7 @@ void migrateConfiguration()
 Preferences::Preferences(QWidget *parent):
 	QDialog(parent)
 {
-	setWindowTitle("Preferences");
+	setWindowTitle(tr("Preferences"));
 
 	QHBoxLayout *layout1 = new QHBoxLayout();
 	QVBoxLayout *layout2 = new QVBoxLayout();

@@ -33,7 +33,7 @@
 MainWindow::MainWindow(QString url, int quality):
 	QMainWindow(0),
 	vnc_view(0),
-	scroll_area(new QScrollArea(0))
+	scroll_area(new ScrollArea(0))
 {
 	setWindowTitle("Presence VNC");
 	setAttribute(Qt::WA_Maemo5StackedWindow);
@@ -63,21 +63,21 @@ MainWindow::MainWindow(QString url, int quality):
 
 	//set up menu
 	QMenuBar *menu = new QMenuBar(this);
-	QAction *connect_action = new QAction("Connect", this);
-	disconnect_action = new QAction("Disconnect", this);
+	QAction *connect_action = new QAction(tr("Connect"), this);
+	disconnect_action = new QAction(tr("Disconnect"), this);
 	menu->addAction(connect_action);
 	menu->addAction(disconnect_action);
-	scaling = new QAction("Fit to Screen", this);
+	scaling = new QAction(tr("Fit to Screen"), this);
 	scaling->setCheckable(true);
 	scaling->setChecked(settings.value("rescale", true).toBool());
 	menu->addAction(scaling);
-	show_toolbar = new QAction("Show Toolbar", this);
+	show_toolbar = new QAction(tr("Show Toolbar"), this);
 	show_toolbar->setCheckable(true);
 	show_toolbar->setChecked(settings.value("show_toolbar", true).toBool());
 	menu->addAction(show_toolbar);
-	QAction *pref_action = new QAction("Preferences", this);
+	QAction *pref_action = new QAction(tr("Preferences"), this);
 	menu->addAction(pref_action);
-	QAction *about_action = new QAction("About", this);
+	QAction *about_action = new QAction(tr("About"), this);
 	menu->addAction(about_action);
 
 	connect(about_action, SIGNAL(triggered()),
@@ -211,7 +211,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		break;
 	case RemoteView::Disconnecting:
 		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
-			QMaemo5InformationBox::information(this, "Connection lost");
+			QMaemo5InformationBox::information(this, tr("Connection lost"));
 			
 			//clean up
 			scroll_area->setWidget(0);

@@ -29,19 +29,27 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	setWindowTitle(tr("Connect to VNC Server"));
 	QSettings settings;
 
-	int i = 0;
-	for(;;) { //read history
-		QString hostname = settings.value(QString("host%1").arg(i), "").toString();
-		if(hostname.isEmpty())
-			break;
+	//read history
+	settings.beginGroup("hosts");
+	QStringList hostnames = settings.childGroups();
+	QStringList hostnames_sorted = hostnames;
+	foreach(QString hostname, hostnames) {
+		int position = settings.value(hostname + "/position").toInt();
+		if(position < 0)
+			position = 0;
+		else if(position >= hostnames.size())
+			position = hostnames.size()-1;
 
-		hosts.addItem(hostname);
-		i++;
+		hostnames_sorted.replace(position, hostname);
 	}
+	settings.endGroup();
+
+	//set up combobox
+	hosts.addItems(hostnames_sorted);
 	hosts.setEditable(true);
 	hosts.lineEdit()->setInputMethodHints(Qt::ImhLowercaseOnly); //doesn't work, but I tried.
 	connect(&hosts, SIGNAL(editTextChanged(QString)),
-		this, SLOT(convertToLowercase(QString)));
+		this, SLOT(cleanHostname(QString)));
 	layout.addWidget(&hosts);
 
 	QPushButton *done = new QPushButton(tr("Done"));
@@ -53,8 +61,10 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	setLayout(&layout);
 }
 
-void ConnectDialog::convertToLowercase(QString newtext)
+void ConnectDialog::cleanHostname(QString newtext)
 {
+	newtext.remove(QChar('/'));
+	newtext.remove(QChar('\\'));
 	hosts.lineEdit()->setText(newtext.toLower());
 }
 
@@ -69,32 +79,32 @@ void ConnectDialog::accept()
 
 	//save url?
 	QSettings settings;
+		settings.beginGroup("hosts");
 	bool new_item = hosts.itemText(hosts.currentIndex()) != hosts.currentText();
 	bool used_old_host = !new_item and hosts.currentIndex() > 0;
-	int rearrange_from_idx;
+	int rearrange_up_to_pos;
 	if(new_item) {
 		std::cout << "adding new item to history\n";
-		int i = 0;
-		for(;;) { //find first unused key
-			QString hostname = settings.value(QString("host%1").arg(i), "").toString();
-			if(hostname.isEmpty())
-				break;
-			i++;
-		}
-		rearrange_from_idx = i;
+		rearrange_up_to_pos = hosts.count(); //use free index
 	} else if(used_old_host) {
-		rearrange_from_idx = hosts.currentIndex();
+		rearrange_up_to_pos = hosts.currentIndex();
 	}
 
 	if(new_item or used_old_host) {
-		std::cout << "rearranging history,  last index " << rearrange_from_idx << "\n";
+		std::cout << "rearranging history,  last index " << rearrange_up_to_pos << "\n";
 
-		for(int i = rearrange_from_idx-1; i >= 0; i--) { //increment index for each entry newer than the selected one
-			QString hostname = settings.value(QString("host%1").arg(i), "").toString();
-			settings.setValue(QString("host%1").arg(i+1), hostname);
+		QStringList hostnames = settings.childGroups();
+		foreach(QString hostname, hostnames) {
+			int position = settings.value(hostname + "/position").toInt();
+			if(position < rearrange_up_to_pos)
+				settings.setValue(hostname + "/position", position+1);
 		}
-		settings.setValue(QString("host0"), hosts.currentText());
+		//position 0 is now free
+
+		//move selected host to front
+		settings.setValue(QString("%1/position").arg(hosts.currentText()), 0);
 	}
+	settings.endGroup();
 
 	emit connectToHost(QString("vnc://") + hosts.currentText());
 	deleteLater();
