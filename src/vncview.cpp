@@ -30,9 +30,14 @@
 critical(parent, caption, message)
 
 #include <QApplication>
+#include <QCheckBox>
+#include <QDialog>
 #include <QImage>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QEvent>
 #include <QSettings>
 #include <QTime>
@@ -216,17 +221,54 @@ void VncView::requestPassword()
         return;
     }
 
-    bool ok;
-    QString password = QInputDialog::getText(this, //krazy:exclude=qclasses
-                                             tr("Password required"),
-                                             tr("Please enter the password for the remote desktop:"),
-                                             QLineEdit::Password, QString(), &ok);
-    m_firstPasswordTry = false;
-    if (ok) {
-        vncThread.setPassword(password);
-    } else {
-        startQuitting();
-    }
+	QSettings settings;
+	settings.beginGroup("hosts");
+	QString password = settings.value(QString("%1/password").arg(m_host), "").toString();
+	//check for saved password
+	if(m_firstPasswordTry and !password.isEmpty()) {
+		kDebug(5011) << "Trying saved password";
+		m_firstPasswordTry = false;
+		vncThread.setPassword(password);
+		return;
+	}
+	m_firstPasswordTry = false;
+
+	//build dialog
+	QDialog dialog(this);
+	dialog.setWindowTitle(tr("Password required"));
+
+	QLineEdit passwordbox;
+	passwordbox.setEchoMode(QLineEdit::Password);
+	passwordbox.setText(password);
+	QCheckBox save_password(tr("Save Password"));
+	save_password.setChecked(!password.isEmpty()); //offer to overwrite saved password
+	QPushButton ok_button(tr("Done"));
+	ok_button.setMaximumWidth(100);
+	connect(&ok_button, SIGNAL(clicked()),
+		&dialog, SLOT(accept()));
+
+	QHBoxLayout layout1;
+	QVBoxLayout layout2;
+	layout2.addWidget(&passwordbox);
+	layout2.addWidget(&save_password);
+	layout1.addLayout(&layout2);
+	layout1.addWidget(&ok_button);
+	dialog.setLayout(&layout1);
+
+	if(dialog.exec()) { //dialog accepted
+		password = passwordbox.text();
+
+		if(save_password.isChecked()) {
+			kDebug(5011) << "Saving password for host '" << m_host << "'";
+
+			settings.setValue(QString("%1/password").arg(m_host), password);
+			settings.sync();
+		}
+
+		vncThread.setPassword(password);
+	} else {
+		startQuitting();
+	}
 }
 
 void VncView::outputErrorMessage(const QString &message)
@@ -246,7 +288,10 @@ void VncView::outputErrorMessage(const QString &message)
 
 void VncView::updateImage(int x, int y, int w, int h)
 {
-//     kDebug(5011) << "got update" << width() << height();
+	if(!QApplication::focusWidget()) { //no focus, we're probably minimized
+		return;
+	}
+     //kDebug(5011) << "got update" << width() << height();
 
     m_x = x;
     m_y = y;
@@ -378,10 +423,10 @@ void VncView::paintEvent(QPaintEvent *event)
                                                                   qRound(m_h*m_verticalFactor),
                                                                   Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     } else {
-         kDebug(5011) << "resize repaint";
+         //kDebug(5011) << "resize repaint";
         QRect rect = event->rect();
         if (!force_full_repaint and (rect.width() != width() || rect.height() != height())) {
-             kDebug(5011) << "Partial repaint";
+          //   kDebug(5011) << "Partial repaint";
             const int sx = rect.x()/m_horizontalFactor;
             const int sy = rect.y()/m_verticalFactor;
             const int sw = rect.width()/m_horizontalFactor;

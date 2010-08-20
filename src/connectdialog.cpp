@@ -34,11 +34,17 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	QStringList hostnames = settings.childGroups();
 	QStringList hostnames_sorted = hostnames;
 	foreach(QString hostname, hostnames) {
+		if(!settings.contains(hostname + "/position")) {
+			//can happen when host was given as a command line argument, don't show those
+			hostnames_sorted.removeAll(hostname);
+			continue;
+		}
+
 		int position = settings.value(hostname + "/position").toInt();
 		if(position < 0)
 			position = 0;
-		else if(position >= hostnames.size())
-			position = hostnames.size()-1;
+		else if(position >= hostnames_sorted.size())
+			position = hostnames_sorted.size()-1;
 
 		hostnames_sorted.replace(position, hostname);
 	}
@@ -95,6 +101,9 @@ void ConnectDialog::accept()
 
 		QStringList hostnames = settings.childGroups();
 		foreach(QString hostname, hostnames) {
+			if(!settings.contains(hostname + "/position"))
+				continue; //ignore entries without position
+
 			int position = settings.value(hostname + "/position").toInt();
 			if(position < rearrange_up_to_pos)
 				settings.setValue(hostname + "/position", position+1);
