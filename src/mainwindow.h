@@ -19,10 +19,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui>
-
 #include "remoteview.h"
 #include "vncview.h"
+
+#include <QtGui>
 
 //fix tearing during scrolling
 class ScrollArea : public QScrollArea {

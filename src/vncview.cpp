@@ -300,10 +300,13 @@ void VncView::updateImage(int x, int y, int w, int h)
 
     if (m_horizontalFactor != 1.0 || m_verticalFactor != 1.0) {
         // If the view is scaled, grow the update rectangle to avoid artifacts
-        m_x-=1;
-        m_y-=1;
-        m_w+=2;
-        m_h+=2;
+        int x_extrapixels = 1.0/m_horizontalFactor+1;
+        int y_extrapixels = 1.0/m_verticalFactor+1;
+
+        m_x-=x_extrapixels;
+        m_y-=y_extrapixels;
+        m_w+=2*x_extrapixels;
+        m_h+=2*y_extrapixels;
     }
 
     m_frame = vncThread.image();
