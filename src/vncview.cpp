@@ -95,7 +95,6 @@ VncView::~VncView()
 
 void VncView::forceFullRepaint()
 {
-	kDebug(5011) << "forceFullRepaint()";
 	force_full_repaint = true;
 	repaint();
 }
@@ -112,8 +111,6 @@ bool VncView::eventFilter(QObject *obj, QEvent *event)
                 event->type() == QEvent::MouseMove)
             return true;
     }
-    if(event->type() == 200)
-	    kDebug(5011) << "eventFilter: 200";
     return RemoteView::eventFilter(obj, event);
 }
 
@@ -774,7 +771,6 @@ void VncView::reloadSettings()
 void VncView::inputMethodEvent(QInputMethodEvent *event)
 {
 	//TODO handle replacements
-	//TODO convert utf8 to X11 keysyms myself, should work with umlauts, kana...
 	//NOTE for the return key to work Qt needs to enable multiline input, which only works for Q(Plain)TextEdit
 
 	//kDebug(5011) << event->commitString() << "|" << event->preeditString() << "|" << event->replacementLength() << "|" << event->replacementStart();
@@ -785,7 +781,6 @@ void VncView::inputMethodEvent(QInputMethodEvent *event)
 			kDebug(5011) << "unhandled key";
 			continue;
 		}
-		kDebug(5011) << "key: " << int(k);
 		vncThread.keyEvent(k, true);
 		vncThread.keyEvent(k, false);
 	}
