@@ -5,7 +5,7 @@ presencevnc (0.4) unstable; urgency=low
   * Fix tearing after scrolling
   * Hide toolbar in fullscreen mode
 
- -- Christian Pulvermacher <pulvermacher@gmx.de>  Sat, 07 Aug 2010 11:52:56 +0200
+ -- Christian Pulvermacher <pulvermacher@gmx.de>  Mon, 23 Aug 2010 13:39:41 +0200
 
 presencevnc (0.3) unstable; urgency=low
 
