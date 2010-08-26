@@ -3,7 +3,7 @@ Section: user/utilities
 Priority: optional
 Maintainer: Christian Pulvermacher <pulvermacher@gmx.de>
 Build-Depends: libqt4-dev, debhelper (>= 5.0.0), mce-dev, libx11-dev, zlib1g-dev, libjpeg62-dev
-#Homepage: 
+Homepage: https://garage.maemo.org/projects/presencevnc/
 Standards-Version: 3.7.3
 
 Package: presencevnc
@@ -19,7 +19,7 @@ Description: A touchscreen friendly VNC client
   * Configurable zoom buttons
   * Portrait mode support
 XB-Maemo-Display-Name: Presence VNC
-#XSBC-Bugtracker: 
+XSBC-Bugtracker: https://garage.maemo.org/tracker/?group_id=1831
 XB-Maemo-Icon-26: 
  iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAALGO
  fPtRkwAACj1pQ0NQaWNjAAB42p1TZ1RT6RY99970QkuIgJRLb1IVCCBSQouA

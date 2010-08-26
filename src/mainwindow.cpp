@@ -147,10 +147,11 @@ void MainWindow::about() {
 	QMessageBox::about(this, tr("About Presence VNC"),
 		tr("<center><h1>Presence VNC 0.4</h1>\
 A touchscreen friendly VNC client\
+<a href=\"https://garage.maemo.org/projects/presencevnc/\">https://garage.maemo.org/projects/presencevnc</a></center>\
 <small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;</p>\
 <p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</p>\
-<p>and LibVNCServer, &copy; 2001-2003 Johannes E. Schindelin</p></small></center>\
-<p>This program is free software; License: <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU GPL 2</a> or later.</p>"));
+<p>and LibVNCServer, &copy; 2001-2003 Johannes E. Schindelin</p>\
+<p>This program is free software; License: <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU GPL 2</a> or later.</p></small>"));
 }
 
 void MainWindow::showConnectDialog()
