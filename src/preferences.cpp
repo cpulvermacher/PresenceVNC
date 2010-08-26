@@ -123,8 +123,6 @@ Preferences::Preferences(QWidget *parent):
 		this, SLOT(save()));
 }
 
-Preferences::~Preferences() { }
-
 void Preferences::save()
 {
 	settings.setValue("screen_rotation", rotation_selector->currentIndex());

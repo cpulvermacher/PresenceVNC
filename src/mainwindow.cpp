@@ -28,7 +28,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
-#include <iostream>
 
 MainWindow::MainWindow(QString url, int quality):
 	QMainWindow(0),
@@ -44,11 +43,11 @@ MainWindow::MainWindow(QString url, int quality):
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
-	toolbar->addAction("Mod", this, SLOT(showModifierMenu()));
-	toolbar->addAction("Tab", this, SLOT(sendTab()));
-	toolbar->addAction("Esc", this, SLOT(sendEsc()));
-	toolbar->addAction("PgUp", this, SLOT(sendPgUp()));
-	toolbar->addAction("PgDn", this, SLOT(sendPgDn()));
+	toolbar->addAction(tr("Mod"), this, SLOT(showModifierMenu()));
+	toolbar->addAction(tr("Tab"), this, SLOT(sendTab()));
+	toolbar->addAction(tr("Esc"), this, SLOT(sendEsc()));
+	toolbar->addAction(tr("PgUp"), this, SLOT(sendPgUp()));
+	toolbar->addAction(tr("PgDn"), this, SLOT(sendPgDn()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/chat_enter.png"), "", this, SLOT(sendReturn()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel()));
 
@@ -166,7 +165,7 @@ void MainWindow::connectToHost(QString url)
 {
 	disconnectFromHost();
 
-	vnc_view = new VncView(this, url, RemoteView::Quality(2)); //TODO: get quality in dialog
+	vnc_view = new VncView(this, url, RemoteView::Quality(2));
 
 	connect(scaling, SIGNAL(toggled(bool)),
 		vnc_view, SLOT(enableScaling(bool)));
@@ -204,7 +203,6 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 	case RemoteView::Connected:
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 		if(!scaling->isChecked()) {
-			//if remote desktop is shown in full size, 2nd connection will have black screen
 			//ugly hack to force a refresh (forceFullRepaint() doesn't repaint?? -> vnc_view hidden???)
 			vnc_view->resize(scroll_area->size());
 			vnc_view->enableScaling(false);
@@ -273,8 +271,6 @@ void MainWindow::showModifierMenu()
 		vnc_view->sendKey(Qt::Key_Alt);
 	} else if(chosen == win) {
 		vnc_view->sendKey(Qt::Key_Meta);
-	} else {
-		std::cout << "unhandled action?\n";
 	}
 }
 
