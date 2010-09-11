@@ -285,7 +285,11 @@ void MainWindow::forceResizeDelayed()
 
 void MainWindow::toggleFullscreen()
 {
-	toolbar->setVisible(show_toolbar->isChecked() and (windowState() & Qt::WindowFullScreen)); //hide toolbar in fullscreen
+	bool in_fullscreen = windowState() & Qt::WindowFullScreen;
+	//hide menu/toolbar in fullscreen (new state is !in_fullscreen)
+	toolbar->setVisible(show_toolbar->isChecked() and in_fullscreen);
+	menuBar()->setVisible(in_fullscreen);
+
 	setWindowState(windowState() ^ Qt::WindowFullScreen); 
 	forceResizeDelayed();
 }

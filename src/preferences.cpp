@@ -143,9 +143,8 @@ void Preferences::save()
 	settings.setValue("screen_rotation", rotation_selector->currentIndex());
 	settings.setValue("left_zoom", leftzoom_selector->currentIndex());
 	settings.setValue("right_zoom", rightzoom_selector->currentIndex());
-#endif
-
 	settings.setValue("disable_tapping", disable_tapping->isChecked());
+#endif
 
 	settings.sync();
 }
