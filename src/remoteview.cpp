@@ -246,16 +246,12 @@ QCursor RemoteView::localDotCursor() const
 {
 #ifdef QTONLY
 const uchar bits[] =
-{ 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xff000000, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff };
+{ 0xff, 0x8e, 0x8e, 0x8e, 0xff };
 
-    QBitmap cursorBitmap = QBitmap::fromData(QSize(3,3), bits , QImage::Format_RGB32);
-    QBitmap cursorMask(QSize(3,3));
-    cursorMask.clear();
+    QBitmap cursorBitmap = QBitmap::fromData(QSize(5,5), bits , QImage::Format_Mono);
+    QBitmap cursorMask = cursorBitmap;
 
     return QCursor(cursorBitmap, cursorMask);
-    //return QCursor(); //TODO
 #else
     QBitmap cursorBitmap(KGlobal::dirs()->findResource("appdata",
                                                        "pics/pointcursor.png"));
