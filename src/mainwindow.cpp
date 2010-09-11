@@ -23,7 +23,7 @@
 #include "preferences.h"
 #include "vncview.h"
 
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 #include <QtMaemo5>
 #include <QX11Info>
 
@@ -42,7 +42,7 @@ MainWindow::MainWindow(QString url, int quality):
 	migrateConfiguration();
 	QSettings settings;
 
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 	setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 
@@ -53,7 +53,7 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction(tr("Esc"), this, SLOT(sendEsc()));
 	toolbar->addAction(tr("PgUp"), this, SLOT(sendPgUp()));
 	toolbar->addAction(tr("PgDn"), this, SLOT(sendPgDn()));
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/chat_enter.png"), "", this, SLOT(sendReturn()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel()));
 #endif
@@ -79,7 +79,7 @@ MainWindow::MainWindow(QString url, int quality):
 	QAction *pref_action = new QAction(tr("Preferences"), this);
 	QAction *about_action = new QAction(tr("About"), this);
 
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 	menuBar()->addAction(connect_action);
 	menuBar()->addAction(disconnect_action);
 	menuBar()->addAction(scaling);
@@ -122,10 +122,6 @@ MainWindow::MainWindow(QString url, int quality):
 	grabZoomKeys(true);
 	reloadSettings();
 
-	//TODO: can i replace this with resizeEvent?
-	connect(QApplication::desktop(), SIGNAL(resized(int)),
-		this, SLOT(forceResize()));
-
 	if(url.isNull()) {
 		disconnect_action->setEnabled(false);
 		toolbar->setEnabled(false);
@@ -144,7 +140,7 @@ MainWindow::MainWindow(QString url, int quality):
 
 void MainWindow::grabZoomKeys(bool grab)
 {
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 	unsigned long val = (grab)?1:0;
 	Atom atom = XInternAtom(QX11Info::display(), "_HILDON_ZOOM_KEY_ATOM", False);
 	if(!atom) {
@@ -225,12 +221,12 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 
 	switch(status) {
 	case RemoteView::Connecting:
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
 #endif
 		break;
 	case RemoteView::Connected:
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
 		if(!scaling->isChecked()) {
@@ -241,7 +237,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		break;
 	case RemoteView::Disconnecting:
 		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 			QMaemo5InformationBox::information(this, tr("Connection lost"));
 #endif
 			
@@ -257,7 +253,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		}
 		break;
 	case RemoteView::Disconnected:
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
 		if(old_status == RemoteView::Disconnecting) {
@@ -288,7 +284,9 @@ void MainWindow::toggleFullscreen()
 	bool in_fullscreen = windowState() & Qt::WindowFullScreen;
 	//hide menu/toolbar in fullscreen (new state is !in_fullscreen)
 	toolbar->setVisible(show_toolbar->isChecked() and in_fullscreen);
+#ifndef Q_WS_MAEMO_5
 	menuBar()->setVisible(in_fullscreen);
+#endif
 
 	setWindowState(windowState() ^ Qt::WindowFullScreen); 
 	forceResizeDelayed();
@@ -314,7 +312,7 @@ void MainWindow::showPreferences()
 void MainWindow::reloadSettings()
 {
 	QSettings settings;
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 	int rotation = settings.value("screen_rotation", 0).toInt();
 	setAttribute(Qt::WA_Maemo5AutoOrientation, rotation == 0);
 	setAttribute(Qt::WA_Maemo5LandscapeOrientation, rotation == 1);
@@ -334,7 +332,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::showInputPanel()
 {
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 	vnc_view->setAttribute(Qt::WA_InputMethodEnabled, true);
 	QEvent event(QEvent::RequestSoftwareInputPanel);
 	QApplication::sendEvent(vnc_view, &event);

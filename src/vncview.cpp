@@ -325,6 +325,9 @@ if(x == 0 and y == 0) {
         installEventFilter(this);
 
         setCursor(((m_dotCursorState == CursorOn) || m_forceLocalCursor) ? localDotCursor() : Qt::BlankCursor);
+#ifdef Q_WS_MAEMO_5
+	QApplication::setOverrideCursor(((m_dotCursorState == CursorOn) || m_forceLocalCursor) ? localDotCursor() : Qt::BlankCursor);
+#endif
 
         setMouseTracking(true); // get mouse events even when there is no mousebutton pressed
         setFocusPolicy(Qt::WheelFocus);
@@ -382,6 +385,10 @@ void VncView::showDotCursor(DotCursorState state)
     RemoteView::showDotCursor(state);
 
     setCursor(state == CursorOn ? localDotCursor() : Qt::BlankCursor);
+    QApplication::setOverrideCursor(localDotCursor());
+#ifdef Q_WS_MAEMO_5
+    QApplication::setOverrideCursor(state == CursorOn ? localDotCursor() : Qt::BlankCursor);
+#endif
 }
 
 void VncView::enableScaling(bool scale)

@@ -18,7 +18,7 @@
 */
 #include <QtGui>
 
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 #include <QMaemo5ValueButton>
 #include <QMaemo5ListPickSelector>
 #endif
@@ -80,7 +80,7 @@ Preferences::Preferences(QWidget *parent):
 	QHBoxLayout *layout1 = new QHBoxLayout();
 	QVBoxLayout *layout2 = new QVBoxLayout();
 
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 	QMaemo5ValueButton *rotation = new QMaemo5ValueButton(tr("Screen Rotation"), this);
 	rotation_selector = new QMaemo5ListPickSelector(this);
 	QStandardItemModel *model = new QStandardItemModel(0, 1, this);
@@ -139,7 +139,7 @@ Preferences::Preferences(QWidget *parent):
 
 void Preferences::save()
 {
-#ifdef Q_WS_HILDON
+#ifdef Q_WS_MAEMO_5
 	settings.setValue("screen_rotation", rotation_selector->currentIndex());
 	settings.setValue("left_zoom", leftzoom_selector->currentIndex());
 	settings.setValue("right_zoom", rightzoom_selector->currentIndex());
