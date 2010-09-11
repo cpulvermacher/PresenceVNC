@@ -17,8 +17,11 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include <QtGui>
+
+#ifdef Q_WS_HILDON
 #include <QMaemo5ValueButton>
 #include <QMaemo5ListPickSelector>
+#endif
 
 #include "preferences.h"
 
@@ -28,8 +31,15 @@ void migrateConfiguration()
 {
 	QSettings settings;
 	int config_ver = settings.value("config_version", 0).toInt();
-	if(config_ver == 2) //config file up-to-date
+	const int current_ver = 2;
+	if(config_ver == current_ver) //config file up-to-date
 		return;
+	
+	if(settings.allKeys().isEmpty()) { //no config file
+		settings.setValue("config_version", current_ver);
+		settings.sync();
+		return;
+	}
 
 	std::cout << "Migrating from configuration ver. " << config_ver << "\n";
 
@@ -56,6 +66,7 @@ void migrateConfiguration()
 		
 		config_ver = 2;
 	}
+	Q_ASSERT(config_ver == current_ver);
 	settings.setValue("config_version", config_ver);
 	settings.sync();
 }
@@ -69,6 +80,7 @@ Preferences::Preferences(QWidget *parent):
 	QHBoxLayout *layout1 = new QHBoxLayout();
 	QVBoxLayout *layout2 = new QVBoxLayout();
 
+#ifdef Q_WS_HILDON
 	QMaemo5ValueButton *rotation = new QMaemo5ValueButton(tr("Screen Rotation"), this);
 	rotation_selector = new QMaemo5ListPickSelector(this);
 	QStandardItemModel *model = new QStandardItemModel(0, 1, this);
@@ -105,9 +117,11 @@ Preferences::Preferences(QWidget *parent):
 	rightzoom->setValueLayout(QMaemo5ValueButton::ValueBesideText);
 	layout2->addWidget(rightzoom);
 
+	//useful if one only wants to click using the zoom buttons exclusively
 	disable_tapping = new QCheckBox(tr("Disable Tapping"), this);
 	disable_tapping->setChecked(settings.value("disable_tapping", false).toBool());
 	layout2->addWidget(disable_tapping);
+#endif
 
 	QPushButton *ok = new QPushButton(tr("Done"));
 	ok->setMaximumWidth(100);
@@ -125,9 +139,12 @@ Preferences::Preferences(QWidget *parent):
 
 void Preferences::save()
 {
+#ifdef Q_WS_HILDON
 	settings.setValue("screen_rotation", rotation_selector->currentIndex());
 	settings.setValue("left_zoom", leftzoom_selector->currentIndex());
 	settings.setValue("right_zoom", rightzoom_selector->currentIndex());
+#endif
+
 	settings.setValue("disable_tapping", disable_tapping->isChecked());
 
 	settings.sync();

@@ -23,13 +23,14 @@
 #include "preferences.h"
 #include "vncview.h"
 
+#ifdef Q_WS_HILDON
 #include <QtMaemo5>
 #include <QX11Info>
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
+#endif
 
-#include <iostream>
 
 MainWindow::MainWindow(QString url, int quality):
 	QMainWindow(0),
@@ -37,11 +38,13 @@ MainWindow::MainWindow(QString url, int quality):
 	scroll_area(new ScrollArea(0))
 {
 	setWindowTitle("Presence VNC");
-	setAttribute(Qt::WA_Maemo5StackedWindow);
 
 	migrateConfiguration();
-
 	QSettings settings;
+
+#ifdef Q_WS_HILDON
+	setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
@@ -50,8 +53,10 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction(tr("Esc"), this, SLOT(sendEsc()));
 	toolbar->addAction(tr("PgUp"), this, SLOT(sendPgUp()));
 	toolbar->addAction(tr("PgDn"), this, SLOT(sendPgDn()));
+#ifdef Q_WS_HILDON
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/chat_enter.png"), "", this, SLOT(sendReturn()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel()));
+#endif
 
 	//move fullscreen button to the right
 	QWidget *spacer = new QWidget();
@@ -63,23 +68,40 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
 
 	//set up menu
-	QMenuBar *menu = new QMenuBar(this);
 	QAction *connect_action = new QAction(tr("Connect"), this);
 	disconnect_action = new QAction(tr("Disconnect"), this);
-	menu->addAction(connect_action);
-	menu->addAction(disconnect_action);
 	scaling = new QAction(tr("Fit to Screen"), this);
 	scaling->setCheckable(true);
 	scaling->setChecked(settings.value("rescale", true).toBool());
-	menu->addAction(scaling);
 	show_toolbar = new QAction(tr("Show Toolbar"), this);
 	show_toolbar->setCheckable(true);
 	show_toolbar->setChecked(settings.value("show_toolbar", true).toBool());
-	menu->addAction(show_toolbar);
 	QAction *pref_action = new QAction(tr("Preferences"), this);
-	menu->addAction(pref_action);
 	QAction *about_action = new QAction(tr("About"), this);
-	menu->addAction(about_action);
+
+#ifdef Q_WS_HILDON
+	menuBar()->addAction(connect_action);
+	menuBar()->addAction(disconnect_action);
+	menuBar()->addAction(scaling);
+	menuBar()->addAction(show_toolbar);
+	menuBar()->addAction(pref_action);
+	menuBar()->addAction(about_action);
+#else
+	QMenu* session_menu = menuBar()->addMenu(tr("&Session"));
+	session_menu->addAction(connect_action);
+	session_menu->addAction(disconnect_action);
+	session_menu->addSeparator();
+	//session_menu->addAction(pref_action);
+	//session_menu->addSeparator();
+	session_menu->addAction(tr("&Quit"), this, SLOT(close()));
+
+	QMenu* view_menu = menuBar()->addMenu(tr("&View"));
+	view_menu->addAction(scaling);
+	view_menu->addAction(show_toolbar);
+
+	QMenu* help_menu = menuBar()->addMenu(tr("&Help"));
+	help_menu->addAction(about_action);
+#endif
 
 	connect(about_action, SIGNAL(triggered()),
 		this, SLOT(about()));
@@ -100,6 +122,7 @@ MainWindow::MainWindow(QString url, int quality):
 	grabZoomKeys(true);
 	reloadSettings();
 
+	//TODO: can i replace this with resizeEvent?
 	connect(QApplication::desktop(), SIGNAL(resized(int)),
 		this, SLOT(forceResize()));
 
@@ -121,6 +144,7 @@ MainWindow::MainWindow(QString url, int quality):
 
 void MainWindow::grabZoomKeys(bool grab)
 {
+#ifdef Q_WS_HILDON
 	unsigned long val = (grab)?1:0;
 	Atom atom = XInternAtom(QX11Info::display(), "_HILDON_ZOOM_KEY_ATOM", False);
 	if(!atom) {
@@ -129,6 +153,7 @@ void MainWindow::grabZoomKeys(bool grab)
 	}
 	XChangeProperty(QX11Info::display(), winId(), atom, XA_INTEGER,
 		32, PropModeReplace, reinterpret_cast<unsigned char *>(&val), 1);
+#endif
 }
 
 void MainWindow::closeEvent(QCloseEvent*) {
@@ -200,10 +225,14 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 
 	switch(status) {
 	case RemoteView::Connecting:
+#ifdef Q_WS_HILDON
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+#endif
 		break;
 	case RemoteView::Connected:
+#ifdef Q_WS_HILDON
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+#endif
 		if(!scaling->isChecked()) {
 			//ugly hack to force a refresh (forceFullRepaint() doesn't repaint?? -> vnc_view hidden???)
 			vnc_view->resize(scroll_area->size());
@@ -212,7 +241,9 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		break;
 	case RemoteView::Disconnecting:
 		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
+#ifdef Q_WS_HILDON
 			QMaemo5InformationBox::information(this, tr("Connection lost"));
+#endif
 			
 			//clean up
 			scroll_area->setWidget(0);
@@ -226,7 +257,9 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		}
 		break;
 	case RemoteView::Disconnected:
+#ifdef Q_WS_HILDON
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+#endif
 		if(old_status == RemoteView::Disconnecting) {
 			scroll_area->setWidget(0); //remove widget
 		}
@@ -277,18 +310,29 @@ void MainWindow::showPreferences()
 void MainWindow::reloadSettings()
 {
 	QSettings settings;
+#ifdef Q_WS_HILDON
 	int rotation = settings.value("screen_rotation", 0).toInt();
 	setAttribute(Qt::WA_Maemo5AutoOrientation, rotation == 0);
 	setAttribute(Qt::WA_Maemo5LandscapeOrientation, rotation == 1);
 	setAttribute(Qt::WA_Maemo5PortraitOrientation, rotation == 2);
+#endif
 
 	if(vnc_view)
 		vnc_view->reloadSettings();
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+	QMainWindow::resizeEvent(event);
+
+	forceResize();
+}
+
 void MainWindow::showInputPanel()
 {
+#ifdef Q_WS_HILDON
 	vnc_view->setAttribute(Qt::WA_InputMethodEnabled, true);
 	QEvent event(QEvent::RequestSoftwareInputPanel);
 	QApplication::sendEvent(vnc_view, &event);
+#endif
 }

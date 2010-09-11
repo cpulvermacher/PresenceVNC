@@ -2,8 +2,11 @@ TEMPLATE = app
 TARGET = presencevnc-bin
 LIBS += -Llibvnc/libvncclient/.libs -lvncclient
 DEFINES += QTONLY
-QT += maemo5
 CONFIG += silent release
+
+maemo5 {
+	QT += maemo5
+}
 
 OBJECTS_DIR = $${PWD}/tmp
 MOC_DIR = $${PWD}/tmp

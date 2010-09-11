@@ -53,7 +53,7 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	//set up combobox
 	hosts.addItems(hostnames_sorted);
 	hosts.setEditable(true);
-	hosts.lineEdit()->setInputMethodHints(Qt::ImhLowercaseOnly); //doesn't work, but I tried.
+	//hosts.lineEdit()->setInputMethodHints(Qt::ImhLowercaseOnly); //doesn't work, but I tried.
 	connect(&hosts, SIGNAL(editTextChanged(QString)),
 		this, SLOT(cleanHostname(QString)));
 	layout.addWidget(&hosts);
@@ -85,8 +85,8 @@ void ConnectDialog::accept()
 
 	//save url?
 	QSettings settings;
-		settings.beginGroup("hosts");
-	bool new_item = hosts.itemText(hosts.currentIndex()) != hosts.currentText();
+	settings.beginGroup("hosts");
+	bool new_item = !settings.contains(hosts.currentText());
 	bool used_old_host = !new_item and hosts.currentIndex() > 0;
 	int rearrange_up_to_pos;
 	if(new_item) {
@@ -114,6 +114,7 @@ void ConnectDialog::accept()
 		settings.setValue(QString("%1/position").arg(hosts.currentText()), 0);
 	}
 	settings.endGroup();
+	settings.sync();
 
 	emit connectToHost(QString("vnc://") + hosts.currentText());
 	deleteLater();

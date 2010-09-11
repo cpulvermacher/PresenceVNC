@@ -61,6 +61,7 @@ public slots:
 	void toggleFullscreen();
 protected:
 	void closeEvent(QCloseEvent*);
+	void resizeEvent(QResizeEvent *event);
 private:
 	void grabZoomKeys(bool grab);
 	void reloadSettings();
