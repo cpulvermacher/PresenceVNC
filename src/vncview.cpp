@@ -289,6 +289,17 @@ void VncView::updateImage(int x, int y, int w, int h)
 		return;
 	}
      //kDebug(5011) << "got update" << width() << height();
+     static unsigned int frames = 0;
+     static unsigned int updates = 0;
+     static QTime time = QTime::currentTime();
+     updates++;
+     if(updates % 100 == 0)
+	     kDebug(5011) << "u/s: " << updates/double(time.elapsed()) * 1000.0;
+if(x == 0 and y == 0) {
+	frames++;
+     if(frames % 100 == 0)
+	     kDebug(5011) << "f/s: " << frames/double(time.elapsed()) * 1000.0;
+}
 
     m_x = x;
     m_y = y;
@@ -717,7 +728,8 @@ void VncView::clipboardDataChanged()
 //fake key events
 void VncView::sendKey(Qt::Key key)
 {
-	int k = 0; //X11 keysym
+	//convert Qt::Key into x11 keysym
+	int k = 0;
 	switch(key) {
 	case Qt::Key_Escape:
 		k = 0xff1b;
@@ -734,11 +746,46 @@ void VncView::sendKey(Qt::Key key)
 	case Qt::Key_Return:
 		k = 0xff0d;
 		break;
-	case Qt::Key_Meta: //TODO: test this.
+	case Qt::Key_Insert:
+		k = 0xff63;
+		break;
+	case Qt::Key_Delete:
+		k = 0xffff;
+		break;
+	case Qt::Key_Home:
+		k = 0xff50;
+		break;
+	case Qt::Key_End:
+		k = 0xff57;
+		break;
+	case Qt::Key_Backspace:
+		k = 0xff08;
+		break;
+	case Qt::Key_F1:
+	case Qt::Key_F2:
+	case Qt::Key_F3:
+	case Qt::Key_F4:
+	case Qt::Key_F5:
+	case Qt::Key_F6:
+	case Qt::Key_F7:
+	case Qt::Key_F8:
+	case Qt::Key_F9:
+	case Qt::Key_F10:
+	case Qt::Key_F11:
+	case Qt::Key_F12:
+		k = 0xffbe + int(key - Qt::Key_F1);
+		break;
+	case Qt::Key_Meta:
+	case Qt::MetaModifier:
 		k = XK_Super_L;
 		break;
 	case Qt::Key_Alt:
+	case Qt::AltModifier:
 		k = XK_Alt_L;
+		break;
+	case Qt::Key_Control:
+	case Qt::ControlModifier:
+		k = XK_Control_L;
 		break;
 	default:
 		kDebug(5011) << "sendKey(): Unhandled Qt::Key value " << key;
@@ -757,6 +804,36 @@ void VncView::sendKey(Qt::Key key)
 		vncThread.keyEvent(k, true);
 		vncThread.keyEvent(k, false);
 	}
+}
+
+void VncView::sendKeySequence(QKeySequence keys)
+{
+	Q_ASSERT(keys.count() <= 1); //we can only handle a single combination
+
+	//to get at individual key presses, we split 'keys' into its components
+	QList<int> key_list;
+	for(int i = 0; ; i++) {
+		QString k = keys.toString().section('+', i, i);
+		if(k.isEmpty())
+			break;
+		kDebug(5011) << "found key: " << k;
+		if(k == "Alt") {
+			key_list.append(Qt::Key_Alt);
+		} else if(k == "Ctrl") {
+			key_list.append(Qt::Key_Control);
+		} else if(k == "Meta") {
+			key_list.append(Qt::Key_Meta);
+		} else {
+			key_list.append(QKeySequence(k)[0]);
+		}
+	}
+	
+	for(int i = 0; i < key_list.count(); i++)
+		sendKey(Qt::Key(key_list.at(i)));
+
+	//release modifiers (everything before final key)
+	for(int i = key_list.count()-2; i >= 0; i--)
+		sendKey(Qt::Key(key_list.at(i)));
 }
 
 void VncView::reloadSettings()

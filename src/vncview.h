@@ -57,11 +57,12 @@ public:
     void setQuality(int q);
     void setViewOnly(bool viewOnly);
     void showDotCursor(DotCursorState state);
-    void sendKey(Qt::Key key);
     
 public slots:
     void enableScaling(bool scale);
     void scaleResize(int w, int h);
+    void sendKey(Qt::Key key);
+    void sendKeySequence(QKeySequence keys);
     void forceFullRepaint();
 
 protected:

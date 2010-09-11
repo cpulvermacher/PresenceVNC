@@ -55,7 +55,7 @@ public slots:
 	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
 	void sendReturn() { vnc_view->sendKey(Qt::Key_Return); }
 	void showInputPanel();
-	void showModifierMenu();
+	void showKeyMenu();
 	void showPreferences();
 	void statusChanged(RemoteView::RemoteStatus status);
 	void toggleFullscreen();

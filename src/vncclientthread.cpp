@@ -23,6 +23,7 @@
 
 #include "vncclientthread.h"
 
+#include <QCoreApplication>
 #include <QMutexLocker>
 #include <QTimer>
 

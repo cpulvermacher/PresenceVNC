@@ -18,6 +18,7 @@
 */
 #include "connectdialog.h"
 #include "fullscreenexitbutton.h"
+#include "keymenu.h"
 #include "mainwindow.h"
 #include "preferences.h"
 #include "vncview.h"
@@ -28,6 +29,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
+#include <iostream>
 
 MainWindow::MainWindow(QString url, int quality):
 	QMainWindow(0),
@@ -43,7 +45,7 @@ MainWindow::MainWindow(QString url, int quality):
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
-	toolbar->addAction(tr("Mod"), this, SLOT(showModifierMenu()));
+	toolbar->addAction(QChar(0x2026), this, SLOT(showKeyMenu())); //"..." button
 	toolbar->addAction(tr("Tab"), this, SLOT(sendTab()));
 	toolbar->addAction(tr("Esc"), this, SLOT(sendEsc()));
 	toolbar->addAction(tr("PgUp"), this, SLOT(sendPgUp()));
@@ -144,9 +146,9 @@ void MainWindow::closeEvent(QCloseEvent*) {
 
 void MainWindow::about() {
 	QMessageBox::about(this, tr("About Presence VNC"),
-		tr("<center><h1>Presence VNC 0.4</h1>\
-A touchscreen friendly VNC client\
-<a href=\"https://garage.maemo.org/projects/presencevnc/\">https://garage.maemo.org/projects/presencevnc</a></center>\
+		tr("<center><h1>Presence VNC 0.5</h1>\
+<p>A touchscreen friendly VNC client</p>\
+<p><a href=\"https://garage.maemo.org/projects/presencevnc/\">https://garage.maemo.org/projects/presencevnc</a></p></center>\
 <small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;</p>\
 <p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</p>\
 <p>and LibVNCServer, &copy; 2001-2003 Johannes E. Schindelin</p>\
@@ -255,23 +257,12 @@ void MainWindow::toggleFullscreen()
 	forceResizeDelayed();
 }
 
-void MainWindow::showModifierMenu()
+void MainWindow::showKeyMenu()
 {
-	static QMenu *mod_menu = new QMenu(tr("Modifiers"), this);
-	static QAction *win = mod_menu->addAction(tr("Win"));
-	static QAction *alt = mod_menu->addAction(tr("Alt"));
-	win->setCheckable(true);
-	alt->setCheckable(true);
+	static KeyMenu *key_menu = new KeyMenu(this);
+	key_menu->exec();
 
-	//show menu at top-left corner of toolbar
-	QAction *chosen = mod_menu->exec(toolbar->mapToGlobal(QPoint(0,0)));
-	if(!chosen) {
-		return;
-	} else if(chosen == alt) {
-		vnc_view->sendKey(Qt::Key_Alt);
-	} else if(chosen == win) {
-		vnc_view->sendKey(Qt::Key_Meta);
-	}
+	vnc_view->sendKeySequence(key_menu->getKeySequence());
 }
 
 void MainWindow::showPreferences()
