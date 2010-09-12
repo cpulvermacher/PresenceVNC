@@ -30,6 +30,7 @@
 critical(parent, caption, message)
 
 #include <QApplication>
+#include <QBitmap>
 #include <QCheckBox>
 #include <QDialog>
 #include <QImage>
@@ -325,9 +326,6 @@ if(x == 0 and y == 0) {
         installEventFilter(this);
 
         setCursor(((m_dotCursorState == CursorOn) || m_forceLocalCursor) ? localDotCursor() : Qt::BlankCursor);
-#ifdef Q_WS_MAEMO_5
-	QApplication::setOverrideCursor(((m_dotCursorState == CursorOn) || m_forceLocalCursor) ? localDotCursor() : Qt::BlankCursor);
-#endif
 
         setMouseTracking(true); // get mouse events even when there is no mousebutton pressed
         setFocusPolicy(Qt::WheelFocus);
@@ -385,10 +383,6 @@ void VncView::showDotCursor(DotCursorState state)
     RemoteView::showDotCursor(state);
 
     setCursor(state == CursorOn ? localDotCursor() : Qt::BlankCursor);
-    QApplication::setOverrideCursor(localDotCursor());
-#ifdef Q_WS_MAEMO_5
-    QApplication::setOverrideCursor(state == CursorOn ? localDotCursor() : Qt::BlankCursor);
-#endif
 }
 
 void VncView::enableScaling(bool scale)
@@ -460,6 +454,17 @@ void VncView::paintEvent(QPaintEvent *event)
 	    force_full_repaint = false;
         }
     }
+
+	//draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling
+	if((m_dotCursorState == CursorOn) || m_forceLocalCursor) {
+		const uchar bits[] =
+		{ 0xff, 0x8e, 0x8e, 0x8e, 0xff };
+
+		QBitmap cursorBitmap = QBitmap::fromData(QSize(5,5), bits , QImage::Format_Mono);
+		cursorBitmap.setMask(cursorBitmap);
+
+		painter.drawPixmap(cursor_x, cursor_y, cursorBitmap);
+	}
 
     RemoteView::paintEvent(event);
 }

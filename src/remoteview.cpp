@@ -244,21 +244,8 @@ void RemoteView::saveWalletPassword(const QString &password, bool fromUserNameOn
 
 QCursor RemoteView::localDotCursor() const
 {
-#ifdef QTONLY
-const uchar bits[] =
-{ 0xff, 0x8e, 0x8e, 0x8e, 0xff };
-
-    QBitmap cursorBitmap = QBitmap::fromData(QSize(5,5), bits , QImage::Format_Mono);
-    QBitmap cursorMask = cursorBitmap;
-
-    return QCursor(cursorBitmap, cursorMask);
-#else
-    QBitmap cursorBitmap(KGlobal::dirs()->findResource("appdata",
-                                                       "pics/pointcursor.png"));
-    QBitmap cursorMask(KGlobal::dirs()->findResource("appdata",
-                                                     "pics/pointcursormask.png"));
-    return QCursor(cursorBitmap, cursorMask);
-#endif
+	//we take care of this in paintEvent()
+	return QCursor(Qt::BlankCursor);
 }
 
 void RemoteView::focusInEvent(QFocusEvent *event)
