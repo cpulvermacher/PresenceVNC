@@ -73,7 +73,6 @@ FullScreenExitButton::FullScreenExitButton(MainWindow *parent)
     setFixedSize(sizeHint());
 
     // set the background to 0.5 alpha
-    //TODO doesn't work.
     QPalette pal = palette();
     QColor backgroundColor = pal.color(backgroundRole());
     backgroundColor.setAlpha(128);

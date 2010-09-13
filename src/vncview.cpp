@@ -457,13 +457,13 @@ void VncView::paintEvent(QPaintEvent *event)
 
 	//draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling
 	if((m_dotCursorState == CursorOn) || m_forceLocalCursor) {
-		const uchar bits[] =
-		{ 0xff, 0x8e, 0x8e, 0x8e, 0xff };
+		const uchar bits[] = { 0xff, 0x8e, 0x8e, 0x8e, 0xff };
+		const bool little_endian = (Q_BYTE_ORDER == Q_LITTLE_ENDIAN);
+		const QBitmap cursorBitmap = QBitmap::fromData(QSize(5,5), bits , little_endian?QImage::Format_Mono:QImage::Format_MonoLSB);
 
-		QBitmap cursorBitmap = QBitmap::fromData(QSize(5,5), bits , QImage::Format_Mono);
-		cursorBitmap.setMask(cursorBitmap);
-
-		painter.drawPixmap(cursor_x, cursor_y, cursorBitmap);
+		painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
+		painter.drawPixmap(cursor_x-2, cursor_y-2, cursorBitmap);
+		//TODO update position of last cursor_x/y to avoid artifacts
 	}
 
     RemoteView::paintEvent(event);
@@ -611,7 +611,6 @@ void VncView::wheelEventHandler(QWheelEvent *event)
     const int x = qRound(event->x() / m_horizontalFactor);
     const int y = qRound(event->y() / m_verticalFactor);
 
-	kDebug(5011) << "Wheelevent";
     vncThread.mouseEvent(x, y, eb | m_buttonMask);
     vncThread.mouseEvent(x, y, m_buttonMask);
 }
@@ -709,7 +708,7 @@ void VncView::unpressModifiers()
 
 void VncView::clipboardSelectionChanged()
 {
-    kDebug(5011);
+    //kDebug(5011);
 
     if (m_status != Connected)
         return;
@@ -724,7 +723,7 @@ void VncView::clipboardSelectionChanged()
 
 void VncView::clipboardDataChanged()
 {
-    kDebug(5011);
+    //kDebug(5011);
 
     if (m_status != Connected)
         return;
@@ -828,7 +827,7 @@ void VncView::sendKeySequence(QKeySequence keys)
 		QString k = keys.toString().section('+', i, i);
 		if(k.isEmpty())
 			break;
-		kDebug(5011) << "found key: " << k;
+		//kDebug(5011) << "found key: " << k;
 		if(k == "Alt") {
 			key_list.append(Qt::Key_Alt);
 		} else if(k == "Ctrl") {
