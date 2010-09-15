@@ -53,7 +53,6 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	//set up combobox
 	hosts.addItems(hostnames_sorted);
 	hosts.setEditable(true);
-	//hosts.lineEdit()->setInputMethodHints(Qt::ImhLowercaseOnly); //doesn't work, but I tried.
 	connect(&hosts, SIGNAL(editTextChanged(QString)),
 		this, SLOT(cleanHostname(QString)));
 	layout.addWidget(&hosts);

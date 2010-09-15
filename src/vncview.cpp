@@ -585,16 +585,16 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 
 		}
 	} else { //middle or right button, send directly
-        if ((e->type() == QEvent::MouseButtonPress)) {
-            if (e->button() & Qt::MidButton)
-                m_buttonMask |= 0x02;
-            if (e->button() & Qt::RightButton)
-                m_buttonMask |= 0x04;
-        } else if (e->type() == QEvent::MouseButtonRelease) {
-            if (e->button() & Qt::MidButton)
-                m_buttonMask &= 0xfd;
-            if (e->button() & Qt::RightButton)
-                m_buttonMask &= 0xfb;
+		if ((e->type() == QEvent::MouseButtonPress)) {
+		    if (e->button() & Qt::MidButton)
+			m_buttonMask |= 0x02;
+		    if (e->button() & Qt::RightButton)
+			m_buttonMask |= 0x04;
+		} else if (e->type() == QEvent::MouseButtonRelease) {
+		    if (e->button() & Qt::MidButton)
+			m_buttonMask &= 0xfd;
+		    if (e->button() & Qt::RightButton)
+			m_buttonMask &= 0xfb;
 		}
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	}
