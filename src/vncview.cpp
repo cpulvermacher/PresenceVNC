@@ -461,7 +461,10 @@ void VncView::paintEvent(QPaintEvent *event)
 		const bool little_endian = (Q_BYTE_ORDER == Q_LITTLE_ENDIAN);
 		const QBitmap cursorBitmap = QBitmap::fromData(QSize(5,5), bits , little_endian?QImage::Format_Mono:QImage::Format_MonoLSB);
 
+#if QT_VERSION >= 0x040500
 		painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
+#endif
+
 		painter.drawPixmap(cursor_x-2, cursor_y-2, cursorBitmap);
 		//TODO update position of last cursor_x/y to avoid artifacts
 	}
@@ -549,55 +552,52 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 		return;
 	}
 
-	if(e->type() == QEvent::MouseButtonPress or e->type() == QEvent::MouseButtonDblClick) {
-		press_time.start();
-		if(tap_detected and up_time.elapsed() < DOUBLE_TAP_UP_TIME) {
-			tap_detected = false;
-			double_tap_detected = true;
+	if(e->button() == Qt::LeftButton) { //implement touchpad-like input for left button
+		if(e->type() == QEvent::MouseButtonPress or e->type() == QEvent::MouseButtonDblClick) {
+			press_time.start();
+			if(tap_detected and up_time.elapsed() < DOUBLE_TAP_UP_TIME) {
+				tap_detected = false;
+				double_tap_detected = true;
 
-			QTimer::singleShot(TAP_PRESS_TIME, this, SLOT(mouseEventHandler()));
+				QTimer::singleShot(TAP_PRESS_TIME, this, SLOT(mouseEventHandler()));
+			}
+		} else if(e->type() == QEvent::MouseButtonRelease) {
+			if(tap_drag_detected) {
+				m_buttonMask &= 0xfe;
+				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+				tap_drag_detected = false;
+			} else if(double_tap_detected) { //double click
+				double_tap_detected = false;
+
+				m_buttonMask |= 0x01;
+				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+				m_buttonMask &= 0xfe;
+				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+				m_buttonMask |= 0x01;
+				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+				m_buttonMask &= 0xfe;
+				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+			} else if(press_time.elapsed() < TAP_PRESS_TIME) { //tap
+				up_time.start();
+				tap_detected = true;
+				QTimer::singleShot(DOUBLE_TAP_UP_TIME, this, SLOT(mouseEventHandler()));
+			}
+
 		}
-	} else if(e->type() == QEvent::MouseButtonRelease) {
-		if(tap_drag_detected) {
-			m_buttonMask &= 0xfe;
-			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-			tap_drag_detected = false;
-		} else if(double_tap_detected) { //double click
-			double_tap_detected = false;
-
-			m_buttonMask |= 0x01;
-			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-			m_buttonMask &= 0xfe;
-			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-			m_buttonMask |= 0x01;
-			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-			m_buttonMask &= 0xfe;
-			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-		} else if(press_time.elapsed() < TAP_PRESS_TIME) { //tap
-			up_time.start();
-			tap_detected = true;
-			QTimer::singleShot(DOUBLE_TAP_UP_TIME, this, SLOT(mouseEventHandler()));
-		}
-
-	}
-
-/* for reference:
-    if (e->type() != QEvent::MouseMove) {
+	} else { //middle or right button, send directly
         if ((e->type() == QEvent::MouseButtonPress)) {
-            if (e->button() & Qt::LeftButton)
-                m_buttonMask |= 0x01;
             if (e->button() & Qt::MidButton)
                 m_buttonMask |= 0x02;
             if (e->button() & Qt::RightButton)
                 m_buttonMask |= 0x04;
         } else if (e->type() == QEvent::MouseButtonRelease) {
-            if (e->button() & Qt::LeftButton)
-                m_buttonMask &= 0xfe;
             if (e->button() & Qt::MidButton)
                 m_buttonMask &= 0xfd;
             if (e->button() & Qt::RightButton)
                 m_buttonMask &= 0xfb;
-	*/
+		}
+		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+	}
 }
 
 void VncView::wheelEventHandler(QWheelEvent *event)
