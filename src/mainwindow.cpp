@@ -282,9 +282,12 @@ void MainWindow::forceResizeDelayed()
 void MainWindow::toggleFullscreen()
 {
 	bool in_fullscreen = windowState() & Qt::WindowFullScreen;
+
 	//hide menu/toolbar in fullscreen (new state is !in_fullscreen)
 	toolbar->setVisible(show_toolbar->isChecked() and in_fullscreen);
+
 #ifndef Q_WS_MAEMO_5
+	//menu bar is invisible by default on maemo
 	menuBar()->setVisible(in_fullscreen);
 #endif
 
@@ -334,6 +337,7 @@ void MainWindow::showInputPanel()
 {
 #ifdef Q_WS_MAEMO_5
 	vnc_view->setAttribute(Qt::WA_InputMethodEnabled, true);
+
 	QEvent event(QEvent::RequestSoftwareInputPanel);
 	QApplication::sendEvent(vnc_view, &event);
 #endif

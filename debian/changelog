@@ -1,6 +1,7 @@
 presencevnc (0.5) unstable; urgency=low
 
   * Add "..." menu for additional keys 
+  * Symbol key (Fn+Ctrl) fixed
 
  -- Christian Pulvermacher <pulvermacher@gmx.de>  Fri, 27 Aug 2010 19:09:29 +0200
 

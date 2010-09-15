@@ -633,6 +633,16 @@ void VncView::keyEventHandler(QKeyEvent *e)
 
     const bool pressed = (e->type() == QEvent::KeyPress);
 
+#ifdef Q_WS_MAEMO_5
+    //don't send ISO_Level3_Shift (would break things like Win+0-9)
+    //also enable IM so symbol key works
+    if(k == 0xfe03) {
+	    setAttribute(Qt::WA_InputMethodEnabled, pressed);
+	    e->ignore();
+	    return;
+    }
+#endif
+
     // handle modifiers
     if (k == XK_Shift_L || k == XK_Control_L || k == XK_Meta_L || k == XK_Alt_L) {
         if (pressed) {
