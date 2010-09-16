@@ -91,8 +91,8 @@ MainWindow::MainWindow(QString url, int quality):
 	session_menu->addAction(connect_action);
 	session_menu->addAction(disconnect_action);
 	session_menu->addSeparator();
-	//session_menu->addAction(pref_action);
-	//session_menu->addSeparator();
+	session_menu->addAction(pref_action);
+	session_menu->addSeparator();
 	session_menu->addAction(tr("&Quit"), this, SLOT(close()));
 
 	QMenu* view_menu = menuBar()->addMenu(tr("&View"));

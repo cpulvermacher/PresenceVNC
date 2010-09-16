@@ -34,9 +34,12 @@ private slots:
 	void save();
 private:
 	QSettings settings;
+#ifdef Q_WS_MAEMO_5
 	QMaemo5ListPickSelector *rotation_selector;
 	QMaemo5ListPickSelector *leftzoom_selector;
 	QMaemo5ListPickSelector *rightzoom_selector;
 	QCheckBox *disable_tapping;
+#endif
+	QCheckBox *always_show_local_cursor;
 };
 #endif

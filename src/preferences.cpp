@@ -123,6 +123,10 @@ Preferences::Preferences(QWidget *parent):
 	layout2->addWidget(disable_tapping);
 #endif
 
+	always_show_local_cursor = new QCheckBox(tr("Always show local cursor"), this);
+	always_show_local_cursor->setChecked(settings.value("always_show_local_cursor", false).toBool());
+	layout2->addWidget(always_show_local_cursor);
+
 	QPushButton *ok = new QPushButton(tr("Done"));
 	ok->setMaximumWidth(100);
 
@@ -145,6 +149,7 @@ void Preferences::save()
 	settings.setValue("right_zoom", rightzoom_selector->currentIndex());
 	settings.setValue("disable_tapping", disable_tapping->isChecked());
 #endif
+	settings.setValue("always_show_local_cursor", always_show_local_cursor->isChecked());
 
 	settings.sync();
 }

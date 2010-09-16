@@ -718,8 +718,6 @@ void VncView::unpressModifiers()
 
 void VncView::clipboardSelectionChanged()
 {
-    //kDebug(5011);
-
     if (m_status != Connected)
         return;
 
@@ -733,8 +731,6 @@ void VncView::clipboardSelectionChanged()
 
 void VncView::clipboardDataChanged()
 {
-    //kDebug(5011);
-
     if (m_status != Connected)
         return;
 
@@ -863,6 +859,10 @@ void VncView::reloadSettings()
 	left_zoom = settings.value("left_zoom", 0).toInt();
 	right_zoom = settings.value("right_zoom", 1).toInt();
 	disable_tapping = settings.value("disable_tapping", false).toBool();
+
+	bool always_show_local_cursor = settings.value("always_show_local_cursor", false).toBool();
+	if(always_show_local_cursor)
+		showDotCursor(CursorOn);
 }
 
 //convert commitString into keyevents
