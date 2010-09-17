@@ -456,29 +456,11 @@ void VncView::paintEvent(QPaintEvent *event)
     }
 
 	//draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling
-	//TODO check boundaries against event->rect()
 	if((m_dotCursorState == CursorOn) || m_forceLocalCursor) {
-		const uchar bits[] = { 0xff, 0x8e, 0x8e, 0x8e, 0xff };
-		const bool little_endian = (Q_BYTE_ORDER == Q_LITTLE_ENDIAN);
-		const QBitmap cursorBitmap = QBitmap::fromData(QSize(5,5), bits , little_endian?QImage::Format_Mono:QImage::Format_MonoLSB);
-
-
-		//Qt <= 4.4 doesn't support Xor, so expect some artifacts there (it's ancient, after all)
 #if QT_VERSION >= 0x040500
 		painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
-
-		static int old_cursor_x = cursor_x;
-		static int old_cursor_y = cursor_y;
-
-		if(cursor_x != old_cursor_x or cursor_y != old_cursor_y) {
-			//position changed, clear last position (since we're using xor, we'll just paint it again)
-			painter.drawPixmap(old_cursor_x*m_horizontalFactor - 2, old_cursor_y*m_verticalFactor - 2, cursorBitmap);
-
-			old_cursor_x = cursor_x; old_cursor_y = cursor_y;
-		}
 #endif
-
-		painter.drawPixmap(cursor_x*m_horizontalFactor - 2, cursor_y*m_verticalFactor - 2, cursorBitmap);
+		painter.drawRect(cursor_x*m_horizontalFactor - 2, cursor_y*m_verticalFactor - 2, 5, 5);
 	}
 
     RemoteView::paintEvent(event);
@@ -559,12 +541,7 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	cursor_y = qRound(e->y()/m_verticalFactor);
 	vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask); // plain move event
 
-	if(disable_tapping) { //only move cursor
-		e->ignore();
-		return;
-	}
-
-	if(e->button() == Qt::LeftButton) { //implement touchpad-like input for left button
+	if(!disable_tapping and e->button() == Qt::LeftButton) { //implement touchpad-like input for left button
 		if(e->type() == QEvent::MouseButtonPress or e->type() == QEvent::MouseButtonDblClick) {
 			press_time.start();
 			if(tap_detected and up_time.elapsed() < DOUBLE_TAP_UP_TIME) {
@@ -609,6 +586,19 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 			m_buttonMask &= 0xfb;
 		}
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+	}
+
+	//prevent local cursor artifacts
+	static int old_cursor_x = cursor_x;
+	static int old_cursor_y = cursor_y;
+	if(((m_dotCursorState == CursorOn) || m_forceLocalCursor)
+	and (cursor_x != old_cursor_x or cursor_y != old_cursor_y)) {
+		//clear last position (plus a few extra pixels)
+		repaint(old_cursor_x*m_horizontalFactor - 3, old_cursor_y*m_verticalFactor - 3, 7, 7);
+		//and refresh new one
+		repaint(cursor_x*m_horizontalFactor - 3, cursor_y*m_verticalFactor - 3, 7, 7);
+
+		old_cursor_x = cursor_x; old_cursor_y = cursor_y;
 	}
 }
 
