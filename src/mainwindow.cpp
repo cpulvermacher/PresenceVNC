@@ -338,7 +338,7 @@ void MainWindow::showInputPanel()
 #ifdef Q_WS_MAEMO_5
 	//TODO: when hardware keyboard is open, this will only cause the IM to mess up 'real' key events
 	vnc_view->setAttribute(Qt::WA_InputMethodEnabled, true);
-	vnc_view->setInputMethodHints(Qt::ImhPreferLowercase); //without this, IM starts with caps lock
+	vnc_view->setInputMethodHints(Qt::ImhNoAutoUppercase); //without this, IM starts with caps lock
 
 	QEvent event(QEvent::RequestSoftwareInputPanel);
 	QApplication::sendEvent(vnc_view, &event);

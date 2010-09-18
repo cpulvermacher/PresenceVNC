@@ -53,6 +53,9 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	//set up combobox
 	hosts.addItems(hostnames_sorted);
 	hosts.setEditable(true);
+#ifdef Q_WS_MAEMO_5
+	hosts.lineEdit()->setInputMethodHints(Qt::ImhNoAutoUppercase); //somehow this doesn't work that well here
+#endif
 	connect(&hosts, SIGNAL(editTextChanged(QString)),
 		this, SLOT(cleanHostname(QString)));
 	layout.addWidget(&hosts);
