@@ -35,7 +35,8 @@
 MainWindow::MainWindow(QString url, int quality):
 	QMainWindow(0),
 	vnc_view(0),
-	scroll_area(new ScrollArea(0))
+	scroll_area(new ScrollArea(0)),
+	key_menu(0)
 {
 	setWindowTitle("Presence VNC");
 
@@ -135,6 +136,7 @@ MainWindow::MainWindow(QString url, int quality):
 		scroll_area->setWidget(vnc_view);
 		vnc_view->start();
 		vnc_view->enableScaling(scaling->isChecked());
+		key_menu = new KeyMenu(this);
 	}
 }
 
@@ -199,6 +201,10 @@ void MainWindow::connectToHost(QString url)
 	vnc_view->enableScaling(scaling->isChecked());
 	disconnect_action->setEnabled(true);
 	toolbar->setEnabled(true);
+
+	if(key_menu) //reset
+		delete key_menu;
+	key_menu = new KeyMenu(this);
 }
 
 void MainWindow::disconnectFromHost()
@@ -297,9 +303,7 @@ void MainWindow::toggleFullscreen()
 
 void MainWindow::showKeyMenu()
 {
-	static KeyMenu *key_menu = new KeyMenu(this);
 	key_menu->exec();
-
 	vnc_view->sendKeySequence(key_menu->getKeySequence());
 }
 

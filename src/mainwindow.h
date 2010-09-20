@@ -24,6 +24,8 @@
 
 #include <QtGui>
 
+class KeyMenu;
+
 //fix tearing during scrolling
 class ScrollArea : public QScrollArea {
 public:
@@ -69,5 +71,6 @@ private:
 	ScrollArea *scroll_area;
 	QToolBar *toolbar;	
 	QAction *scaling, *show_toolbar, *disconnect_action;
+	KeyMenu *key_menu;
 };
 #endif
