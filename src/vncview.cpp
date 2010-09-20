@@ -290,6 +290,8 @@ void VncView::updateImage(int x, int y, int w, int h)
 		return;
 	}
      //kDebug(5011) << "got update" << width() << height();
+
+     /*
      static unsigned int frames = 0;
      static unsigned int updates = 0;
      static QTime time = QTime::currentTime();
@@ -301,6 +303,7 @@ if(x == 0 and y == 0) {
      if(frames % 100 == 0)
 	     kDebug(5011) << "f/s: " << frames/double(time.elapsed()) * 1000.0;
 }
+*/
 
     m_x = x;
     m_y = y;
