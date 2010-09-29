@@ -53,11 +53,14 @@ KeyMenu::KeyMenu(QWidget *parent):
 		fx_tab->addAction(tr("F%1").arg(i), QString("F%1").arg(i));
 	tabwidget->addTab(fx_tab, tr("F1-F12"));
 
-	//common key sequences
-	ActionTab *complex_tab = new ActionTab(this);
-	complex_tab->addAction(tr("Ctrl+Alt+Del"), QString("Ctrl+Alt+Delete"));
-	complex_tab->addAction(tr("Ctrl+Alt+Backspace"), QString("Ctrl+Alt+Backspace"));
-	tabwidget->addTab(complex_tab, tr("Misc"));
+	//Misc
+	ActionTab *misc_tab = new ActionTab(this);
+	misc_tab->addAction(tr("Pause"), QString("Pause"));
+	misc_tab->addAction(tr("Print"), QString("print"));
+	misc_tab->addAction(tr("Menu"), QString("Menu"));
+	misc_tab->addAction(tr("Ctrl+Alt+Del"), QString("Ctrl+Alt+Delete"));
+	misc_tab->addAction(tr("Ctrl+Alt+Backspace"), QString("Ctrl+Alt+Backspace"));
+	tabwidget->addTab(misc_tab, tr("Misc"));
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(tabwidget);

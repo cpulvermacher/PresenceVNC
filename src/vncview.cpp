@@ -798,6 +798,15 @@ void VncView::sendKey(Qt::Key key)
 	case Qt::Key_F12:
 		k = 0xffbe + int(key - Qt::Key_F1);
 		break;
+	case Qt::Key_Pause:
+		k = 0xff13;
+		break;
+	case Qt::Key_Print:
+		k = 0xff61;
+		break;
+	case Qt::Key_Menu:
+		k = 0xff67;
+		break;
 	case Qt::Key_Meta:
 	case Qt::MetaModifier:
 		k = XK_Super_L;
