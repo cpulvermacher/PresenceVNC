@@ -34,6 +34,10 @@ void migrateConfiguration()
 	const int current_ver = 2;
 	if(config_ver == current_ver) //config file up-to-date
 		return;
+	if(config_ver > current_ver) {
+		std::cout << "Warning: Config file was created by a newer version of Presence VNC. This may break things.\n";
+		return;
+	}
 	
 	if(settings.allKeys().isEmpty()) { //no config file
 		settings.setValue("config_version", current_ver);
