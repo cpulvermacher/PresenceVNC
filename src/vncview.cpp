@@ -463,7 +463,8 @@ void VncView::paintEvent(QPaintEvent *event)
 #if QT_VERSION >= 0x040500
 		painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
 #endif
-		painter.drawRect(cursor_x*m_horizontalFactor - 2, cursor_y*m_verticalFactor - 2, 5, 5);
+		//rectangle size is 5px = 4px + 1px pen width
+		painter.drawRect(cursor_x*m_horizontalFactor - 2, cursor_y*m_verticalFactor - 2, 4, 4);
 	}
 
     RemoteView::paintEvent(event);
