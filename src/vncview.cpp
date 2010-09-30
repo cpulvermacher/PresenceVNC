@@ -52,6 +52,9 @@ critical(parent, caption, message)
 #define KMOD_Control_L 	0x08
 #define KMOD_Shift_L	0x10
 
+//local cursor width/height in px, should be an odd number
+const int cursor_size = 7;
+
 VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality)
         : RemoteView(parent),
         m_initDone(false),
@@ -463,8 +466,8 @@ void VncView::paintEvent(QPaintEvent *event)
 #if QT_VERSION >= 0x040500
 		painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
 #endif
-		//rectangle size is 5px = 4px + 1px pen width
-		painter.drawRect(cursor_x*m_horizontalFactor - 2, cursor_y*m_verticalFactor - 2, 4, 4);
+		//rectangle size includes 1px pen width
+		painter.drawRect(cursor_x*m_horizontalFactor - cursor_size/2, cursor_y*m_verticalFactor - cursor_size/2, cursor_size-1, cursor_size-1);
 	}
 
     RemoteView::paintEvent(event);
@@ -597,10 +600,10 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	static int old_cursor_y = cursor_y;
 	if(((m_dotCursorState == CursorOn) || m_forceLocalCursor)
 	and (cursor_x != old_cursor_x or cursor_y != old_cursor_y)) {
-		//clear last position (plus a few extra pixels)
-		repaint(old_cursor_x*m_horizontalFactor - 3, old_cursor_y*m_verticalFactor - 3, 7, 7);
+		//clear last position
+		repaint(old_cursor_x*m_horizontalFactor - cursor_size/2, old_cursor_y*m_verticalFactor - cursor_size/2, cursor_size, cursor_size);
 		//and refresh new one
-		repaint(cursor_x*m_horizontalFactor - 3, cursor_y*m_verticalFactor - 3, 7, 7);
+		repaint(cursor_x*m_horizontalFactor - cursor_size/2, cursor_y*m_verticalFactor - cursor_size/2, cursor_size, cursor_size);
 
 		old_cursor_x = cursor_x; old_cursor_y = cursor_y;
 	}
