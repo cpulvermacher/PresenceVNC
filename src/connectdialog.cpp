@@ -18,6 +18,11 @@
 */
 #include <QtGui>
 
+#ifdef Q_WS_MAEMO_5
+#include <QMaemo5ValueButton>
+#include <QMaemo5ListPickSelector>
+#endif
+
 #include "connectdialog.h"
 
 #include <iostream>
@@ -57,11 +62,27 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	hosts.lineEdit()->setInputMethodHints(Qt::ImhNoAutoUppercase); //somehow this doesn't work that well here
 #endif
 	connect(&hosts, SIGNAL(editTextChanged(QString)),
-		this, SLOT(cleanHostname(QString)));
+		this, SLOT(hostnameUpdated(QString)));
 	layout.addWidget(&hosts);
 
-	QPushButton *done = new QPushButton(tr("Done"));
-	done->setMaximumWidth(100);
+#ifdef Q_WS_MAEMO_5
+	QMaemo5ValueButton *quality = new QMaemo5ValueButton(tr("Quality"), this);
+	quality_selector = new QMaemo5ListPickSelector(this);
+	QStandardItemModel *model = new QStandardItemModel(0, 1, this);
+	model->appendRow(new QStandardItem(tr("High\t\t(LAN)"))); //1
+	model->appendRow(new QStandardItem(tr("Medium\t(DSL)"))); //2
+	model->appendRow(new QStandardItem(tr("Low\t\t(ISDN)"))); //3
+	quality_selector->setModel(model);
+	quality->setPickSelector(quality_selector);
+	quality->setValueLayout(QMaemo5ValueButton::ValueUnderText);
+	quality->setMaximumWidth(120);
+	layout.addWidget(quality);
+
+	hostnameUpdated(hosts.lineEdit()->text()); //get saved quality for last host, or 2
+#endif
+
+	QPushButton *done = new QPushButton(tr("Connect"));
+	done->setMaximumWidth(110);
 	connect(done, SIGNAL(clicked()),
 		this, SLOT(accept()));
 	layout.addWidget(done);
@@ -69,11 +90,19 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	setLayout(&layout);
 }
 
-void ConnectDialog::cleanHostname(QString newtext)
+void ConnectDialog::hostnameUpdated(QString newtext)
 {
+	//clean up hostname
 	newtext.remove(QChar('/'));
 	newtext.remove(QChar('\\'));
 	hosts.lineEdit()->setText(newtext.toLower());
+
+	//saved quality setting available?
+	QSettings settings;
+	int quality = settings.value(QString("hosts/%1/quality").arg(hosts.lineEdit()->text()), 2).toInt();
+	if(quality < 1 or quality > 3)
+		quality = 2;
+	quality_selector->setCurrentIndex(quality-1);
 }
 
 void ConnectDialog::accept()
@@ -115,9 +144,12 @@ void ConnectDialog::accept()
 		//move selected host to front
 		settings.setValue(QString("%1/position").arg(hosts.currentText()), 0);
 	}
+	int quality = quality_selector->currentIndex() + 1;
+	settings.setValue(QString("%1/quality").arg(hosts.currentText()), quality);
+
 	settings.endGroup();
 	settings.sync();
 
-	emit connectToHost(QString("vnc://") + hosts.currentText());
+	emit connectToHost(QString("vnc://%1").arg(hosts.currentText()), quality);
 	deleteLater();
 }

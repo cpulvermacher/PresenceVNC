@@ -22,6 +22,8 @@
 
 #include <QtGui>
 
+class QMaemo5ListPickSelector;
+
 class ConnectDialog : public QDialog {
 	Q_OBJECT
 public:
@@ -29,11 +31,12 @@ public:
 public slots:
 	virtual void accept();
 signals:
-	void connectToHost(QString url);
+	void connectToHost(QString url, int quality);
 private slots:
-	void cleanHostname(QString newtext);
+	void hostnameUpdated(QString newtext);
 private:
 	QHBoxLayout layout;
 	QComboBox hosts;
+	QMaemo5ListPickSelector *quality_selector;
 };
 #endif

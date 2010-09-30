@@ -181,16 +181,16 @@ void MainWindow::about() {
 void MainWindow::showConnectDialog()
 {
 	ConnectDialog *connect_dialog = new ConnectDialog(this);
-	connect(connect_dialog, SIGNAL(connectToHost(QString)),
-		this, SLOT(connectToHost(QString)));
+	connect(connect_dialog, SIGNAL(connectToHost(QString, int)),
+		this, SLOT(connectToHost(QString, int)));
 	connect_dialog->exec();
 }
 
-void MainWindow::connectToHost(QString url)
+void MainWindow::connectToHost(QString url, int quality)
 {
 	disconnectFromHost();
 
-	vnc_view = new VncView(this, url, RemoteView::Quality(2));
+	vnc_view = new VncView(this, url, RemoteView::Quality(quality));
 
 	connect(scaling, SIGNAL(toggled(bool)),
 		vnc_view, SLOT(enableScaling(bool)));
