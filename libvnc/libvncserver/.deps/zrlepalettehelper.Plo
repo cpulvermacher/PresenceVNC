@@ -1,10 +1,11 @@
 zrlepalettehelper.lo: zrlepalettehelper.c zrlepalettehelper.h zrletypes.h \
-  /usr/include/assert.h /usr/include/features.h \
-  /usr/include/bits/predefs.h /usr/include/sys/cdefs.h \
+  /usr/include/assert.h /usr/include/features.h /usr/include/sys/cdefs.h \
   /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
-  /usr/include/string.h \
-  /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/include/stddef.h \
+  /usr/include/gnu/stubs-32.h /usr/include/string.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.2/include/stddef.h \
   /usr/include/bits/string.h /usr/include/bits/string2.h \
+  /usr/include/endian.h /usr/include/bits/endian.h \
+  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
   /usr/include/stdlib.h
 
 zrlepalettehelper.h:
@@ -15,20 +16,28 @@ zrletypes.h:
 
 /usr/include/features.h:
 
-/usr/include/bits/predefs.h:
-
 /usr/include/sys/cdefs.h:
 
 /usr/include/bits/wordsize.h:
 
 /usr/include/gnu/stubs.h:
 
+/usr/include/gnu/stubs-32.h:
+
 /usr/include/string.h:
 
-/scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/include/stddef.h:
+/usr/lib/gcc/i486-linux-gnu/4.3.2/include/stddef.h:
 
 /usr/include/bits/string.h:
 
 /usr/include/bits/string2.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
 
 /usr/include/stdlib.h:

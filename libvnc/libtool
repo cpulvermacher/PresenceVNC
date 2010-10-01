@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # libtoolT - Provide generalized library-building support services.
 # Generated automatically by  (GNU LibVNCServer 0.9.7)
@@ -30,10 +30,10 @@
 # the same distribution terms that you use for the rest of that program.
 
 # A sed program that does not truncate output.
-SED="/scratchbox/tools/bin/sed"
+SED="/bin/sed"
 
 # Sed that helps us avoid accidentally triggering echo(1) options like -n.
-Xsed="/scratchbox/tools/bin/sed -e 1s/^X//"
+Xsed="/bin/sed -e 1s/^X//"
 
 # The HP-UX ksh and POSIX shell print the target directory to stdout
 # if CDPATH is set.
@@ -44,10 +44,10 @@ available_tags=" CXX"
 
 # ### BEGIN LIBTOOL CONFIG
 
-# Libtool was configured on host christian-laptop:
+# Libtool was configured on host hazel:
 
 # Shell to use when invoking shell scripts.
-SHELL="/bin/sh"
+SHELL="/bin/bash"
 
 # Whether or not to build shared libraries.
 build_libtool_libs=yes
@@ -66,12 +66,12 @@ fast_install=yes
 
 # The host system.
 host_alias=
-host=arm-unknown-linux-gnu
+host=i686-pc-linux-gnu
 host_os=linux-gnu
 
 # The build system.
 build_alias=
-build=arm-unknown-linux-gnu
+build=i686-pc-linux-gnu
 build_os=linux-gnu
 
 # An echo program that does not interpret backslashes.
@@ -97,13 +97,13 @@ with_gcc=yes
 EGREP="grep -E"
 
 # The linker used to build libraries.
-LD="/scratchbox/compilers/cs2007q3-glibc2.5-arm7/arm-none-linux-gnueabi/bin/ld"
+LD="/usr/bin/ld"
 
 # Whether we need hard or soft links.
 LN_S="ln -s"
 
 # A BSD-compatible nm program.
-NM="/scratchbox/compilers/bin/nm -B"
+NM="/usr/bin/nm -B"
 
 # A symbol stripping program
 STRIP="strip"
@@ -325,10 +325,10 @@ variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH GCC_EXEC_PREFIX COM
 link_all_deplibs=unknown
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec=" /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/../../../../arm-none-linux-gnueabi/lib/arm-none-linux-gnueabi/4.2.1/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/../../../../arm-none-linux-gnueabi/lib/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/lib/arm-none-linux-gnueabi/4.2.1/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/lib/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/usr/lib/arm-none-linux-gnueabi/4.2.1/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/usr/lib/"
+sys_lib_search_path_spec=" /usr/lib/gcc/i486-linux-gnu/4.3.2/ /usr/lib/gcc/i486-linux-gnu/4.3.2/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../i486-linux-gnu/lib/i486-linux-gnu/4.3.2/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../i486-linux-gnu/lib/../lib/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../i486-linux-gnu/4.3.2/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../lib/ /lib/i486-linux-gnu/4.3.2/ /lib/../lib/ /usr/lib/i486-linux-gnu/4.3.2/ /usr/lib/../lib/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../i486-linux-gnu/lib/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../ /lib/ /usr/lib/"
 
 # Run-time system search path for libraries
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/local/lib /usr/X11R6/lib /usr/lib /lib "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /lib/i486-linux-gnu /usr/lib/i486-linux-gnu /usr/local/lib "
 
 # Fix the shell variable $srcfile for the compiler.
 fix_srcfile_path=""
@@ -7215,10 +7215,10 @@ disable_libs=static
 # End:
 # ### BEGIN LIBTOOL TAG CONFIG: CXX
 
-# Libtool was configured on host christian-laptop:
+# Libtool was configured on host hazel:
 
 # Shell to use when invoking shell scripts.
-SHELL="/bin/sh"
+SHELL="/bin/bash"
 
 # Whether or not to build shared libraries.
 build_libtool_libs=yes
@@ -7237,12 +7237,12 @@ fast_install=yes
 
 # The host system.
 host_alias=
-host=arm-unknown-linux-gnu
+host=i686-pc-linux-gnu
 host_os=linux-gnu
 
 # The build system.
 build_alias=
-build=arm-unknown-linux-gnu
+build=i686-pc-linux-gnu
 build_os=linux-gnu
 
 # An echo program that does not interpret backslashes.
@@ -7268,13 +7268,13 @@ with_gcc=yes
 EGREP="grep -E"
 
 # The linker used to build libraries.
-LD="/scratchbox/compilers/cs2007q3-glibc2.5-arm7/arm-none-linux-gnueabi/bin/ld"
+LD="/usr/bin/ld"
 
 # Whether we need hard or soft links.
 LN_S="ln -s"
 
 # A BSD-compatible nm program.
-NM="/scratchbox/compilers/bin/nm -B"
+NM="/usr/bin/nm -B"
 
 # A symbol stripping program
 STRIP="strip"
@@ -7397,11 +7397,11 @@ striplib="strip --strip-unneeded"
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
-predep_objects="/scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/usr/lib/crti.o /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/crtbeginS.o"
+predep_objects="/usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../lib/crti.o /usr/lib/gcc/i486-linux-gnu/4.3.2/crtbeginS.o"
 
 # Dependencies to place after the objects being linked to create a
 # shared library.
-postdep_objects="/scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/crtendS.o /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/usr/lib/crtn.o"
+postdep_objects="/usr/lib/gcc/i486-linux-gnu/4.3.2/crtendS.o /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../lib/crtn.o"
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
@@ -7409,11 +7409,11 @@ predeps=""
 
 # Dependencies to place after the objects being linked to create a
 # shared library.
-postdeps="-lstdc++ -lm -L/usr/local/lib -L/lib -L/usr/lib -lgcc_s -lc -lgcc_s"
+postdeps="-lstdc++ -lm -lgcc_s -lc -lgcc_s"
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path="-L/scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1 -L/scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc -L/scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/../../../../arm-none-linux-gnueabi/lib -L/scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/lib -L/scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/usr/lib"
+compiler_lib_search_path="-L/usr/lib/gcc/i486-linux-gnu/4.3.2 -L/usr/lib/gcc/i486-linux-gnu/4.3.2 -L/usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/i486-linux-gnu/4.3.2/../../.."
 
 # Method to check whether dependent libraries are shared objects.
 deplibs_check_method="pass_all"
@@ -7493,10 +7493,10 @@ variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH GCC_EXEC_PREFIX COM
 link_all_deplibs=unknown
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec=" /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/../../../../arm-none-linux-gnueabi/lib/arm-none-linux-gnueabi/4.2.1/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../lib/gcc/arm-none-linux-gnueabi/4.2.1/../../../../arm-none-linux-gnueabi/lib/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/lib/arm-none-linux-gnueabi/4.2.1/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/lib/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/usr/lib/arm-none-linux-gnueabi/4.2.1/ /scratchbox/compilers/cs2007q3-glibc2.5-arm7/bin/../arm-none-linux-gnueabi/libc/usr/lib/"
+sys_lib_search_path_spec=" /usr/lib/gcc/i486-linux-gnu/4.3.2/ /usr/lib/gcc/i486-linux-gnu/4.3.2/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../i486-linux-gnu/lib/i486-linux-gnu/4.3.2/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../i486-linux-gnu/lib/../lib/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../i486-linux-gnu/4.3.2/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../lib/ /lib/i486-linux-gnu/4.3.2/ /lib/../lib/ /usr/lib/i486-linux-gnu/4.3.2/ /usr/lib/../lib/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../../i486-linux-gnu/lib/ /usr/lib/gcc/i486-linux-gnu/4.3.2/../../../ /lib/ /usr/lib/"
 
 # Run-time system search path for libraries
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/local/lib /usr/X11R6/lib /usr/lib /lib "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /lib/i486-linux-gnu /usr/lib/i486-linux-gnu /usr/local/lib "
 
 # Fix the shell variable $srcfile for the compiler.
 fix_srcfile_path=""

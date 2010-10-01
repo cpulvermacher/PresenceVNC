@@ -1,3 +1,9 @@
+presencevnc (0.6) unstable; urgency=low
+
+  * ...
+
+ -- Christian Pulvermacher <christian@hazel>  Fri, 01 Oct 2010 14:54:43 +0200
+
 presencevnc (0.5) unstable; urgency=low
 
   * Add "..." menu for additional keys 
@@ -6,7 +12,7 @@ presencevnc (0.5) unstable; urgency=low
   * Don't start virtual keyboard with caps lock enabled (partial fix)
   * Add quality setting (per connection)
 
- -- Christian Pulvermacher <pulvermacher@gmx.de>  Fri, 27 Aug 2010 19:09:29 +0200
+ -- Christian Pulvermacher <christian@hazel>  Fri, 01 Oct 2010 14:53:51 +0200
 
 presencevnc (0.4) unstable; urgency=low
 
