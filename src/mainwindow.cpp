@@ -184,9 +184,9 @@ void MainWindow::about() {
 		tr("<center><h1>Presence VNC 0.6</h1>\
 <p>A touchscreen friendly VNC client</p>\
 <p><a href=\"https://garage.maemo.org/projects/presencevnc/\">https://garage.maemo.org/projects/presencevnc</a></p></center>\
-<small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;</p>\
-<p>Based on KRDC, &copy; 2007-2008 Urs Wolfer</p>\
-<p>and LibVNCServer, &copy; 2001-2003 Johannes E. Schindelin</p>\
+<small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;<br />\
+Based on KRDC, &copy; 2007-2008 Urs Wolfer<br />\
+and LibVNCServer, &copy; 2001-2003 Johannes E. Schindelin</p>\
 <p>This program is free software; License: <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU GPL 2</a> or later.</p></small>"));
 }
 
