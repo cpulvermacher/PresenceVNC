@@ -313,16 +313,37 @@ if(x == 0 and y == 0) {
     m_w = w;
     m_h = h;
 
+
+	//with scaled view, artefacts occur because of rounding errors
+	//we'll try to only update chunks of screen space that correspond to integer pixel sizes in m_frame
+	/*
+	int frame_x = x/m_horizontalFactor;
+	int frame_w = w/m_horizontalFactor;
+	int frame_y = y/m_verticalFactor;
+	int frame_h = h/m_verticalFactor;
+	
+	m_x = frame_x*m_horizontalFactor;
+	m_y = frame_y*m_verticalFactor;
+
+	m_w = (frame_w+2)*m_horizontalFactor;
+	m_h = (frame_h+2)*m_verticalFactor;
+	kDebug(5011)<< "update);
+	*/
+
+
+/* TODO if the above works, remove this
     if (m_horizontalFactor != 1.0 || m_verticalFactor != 1.0) {
         // If the view is scaled, grow the update rectangle to avoid artifacts
-        int x_extrapixels = 2.0/m_horizontalFactor+1;
-        int y_extrapixels = 2.0/m_verticalFactor+1;
+		// I'm not sure if that's helpful
+        int x_extrapixels = 1.0/m_horizontalFactor + 1;
+        int y_extrapixels = 1.0/m_verticalFactor + 1;
 
         m_x-=x_extrapixels;
         m_y-=y_extrapixels;
         m_w+=2*x_extrapixels;
         m_h+=2*y_extrapixels;
     }
+	*/
 
     m_frame = vncThread.image();
 
@@ -412,23 +433,24 @@ void VncView::enableScaling(bool scale)
     }
 }
 
+//level should be in [0, 100]
 void VncView::setZoomLevel(int level)
 {
 	Q_ASSERT(parentWidget() != 0);
 
-	//level should be in [0, 100]
 
-	const double min_horiz_factor = double(parentWidget()->width())/m_frame.width();
-	const double min_vert_factor = double(parentWidget()->height())/m_frame.height();
-	const double fit_screen_factor = qMin(min_horiz_factor, min_vert_factor);
 	double factor; //actual magnification
-	if(level == 0) {
+	if(level > 95) {
 		factor = 2.0;
-	} else if(level < 10) {
+	} else if(level > 90) {
 		factor = 1.0;
 	} else {
-		//level=10 => factor=1.0, level=100 => factor=fit_screen_factor
-		factor = (level-10)/90.0*(fit_screen_factor - 1.0) + 1.0;
+		const double min_horiz_factor = double(parentWidget()->width())/m_frame.width();
+		const double min_vert_factor = double(parentWidget()->height())/m_frame.height();
+		const double fit_screen_factor = qMin(min_horiz_factor, min_vert_factor);
+
+		//level=900 => factor=1.0, level=0 => factor=fit_screen_factor
+		factor = (level)/90.0*(1.0 - fit_screen_factor) + fit_screen_factor;
 	}
 
 	if(factor < 0) {
@@ -436,7 +458,6 @@ void VncView::setZoomLevel(int level)
 		kDebug(5011) << "remote display smaller than local?";
 		factor = 1.0;
 	}
-	kDebug(5011) << "zooming to " << factor;
 
 	m_verticalFactor = m_horizontalFactor = factor;
 	resize(m_frame.width()*factor, m_frame.height()*factor);
@@ -463,13 +484,17 @@ void VncView::paintEvent(QPaintEvent *event)
 
     QPainter painter(this);
 
+	Qt::TransformationMode transformation_mode = Qt::SmoothTransformation;
+	if( m_horizontalFactor >= 1.0 )
+		transformation_mode = Qt::FastTransformation;
+
     if (m_repaint and !force_full_repaint) {
 //         kDebug(5011) << "normal repaint";
         painter.drawImage(QRect(qRound(m_x*m_horizontalFactor), qRound(m_y*m_verticalFactor),
                                 qRound(m_w*m_horizontalFactor), qRound(m_h*m_verticalFactor)), 
                           m_frame.copy(m_x, m_y, m_w, m_h).scaled(qRound(m_w*m_horizontalFactor), 
                                                                   qRound(m_h*m_verticalFactor),
-                                                                  Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+                                                                  Qt::IgnoreAspectRatio, transformation_mode));
     } else {
          //kDebug(5011) << "resize repaint";
         QRect rect = event->rect();
@@ -481,12 +506,12 @@ void VncView::paintEvent(QPaintEvent *event)
             const int sh = rect.height()/m_verticalFactor;
             painter.drawImage(rect, 
                               m_frame.copy(sx, sy, sw, sh).scaled(rect.width(), rect.height(),
-                                                                  Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+                                                                  Qt::IgnoreAspectRatio, transformation_mode));
         } else {
              kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
             painter.drawImage(QRect(0, 0, width(), height()), 
                               m_frame.scaled(m_frame.width() * m_horizontalFactor, m_frame.height() * m_verticalFactor,
-                                             Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+                                             Qt::IgnoreAspectRatio, transformation_mode));
 			force_full_repaint = false;
         }
     }
@@ -506,8 +531,10 @@ void VncView::paintEvent(QPaintEvent *event)
 void VncView::resizeEvent(QResizeEvent *event)
 {
     RemoteView::resizeEvent(event);
+	/*
     scaleResize(event->size().width(), event->size().height());
     forceFullRepaint();
+	*/
 }
 
 bool VncView::event(QEvent *event)
