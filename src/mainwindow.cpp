@@ -23,6 +23,8 @@
 #include "preferences.h"
 #include "vncview.h"
 
+#include <QSlider>
+
 #ifdef Q_WS_MAEMO_5
 #include <QtMaemo5>
 #include <QX11Info>
@@ -30,6 +32,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #endif
+
 
 
 MainWindow::MainWindow(QString url, int quality):
@@ -67,6 +70,15 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
 	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
+
+	//set up zoombar
+	zoombar = new QToolBar(0);
+	QSlider *zoom_slider = new QSlider(Qt::Horizontal, 0);
+	zoom_slider->setRange(0, 100);
+	connect(zoom_slider, SIGNAL(valueChanged(int)),
+		this, SLOT(setZoomLevel(int)));
+	zoombar->addWidget(zoom_slider);
+	addToolBar(zoombar);
 
 	//set up menu
 	QAction *connect_action = new QAction(tr("Connect"), this);
@@ -347,4 +359,10 @@ void MainWindow::showInputPanel()
 	QEvent event(QEvent::RequestSoftwareInputPanel);
 	QApplication::sendEvent(vnc_view, &event);
 #endif
+}
+
+void MainWindow::setZoomLevel(int level)
+{
+	if(vnc_view)
+		vnc_view->setZoomLevel(level);
 }

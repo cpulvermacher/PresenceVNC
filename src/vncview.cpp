@@ -401,7 +401,7 @@ void VncView::enableScaling(bool scale)
         if (parentWidget())
             scaleResize(parentWidget()->width(), parentWidget()->height());
 	    else
-		scaleResize(width(), height());
+			scaleResize(width(), height());
     } else {
         m_verticalFactor = 1.0;
         m_horizontalFactor = 1.0;
@@ -410,6 +410,38 @@ void VncView::enableScaling(bool scale)
         //setMinimumSize(m_frame.width(), m_frame.height());
         resize(m_frame.width(), m_frame.height());
     }
+}
+
+void VncView::setZoomLevel(int level)
+{
+	Q_ASSERT(parentWidget() != 0);
+	kDebug(5011) << "zooming to " << level;
+
+	//level should be in [0, 100]
+	if(level == 0) {
+		//double
+        m_verticalFactor = 2.0;
+        m_horizontalFactor = 2.0;
+
+        resize(m_frame.width()*2, m_frame.height()*2);
+	} else if(level < 10) {
+		//1:1
+        m_verticalFactor = 1.0;
+        m_horizontalFactor = 1.0;
+
+        resize(m_frame.width(), m_frame.height());
+	} else {
+		//map level to factor: level=10 => factor=nozoom_factor, level=100 => factor=1.0
+		double nozoom_factor = qMin(double(m_frame.width()/parentWidget()->width()),  double(m_frame.height()/parentWidget()->height()));
+		double factor = double(level-10)/90*(1.0 - nozoom_factor) + nozoom_factor;
+		if(factor < 0) {
+			//remote display smaller than local?
+			kDebug(5011) << "remote display smaller than local?";
+			factor = 1.0;
+		}
+
+		scaleResize(parentWidget()->width()*factor, parentWidget()->height()*factor);
+	}
 }
 
 void VncView::setCut(const QString &text)

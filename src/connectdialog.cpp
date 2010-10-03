@@ -97,12 +97,14 @@ void ConnectDialog::hostnameUpdated(QString newtext)
 	newtext.remove(QChar('\\'));
 	hosts.lineEdit()->setText(newtext.toLower());
 
+#ifdef Q_WS_MAEMO_5
 	//saved quality setting available?
 	QSettings settings;
 	int quality = settings.value(QString("hosts/%1/quality").arg(hosts.lineEdit()->text()), 2).toInt();
 	if(quality < 1 or quality > 3)
 		quality = 2;
 	quality_selector->setCurrentIndex(quality-1);
+#endif
 }
 
 void ConnectDialog::accept()
@@ -144,8 +146,12 @@ void ConnectDialog::accept()
 		//move selected host to front
 		settings.setValue(QString("%1/position").arg(hosts.currentText()), 0);
 	}
+#ifdef Q_WS_MAEMO_5
 	int quality = quality_selector->currentIndex() + 1;
 	settings.setValue(QString("%1/quality").arg(hosts.currentText()), quality);
+#else
+	int quality = 2;
+#endif
 
 	settings.endGroup();
 	settings.sync();

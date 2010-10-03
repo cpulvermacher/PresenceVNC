@@ -56,6 +56,7 @@ public slots:
 	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
 	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
 	void sendReturn() { vnc_view->sendKey(Qt::Key_Return); }
+    void setZoomLevel(int level);
 	void showInputPanel();
 	void showKeyMenu();
 	void showPreferences();
@@ -69,7 +70,7 @@ private:
 	void reloadSettings();
 	VncView *vnc_view;
 	ScrollArea *scroll_area;
-	QToolBar *toolbar;	
+	QToolBar *toolbar, *zoombar;
 	QAction *scaling, *show_toolbar, *disconnect_action;
 	KeyMenu *key_menu;
 };
