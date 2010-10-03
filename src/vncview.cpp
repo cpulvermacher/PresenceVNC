@@ -315,8 +315,8 @@ if(x == 0 and y == 0) {
 
     if (m_horizontalFactor != 1.0 || m_verticalFactor != 1.0) {
         // If the view is scaled, grow the update rectangle to avoid artifacts
-        int x_extrapixels = 1.0/m_horizontalFactor+1;
-        int y_extrapixels = 1.0/m_verticalFactor+1;
+        int x_extrapixels = 2.0/m_horizontalFactor+1;
+        int y_extrapixels = 2.0/m_verticalFactor+1;
 
         m_x-=x_extrapixels;
         m_y-=y_extrapixels;
@@ -415,33 +415,31 @@ void VncView::enableScaling(bool scale)
 void VncView::setZoomLevel(int level)
 {
 	Q_ASSERT(parentWidget() != 0);
-	kDebug(5011) << "zooming to " << level;
 
 	//level should be in [0, 100]
+
+	const double min_horiz_factor = double(parentWidget()->width())/m_frame.width();
+	const double min_vert_factor = double(parentWidget()->height())/m_frame.height();
+	const double fit_screen_factor = qMin(min_horiz_factor, min_vert_factor);
+	double factor; //actual magnification
 	if(level == 0) {
-		//double
-        m_verticalFactor = 2.0;
-        m_horizontalFactor = 2.0;
-
-        resize(m_frame.width()*2, m_frame.height()*2);
+		factor = 2.0;
 	} else if(level < 10) {
-		//1:1
-        m_verticalFactor = 1.0;
-        m_horizontalFactor = 1.0;
-
-        resize(m_frame.width(), m_frame.height());
+		factor = 1.0;
 	} else {
-		//map level to factor: level=10 => factor=nozoom_factor, level=100 => factor=1.0
-		double nozoom_factor = qMin(double(m_frame.width()/parentWidget()->width()),  double(m_frame.height()/parentWidget()->height()));
-		double factor = double(level-10)/90*(1.0 - nozoom_factor) + nozoom_factor;
-		if(factor < 0) {
-			//remote display smaller than local?
-			kDebug(5011) << "remote display smaller than local?";
-			factor = 1.0;
-		}
-
-		scaleResize(parentWidget()->width()*factor, parentWidget()->height()*factor);
+		//level=10 => factor=1.0, level=100 => factor=fit_screen_factor
+		factor = (level-10)/90.0*(fit_screen_factor - 1.0) + 1.0;
 	}
+
+	if(factor < 0) {
+		//remote display smaller than local?
+		kDebug(5011) << "remote display smaller than local?";
+		factor = 1.0;
+	}
+	kDebug(5011) << "zooming to " << factor;
+
+	m_verticalFactor = m_horizontalFactor = factor;
+	resize(m_frame.width()*factor, m_frame.height()*factor);
 }
 
 void VncView::setCut(const QString &text)
@@ -489,7 +487,7 @@ void VncView::paintEvent(QPaintEvent *event)
             painter.drawImage(QRect(0, 0, width(), height()), 
                               m_frame.scaled(m_frame.width() * m_horizontalFactor, m_frame.height() * m_verticalFactor,
                                              Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-	    force_full_repaint = false;
+			force_full_repaint = false;
         }
     }
 
