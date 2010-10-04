@@ -331,10 +331,8 @@ if(x == 0 and y == 0) {
 	*/
 
 
-/* TODO if the above works, remove this
     if (m_horizontalFactor != 1.0 || m_verticalFactor != 1.0) {
         // If the view is scaled, grow the update rectangle to avoid artifacts
-		// I'm not sure if that's helpful
         int x_extrapixels = 1.0/m_horizontalFactor + 1;
         int y_extrapixels = 1.0/m_verticalFactor + 1;
 
@@ -343,7 +341,6 @@ if(x == 0 and y == 0) {
         m_w+=2*x_extrapixels;
         m_h+=2*y_extrapixels;
     }
-	*/
 
     m_frame = vncThread.image();
 
