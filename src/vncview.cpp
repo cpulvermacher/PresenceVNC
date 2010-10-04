@@ -316,6 +316,7 @@ if(x == 0 and y == 0) {
 
 	//with scaled view, artefacts occur because of rounding errors
 	//we'll try to only update chunks of screen space that correspond to integer pixel sizes in m_frame
+	//put this into paintEvent
 	/*
 	int frame_x = x/m_horizontalFactor;
 	int frame_w = w/m_horizontalFactor;
@@ -412,22 +413,6 @@ void VncView::showDotCursor(DotCursorState state)
 void VncView::enableScaling(bool scale)
 {
     RemoteView::enableScaling(scale);
-
-    if (scale) {
-        //setMaximumSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
-        //setMinimumSize(1, 1);
-        if (parentWidget())
-            scaleResize(parentWidget()->width(), parentWidget()->height());
-	    else
-			scaleResize(width(), height());
-    } else {
-        m_verticalFactor = 1.0;
-        m_horizontalFactor = 1.0;
-
-        //setMaximumSize(m_frame.width(), m_frame.height()); //This is a hack to force Qt to center the view in the scroll area
-        //setMinimumSize(m_frame.width(), m_frame.height());
-        resize(m_frame.width(), m_frame.height());
-    }
 }
 
 //level should be in [0, 100]
@@ -935,6 +920,8 @@ void VncView::reloadSettings()
 	bool always_show_local_cursor = settings.value("always_show_local_cursor", false).toBool();
 	if(always_show_local_cursor)
 		showDotCursor(CursorOn);
+
+	enableScaling(true);
 }
 
 //convert commitString into keyevents

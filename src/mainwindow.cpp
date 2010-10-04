@@ -23,8 +23,6 @@
 #include "preferences.h"
 #include "vncview.h"
 
-#include <QSlider>
-
 #ifdef Q_WS_MAEMO_5
 #include <QtMaemo5>
 #include <QX11Info>
@@ -62,7 +60,7 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel()));
 #endif
 
-	//move fullscreen button to the right
+	//move remaining buttons to the right
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	toolbar->addWidget(spacer);
@@ -73,19 +71,17 @@ MainWindow::MainWindow(QString url, int quality):
 
 	//set up zoombar
 	zoombar = new QToolBar(0);
-	QSlider *zoom_slider = new QSlider(Qt::Horizontal, 0);
+	zoom_slider = new QSlider(Qt::Horizontal, 0);
 	zoom_slider->setRange(0, 100);
 	connect(zoom_slider, SIGNAL(valueChanged(int)),
 		this, SLOT(setZoomLevel(int)));
+	zoom_slider->setValue(settings.value("zoomlevel", 95).toInt());
 	zoombar->addWidget(zoom_slider);
 	addToolBar(zoombar);
 
 	//set up menu
 	QAction *connect_action = new QAction(tr("Connect"), this);
 	disconnect_action = new QAction(tr("Disconnect"), this);
-	scaling = new QAction(tr("Fit to Screen"), this);
-	scaling->setCheckable(true);
-	scaling->setChecked(settings.value("rescale", true).toBool());
 	show_toolbar = new QAction(tr("Show Toolbar"), this);
 	show_toolbar->setCheckable(true);
 	show_toolbar->setChecked(settings.value("show_toolbar", true).toBool());
@@ -95,7 +91,6 @@ MainWindow::MainWindow(QString url, int quality):
 #ifdef Q_WS_MAEMO_5
 	menuBar()->addAction(connect_action);
 	menuBar()->addAction(disconnect_action);
-	menuBar()->addAction(scaling);
 	menuBar()->addAction(show_toolbar);
 	menuBar()->addAction(pref_action);
 	menuBar()->addAction(about_action);
@@ -109,7 +104,6 @@ MainWindow::MainWindow(QString url, int quality):
 	session_menu->addAction(tr("&Quit"), this, SLOT(close()));
 
 	QMenu* view_menu = menuBar()->addMenu(tr("&View"));
-	view_menu->addAction(scaling);
 	view_menu->addAction(show_toolbar);
 
 	QMenu* help_menu = menuBar()->addMenu(tr("&Help"));
@@ -141,13 +135,10 @@ MainWindow::MainWindow(QString url, int quality):
 		showConnectDialog();
 	} else {
 		vnc_view = new VncView(this, url, RemoteView::Quality(quality));
-		connect(scaling, SIGNAL(toggled(bool)),
-			vnc_view, SLOT(enableScaling(bool)));
 		connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 			this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 		scroll_area->setWidget(vnc_view);
 		vnc_view->start();
-		vnc_view->enableScaling(scaling->isChecked());
 		key_menu = new KeyMenu(this);
 	}
 }
@@ -171,7 +162,7 @@ void MainWindow::closeEvent(QCloseEvent*) {
 
 	QSettings settings;
 	settings.setValue("show_toolbar", show_toolbar->isChecked());
-	settings.setValue("rescale", scaling->isChecked());
+	settings.setValue("zoomlevel", zoom_slider->value());
 	settings.sync();
 
 	hide();
@@ -204,13 +195,10 @@ void MainWindow::connectToHost(QString url, int quality)
 
 	vnc_view = new VncView(this, url, RemoteView::Quality(quality));
 
-	connect(scaling, SIGNAL(toggled(bool)),
-		vnc_view, SLOT(enableScaling(bool)));
 	connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 		this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 	scroll_area->setWidget(vnc_view);
 	vnc_view->start();
-	vnc_view->enableScaling(scaling->isChecked());
 	disconnect_action->setEnabled(true);
 	toolbar->setEnabled(true);
 
@@ -247,11 +235,13 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 #ifdef Q_WS_MAEMO_5
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
+		/* TODO: still needed?
 		if(!scaling->isChecked()) {
 			//ugly hack to force a refresh (forceFullRepaint() doesn't repaint?? -> vnc_view hidden???)
 			vnc_view->resize(scroll_area->size());
 			vnc_view->enableScaling(false);
 		}
+		*/
 		break;
 	case RemoteView::Disconnecting:
 		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
@@ -283,11 +273,11 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 	old_status = status;
 }
 
-//when rescaling is enabled, this resizes the widget to use available screen space
+//resizes the widget to use available screen space
 //necessary when rotating, showing fullscreen, etc.
 void MainWindow::forceResize()
 {
-	if(vnc_view and scaling->isChecked()) {
+	if(vnc_view) {
 		vnc_view->resize(scroll_area->size());
 	}
 } 

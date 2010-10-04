@@ -31,7 +31,7 @@ void migrateConfiguration()
 {
 	QSettings settings;
 	int config_ver = settings.value("config_version", 0).toInt();
-	const int current_ver = 2;
+	const int current_ver = 3;
 	if(config_ver == current_ver) //config file up-to-date
 		return;
 	if(config_ver > current_ver) {
@@ -69,6 +69,20 @@ void migrateConfiguration()
 		}
 		
 		config_ver = 2;
+	}
+	if(config_ver == 2) {
+		bool rescale = settings.value("rescale", false).toBool();
+		settings.remove("rescale");
+
+		int zoomlevel;
+		if(rescale)
+			zoomlevel = 0;
+		else
+			zoomlevel = 95;
+
+		settings.setValue("zoomlevel", zoomlevel);
+		
+		config_ver = 3;
 	}
 	Q_ASSERT(config_ver == current_ver);
 	settings.setValue("config_version", config_ver);

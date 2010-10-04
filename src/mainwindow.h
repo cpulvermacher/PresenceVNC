@@ -71,6 +71,7 @@ private:
 	VncView *vnc_view;
 	ScrollArea *scroll_area;
 	QToolBar *toolbar, *zoombar;
+	QSlider *zoom_slider;
 	QAction *scaling, *show_toolbar, *disconnect_action;
 	KeyMenu *key_menu;
 };
