@@ -337,6 +337,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 	QMainWindow::resizeEvent(event);
 
 	forceResize();
+	if(vnc_view)
+		vnc_view->setZoomLevel(zoom_slider->value());
 }
 
 void MainWindow::showInputPanel()
