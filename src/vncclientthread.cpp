@@ -249,6 +249,7 @@ void VncClientThread::stop()
 void VncClientThread::run()
 {
     QMutexLocker locker(&mutex);
+	bool clean = false;
 
     int passwd_failures = 0;
     while (!m_stopped) { // try to connect as long as the server allows
@@ -279,11 +280,13 @@ void VncClientThread::run()
             break;
 
         if (m_passwordError) {
-	    passwd_failures++;
-	    if(passwd_failures > 2)
-		    m_stopped = true;
-            continue;
-	}
+			passwd_failures++;
+			if(passwd_failures > 2) {
+				m_stopped = true;
+				clean = true; //rfbInitClient cleans up after itself upon failure
+			}
+			continue;
+		}
 
         return;
     }
@@ -312,7 +315,8 @@ void VncClientThread::run()
 
     // Cleanup allocated resources
     locker.relock();
-    rfbClientCleanup(cl);
+	if(!clean)
+		rfbClientCleanup(cl);
     m_stopped = true;
 }
 
