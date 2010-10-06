@@ -95,7 +95,9 @@ void ConnectDialog::hostnameUpdated(QString newtext)
 	//clean up hostname
 	newtext.remove(QChar('/'));
 	newtext.remove(QChar('\\'));
+	int cursorpos = hosts.lineEdit()->cursorPosition();
 	hosts.lineEdit()->setText(newtext.toLower());
+	hosts.lineEdit()->setCursorPosition(cursorpos);
 
 #ifdef Q_WS_MAEMO_5
 	//saved quality setting available?
