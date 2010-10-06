@@ -133,28 +133,6 @@ QSize VncView::minimumSizeHint() const
     return size();
 }
 
-void VncView::scaleResize(int w, int h)
-{
-    RemoteView::scaleResize(w, h);
-    
-    kDebug(5011) << "scaleResize(): " <<w << h;
-    if (m_scale) {
-        m_verticalFactor = (qreal) h / m_frame.height();
-        m_horizontalFactor = (qreal) w / m_frame.width();
-
-        m_verticalFactor = m_horizontalFactor = qMin(m_verticalFactor, m_horizontalFactor);
-
-        const qreal newW = m_frame.width() * m_horizontalFactor;
-        const qreal newH = m_frame.height() * m_verticalFactor;
-	/*
-        setMaximumSize(newW, newH); //This is a hack to force Qt to center the view in the scroll area
-	//also causes the widget's size to flicker
-	*/
-        resize(newW, newH);
-    } 
-}
-
-
 void VncView::startQuitting()
 {
     kDebug(5011) << "about to quit";
@@ -359,12 +337,7 @@ if(x == 0 and y == 0) {
 //         emit framebufferSizeChanged(m_frame.width(), m_frame.height());
         emit connected();
         
-        if (m_scale) {
-            if (parentWidget())
-                scaleResize(parentWidget()->width(), parentWidget()->height());
-	    else
-                scaleResize(width(), height());
-        } 
+		resize(width(), height());
         
         m_initDone = true;
 
@@ -374,16 +347,7 @@ if(x == 0 and y == 0) {
     if ((y == 0 && x == 0) && (m_frame.size() != old_frame_size)) {
 	    old_frame_size = m_frame.size();
         kDebug(5011) << "Updating framebuffer size";
-        if (m_scale) {
-            //setMaximumSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
-            if (parentWidget())
-                scaleResize(parentWidget()->width(), parentWidget()->height());
-        } else {
-            kDebug(5011) << "Resizing: " << m_frame.width() << m_frame.height();
-            resize(m_frame.width(), m_frame.height());
-            //setMaximumSize(m_frame.width(), m_frame.height()); //This is a hack to force Qt to center the view in the scroll area
-            //setMinimumSize(m_frame.width(), m_frame.height());
-        }
+		setZoomLevel();
         emit framebufferSizeChanged(m_frame.width(), m_frame.height());
     }
 
@@ -421,6 +385,10 @@ void VncView::setZoomLevel(int level)
 {
 	Q_ASSERT(parentWidget() != 0);
 
+	if(level == -1) { //handle resize
+		resize(m_frame.width()*m_horizontalFactor, m_frame.height()*m_verticalFactor);
+		return;
+	}
 
 	double factor; //actual magnification
 	if(level > 95) {
@@ -441,6 +409,10 @@ void VncView::setZoomLevel(int level)
 		kDebug(5011) << "remote display smaller than local?";
 		factor = 1.0;
 	}
+	if(factor != factor) //nan
+		factor = 1.0;
+	
+	kDebug(5011) << "factor" << factor;
 
 	m_verticalFactor = m_horizontalFactor = factor;
 	resize(m_frame.width()*factor, m_frame.height()*factor);
@@ -514,10 +486,6 @@ void VncView::paintEvent(QPaintEvent *event)
 void VncView::resizeEvent(QResizeEvent *event)
 {
     RemoteView::resizeEvent(event);
-	/*
-    scaleResize(event->size().width(), event->size().height());
-    forceFullRepaint();
-	*/
 }
 
 bool VncView::event(QEvent *event)

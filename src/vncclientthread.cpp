@@ -91,6 +91,9 @@ void VncClientThread::updatefb(rfbClient* cl, int x, int y, int w, int h)
     VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);
     Q_ASSERT(t);
 
+    if (t->m_stopped)
+        return; //sending data to a stopped thread is not a good idea
+
     t->setImage(img);
 
     t->emitUpdated(x, y, w, h);
@@ -99,7 +102,7 @@ void VncClientThread::updatefb(rfbClient* cl, int x, int y, int w, int h)
 void VncClientThread::cuttext(rfbClient* cl, const char *text, int textlen)
 {
     const QString cutText = QString::fromUtf8(text, textlen);
-    kDebug(5011) << cutText;
+    kDebug(5011) << "cuttext: " << cutText;
 
     if (!cutText.isEmpty()) {
         VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);

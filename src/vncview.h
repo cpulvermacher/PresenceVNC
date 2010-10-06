@@ -60,8 +60,7 @@ public:
     
 public slots:
     void enableScaling(bool scale); //TODO: i may want to remove this
-    void setZoomLevel(int level); //'level' doesn't correspond to actual magnification, though mapping is done here
-    void scaleResize(int w, int h);
+    void setZoomLevel(int level = -1); //'level' doesn't correspond to actual magnification, though mapping is done here
     void sendKey(Qt::Key key);
     void sendKeySequence(QKeySequence keys);
     void forceFullRepaint();

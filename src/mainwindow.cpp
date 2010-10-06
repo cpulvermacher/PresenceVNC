@@ -141,6 +141,8 @@ MainWindow::MainWindow(QString url, int quality):
 		vnc_view->start();
 		key_menu = new KeyMenu(this);
 	}
+
+	//QTimer::singleShot(500, this, SLOT(close()));
 }
 
 void MainWindow::grabZoomKeys(bool grab)
@@ -235,13 +237,8 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 #ifdef Q_WS_MAEMO_5
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
-		/* TODO: still needed?
-		if(!scaling->isChecked()) {
-			//ugly hack to force a refresh (forceFullRepaint() doesn't repaint?? -> vnc_view hidden???)
-			vnc_view->resize(scroll_area->size());
-			vnc_view->enableScaling(false);
-		}
-		*/
+		vnc_view->setZoomLevel(zoom_slider->value());
+		vnc_view->forceFullRepaint();
 		break;
 	case RemoteView::Disconnecting:
 		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
