@@ -166,12 +166,13 @@ void VncView::startQuitting()
     m_quitFlag = true;
 
     if (connected) {
+		kDebug(5011) << "stopping vncThread";
         vncThread.stop();
     }
 
     vncThread.quit();
 
-    const bool quitSuccess = vncThread.wait(500);
+    const bool quitSuccess = vncThread.wait(700);
 
     kDebug(5011) << "startQuitting(): Quit VNC thread success:" << quitSuccess;
 
