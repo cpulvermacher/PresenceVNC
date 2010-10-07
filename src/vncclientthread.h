@@ -149,7 +149,6 @@ private:
 
     volatile bool m_stopped;
     volatile bool m_passwordError;
-	bool inMessageHandler;
 
 private slots:
     void checkOutputErrorMessage();

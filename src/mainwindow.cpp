@@ -141,8 +141,6 @@ MainWindow::MainWindow(QString url, int quality):
 		vnc_view->start();
 		key_menu = new KeyMenu(this);
 	}
-
-	//QTimer::singleShot(500, this, SLOT(close()));
 }
 
 void MainWindow::grabZoomKeys(bool grab)
@@ -216,7 +214,6 @@ void MainWindow::disconnectFromHost()
 
 	scroll_area->setWidget(0);
 
-	vnc_view->disconnect(); //remove all signal-slot connections
 	delete vnc_view;
 	vnc_view = 0;
 	disconnect_action->setEnabled(false);
@@ -264,6 +261,8 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		if(old_status == RemoteView::Disconnecting) {
 			scroll_area->setWidget(0); //remove widget
 		}
+		break;
+	default: //avoid compiler warnings
 		break;
 	}
 

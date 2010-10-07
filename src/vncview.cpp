@@ -75,6 +75,7 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality)
     m_host = url.host();
     m_port = url.port();
 
+	//BlockingQueuedConnection can cause deadlocks when exiting, handled in startQuitting()
     connect(&vncThread, SIGNAL(imageUpdated(int, int, int, int)), this, SLOT(updateImage(int, int, int, int)), Qt::BlockingQueuedConnection);
     connect(&vncThread, SIGNAL(gotCut(const QString&)), this, SLOT(setCut(const QString&)), Qt::BlockingQueuedConnection);
     connect(&vncThread, SIGNAL(passwordRequest()), this, SLOT(requestPassword()), Qt::BlockingQueuedConnection);
@@ -137,23 +138,24 @@ void VncView::startQuitting()
 {
     kDebug(5011) << "about to quit";
 
-    const bool connected = status() == RemoteView::Connected;
+    //const bool connected = status() == RemoteView::Connected;
 
     setStatus(Disconnecting);
 
     m_quitFlag = true;
 
-    if (connected) {
-		kDebug(5011) << "stopping vncThread";
-        vncThread.stop();
-    }
-
-    vncThread.quit();
+	//if(connected) //remove if things work without it
+	vncThread.stop();
 
     const bool quitSuccess = vncThread.wait(700);
-
-    kDebug(5011) << "startQuitting(): Quit VNC thread success:" << quitSuccess;
-
+	if(!quitSuccess) {
+		//happens when vncThread wants to call a slot via BlockingQueuedConnection,
+		//needs an event loop in this thread so execution continues after 'emit'
+		QEventLoop loop;
+		if(!loop.processEvents())
+			kDebug(5011) << "BUG: deadlocked, but no events to deliver?";
+		vncThread.wait(700);
+	}
     setStatus(Disconnected);
 }
 
@@ -271,6 +273,7 @@ void VncView::updateImage(int x, int y, int w, int h)
 	if(!QApplication::focusWidget()) { //no focus, we're probably minimized
 		return;
 	}
+
      //kDebug(5011) << "got update" << width() << height();
 
      /*

@@ -91,9 +91,6 @@ void VncClientThread::updatefb(rfbClient* cl, int x, int y, int w, int h)
     VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);
     Q_ASSERT(t);
 
-    if (t->m_stopped)
-        return; //sending data to a stopped thread is not a good idea
-
     t->setImage(img);
 
     t->emitUpdated(x, y, w, h);
@@ -177,14 +174,11 @@ VncClientThread::~VncClientThread()
 
     const bool quitSuccess = wait(1000);
 
-    kDebug(5011) << "~VncClientThread(): Quit VNC thread success:" << quitSuccess;
+	if(!quitSuccess)
+		kDebug(5011) << "~VncClientThread(): Quit failed";
     
     delete [] frameBuffer;
     //cl is free()d when event loop exits.
-
-	kDebug(5011) << "inMessageHandler: " << inMessageHandler;
-
-	kDebug(5011) << "leaving ~VncClientThreod()";
 }
 
 void VncClientThread::checkOutputErrorMessage()
@@ -250,9 +244,7 @@ void VncClientThread::emitGotCut(const QString &text)
 void VncClientThread::stop()
 {
     QMutexLocker locker(&mutex);
-//TODO: not locking the mutex leads to a crash, but at least it stops.
-//TODO: i don't see how this makes a difference
-	kDebug(5011) << "stop(): mutex locked";
+
     m_stopped = true;
 }
 
@@ -303,28 +295,15 @@ void VncClientThread::run()
 
     locker.unlock();
 
-	inMessageHandler = false;
-
     // Main VNC event loop
     while (!m_stopped) {
         const int i = WaitForMessage(cl, 500);
-        if (i < 0)
-            break;
-		if(m_stopped) {
-			kDebug(5011) << "foo2";
+		if(m_stopped or i < 0)
 			break;
-		}
-        if (i) {
-			inMessageHandler = true;
+
+        if (i)
             if (!HandleRFBServerMessage(cl))
                 break;
-			inMessageHandler = false;
-		}
-
-		if(m_stopped) {
-			kDebug(5011) << "foo4";
-			break;
-		}
 
         locker.relock();
 
@@ -336,15 +315,12 @@ void VncClientThread::run()
 
         locker.unlock();
     }
-	kDebug(5011) << "exited main loop";
 
     // Cleanup allocated resources
     locker.relock();
-	kDebug(5011) << "mutex relocked";
 	if(!clean)
 		rfbClientCleanup(cl);
     m_stopped = true;
-	kDebug(5011) << "exiting run()";
 }
 
 ClientEvent::~ClientEvent()
