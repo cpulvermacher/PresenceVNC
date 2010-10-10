@@ -36,6 +36,7 @@ private slots:
 	void hostnameUpdated(QString newtext);
 private:
 	QHBoxLayout layout;
+	QStringList hostnames_sorted;
 	QComboBox hosts;
 	QMaemo5ListPickSelector *quality_selector;
 };

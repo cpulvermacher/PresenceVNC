@@ -37,22 +37,16 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	//read history
 	settings.beginGroup("hosts");
 	QStringList hostnames = settings.childGroups();
-	QStringList hostnames_sorted = hostnames;
+	QMap<int, QString> hosts_map; //use position as key
 	foreach(QString hostname, hostnames) {
 		if(!settings.contains(hostname + "/position")) {
-			//can happen when host was given as a command line argument, don't show those
-			hostnames_sorted.removeAll(hostname);
-			continue;
+			continue; //can happen when host was given as a command line argument, don't show those
 		}
 
 		int position = settings.value(hostname + "/position").toInt();
-		if(position < 0)
-			position = 0;
-		else if(position >= hostnames_sorted.size())
-			position = hostnames_sorted.size()-1;
-
-		hostnames_sorted.replace(position, hostname);
+		hosts_map.insert(position, hostname);
 	}
+	hostnames_sorted = hosts_map.values(); //sorted by ascending position
 	settings.endGroup();
 
 	//set up combobox
@@ -113,44 +107,34 @@ void ConnectDialog::accept()
 {
 	QDialog::accept();
 
-	if(hosts.currentText().isEmpty()) {
+	QString selected_host = hosts.currentText();
+	if(selected_host.isEmpty()) {
 		deleteLater();
 		return;
 	}
 
-	//save url?
 	QSettings settings;
 	settings.beginGroup("hosts");
-	bool new_item = !settings.contains(hosts.currentText());
+	bool new_item = !hostnames_sorted.contains(selected_host);
 	bool used_old_host = !new_item and hosts.currentIndex() > 0;
-	int rearrange_up_to_pos;
-	if(new_item) {
-		std::cout << "adding new item to history\n";
-		rearrange_up_to_pos = hosts.count(); //use free index
-	} else if(used_old_host) {
-		rearrange_up_to_pos = hosts.currentIndex();
-	}
+	//if both are false, we don't need to mess with positions
 
 	if(new_item or used_old_host) {
-		std::cout << "rearranging history,  last index " << rearrange_up_to_pos << "\n";
+		//put selected_host at the top
+		settings.setValue(QString("%1/position").arg(selected_host), 0);
 
-		QStringList hostnames = settings.childGroups();
-		foreach(QString hostname, hostnames) {
-			if(!settings.contains(hostname + "/position"))
-				continue; //ignore entries without position
+		//don't create duplicates
+		if(used_old_host)
+			hostnames_sorted.removeAll(selected_host);
 
-			int position = settings.value(hostname + "/position").toInt();
-			if(position < rearrange_up_to_pos)
-				settings.setValue(hostname + "/position", position+1);
-		}
-		//position 0 is now free
-
-		//move selected host to front
-		settings.setValue(QString("%1/position").arg(hosts.currentText()), 0);
+		//now rebuild list for positions >= 1
+		for(int i = 0; i < hostnames_sorted.size(); i++)
+			settings.setValue(QString("%1/position").arg(hostnames_sorted.at(i)), i+1);
 	}
+
 #ifdef Q_WS_MAEMO_5
 	int quality = quality_selector->currentIndex() + 1;
-	settings.setValue(QString("%1/quality").arg(hosts.currentText()), quality);
+	settings.setValue(QString("%1/quality").arg(selected_host), quality);
 #else
 	int quality = 2;
 #endif
@@ -158,6 +142,6 @@ void ConnectDialog::accept()
 	settings.endGroup();
 	settings.sync();
 
-	emit connectToHost(QString("vnc://%1").arg(hosts.currentText()), quality);
+	emit connectToHost(QString("vnc://%1").arg(selected_host), quality);
 	deleteLater();
 }
