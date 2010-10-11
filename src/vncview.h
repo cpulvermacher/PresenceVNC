@@ -80,7 +80,6 @@ private:
     QMap<unsigned int, bool> m_mods;
     int m_x, m_y, m_w, m_h;
     int cursor_x, cursor_y;
-	int listen_port;
     bool m_repaint;
     bool m_quitFlag;
     bool m_firstPasswordTry;
@@ -90,9 +89,10 @@ private:
     QImage m_frame;
     bool m_forceLocalCursor;
     bool force_full_repaint;
-    RemoteView::Quality quality;
     int left_zoom, right_zoom;
     bool disable_tapping;
+    RemoteView::Quality quality;
+	int listen_port;
 
     void keyEventHandler(QKeyEvent *e);
     void unpressModifiers();
