@@ -84,24 +84,29 @@ listenForIncomingConnections(rfbClient* client)
       if (!SetNonBlocking(client->sock))
 	return;
 
-      /* Now fork off a new process to deal with it... */
-
-      switch (fork()) {
-
-      case -1: 
-	rfbClientErr("fork\n"); 
-	return;
-
-      case 0:
-	/* child - return to caller */
+	//modified to accept only a single connection
+	//if something goes wrong, we can always create another listening socket
 	close(listenSocket);
 	return;
 
-      default:
-	/* parent - go round and listen again */
-	close(client->sock); 
-	break;
-      }
+//      /* Now fork off a new process to deal with it... */
+//
+//      switch (fork()) {
+//
+//      case -1: 
+//	rfbClientErr("fork\n"); 
+//	return;
+//
+//      case 0:
+//	/* child - return to caller */
+//	close(listenSocket);
+//	return;
+//
+//      default:
+//	/* parent - go round and listen again */
+//	close(client->sock); 
+//	break;
+//      }
     }
   }
 #endif
