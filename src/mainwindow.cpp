@@ -183,16 +183,16 @@ and LibVNCServer, &copy; 2001-2003 Johannes E. Schindelin</p>\
 void MainWindow::showConnectDialog()
 {
 	ConnectDialog *connect_dialog = new ConnectDialog(this);
-	connect(connect_dialog, SIGNAL(connectToHost(QString, int)),
-		this, SLOT(connectToHost(QString, int)));
+	connect(connect_dialog, SIGNAL(connectToHost(QString, int, int)),
+		this, SLOT(connectToHost(QString, int, int)));
 	connect_dialog->exec();
 }
 
-void MainWindow::connectToHost(QString url, int quality)
+void MainWindow::connectToHost(QString url, int quality, int listen_port)
 {
 	disconnectFromHost();
 
-	vnc_view = new VncView(this, url, RemoteView::Quality(quality));
+	vnc_view = new VncView(this, url, RemoteView::Quality(quality), listen_port);
 
 	connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 		this, SLOT(statusChanged(RemoteView::RemoteStatus)));

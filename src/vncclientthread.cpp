@@ -278,8 +278,16 @@ void VncClientThread::run()
 
         kDebug(5011) << "--------------------- trying init ---------------------";
 
-        if (rfbInitClient(cl, 0, 0))
-            break;
+		if(listen_port) { //listen for incoming connections
+			int argc = 2;
+			char* argv[2] = { "x", "-listen" }; //this isn't exactly elegant..
+			cl->listenPort = listen_port;
+			if (rfbInitClient(cl, &argc, argv))
+				break;
+		} else { //connect to host
+			if (rfbInitClient(cl, 0, 0))
+				break;
+		}
 
         if (m_passwordError) {
 			passwd_failures++;

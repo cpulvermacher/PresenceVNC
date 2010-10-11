@@ -41,7 +41,7 @@ class VncView: public RemoteView
     Q_OBJECT
 
 public:
-    explicit VncView(QWidget *parent = 0, const KUrl &url = KUrl(), RemoteView::Quality quality = RemoteView::Medium);
+    explicit VncView(QWidget *parent = 0, const KUrl &url = KUrl(), RemoteView::Quality quality = RemoteView::Medium, int listen_port = 0);
     ~VncView();
 
     QSize framebufferSize();
@@ -80,6 +80,7 @@ private:
     QMap<unsigned int, bool> m_mods;
     int m_x, m_y, m_w, m_h;
     int cursor_x, cursor_y;
+	int listen_port;
     bool m_repaint;
     bool m_quitFlag;
     bool m_firstPasswordTry;

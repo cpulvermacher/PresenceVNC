@@ -47,7 +47,7 @@ public:
 public slots:
 	void about();
 	void showConnectDialog();
-	void connectToHost(QString url, int quality);
+	void connectToHost(QString url, int quality, int listen_port);
 	void disconnectFromHost();
 	void forceResize();
 	void forceResizeDelayed();

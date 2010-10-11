@@ -55,7 +55,7 @@ critical(parent, caption, message)
 //local cursor width/height in px, should be an odd number
 const int cursor_size = 7;
 
-VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality)
+VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, int listen_port)
         : RemoteView(parent),
         m_initDone(false),
         m_buttonMask(0),
@@ -69,7 +69,8 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality)
         m_verticalFactor(1.0),
         m_forceLocalCursor(false),
 	force_full_repaint(false),
-	quality(quality)
+	quality(quality),
+	listen_port(listen_port)
 {
     m_url = url;
     m_host = url.host();
@@ -168,7 +169,7 @@ bool VncView::start()
 {
     vncThread.setHost(m_host);
     vncThread.setPort(m_port);
-
+	vncThread.setListenPort(listen_port); //if port is != 0, thread will listen for connections
     vncThread.setQuality(quality);
 
     // set local cursor on by default because low quality mostly means slow internet connection

@@ -106,13 +106,10 @@ public:
     void stop();
     void setHost(const QString &host);
     void setPort(int port);
+	void setListenPort(int port) { listen_port = port; }
     void setQuality(RemoteView::Quality quality);
-    void setPassword(const QString &password) {
-        m_password = password;
-    }
-    const QString password() const {
-        return m_password;
-    }
+    void setPassword(const QString &password) { m_password = password; }
+    const QString password() const { return m_password; }
 
     RemoteView::Quality quality() const;
     uint8_t *frameBuffer;
@@ -142,7 +139,7 @@ private:
     rfbClient *cl;
     QString m_host;
     QString m_password;
-    int m_port;
+    int m_port, listen_port;
     QMutex mutex;
     RemoteView::Quality m_quality;
     QQueue<ClientEvent* > m_eventQueue;

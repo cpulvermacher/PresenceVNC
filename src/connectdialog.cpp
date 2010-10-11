@@ -25,8 +25,6 @@
 
 #include "connectdialog.h"
 
-#include <iostream>
-
 
 ConnectDialog::ConnectDialog(QWidget *parent):
 	QDialog(parent)
@@ -51,12 +49,16 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 
 	//set up combobox
 	hosts.addItems(hostnames_sorted);
+	hosts.insertSeparator(hosts.count());
+	hosts.addItem(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_received.png"), tr("Listen for Incoming Connections"));
 	hosts.setEditable(true);
 #ifdef Q_WS_MAEMO_5
 	hosts.lineEdit()->setInputMethodHints(Qt::ImhNoAutoUppercase); //somehow this doesn't work that well here
 #endif
 	connect(&hosts, SIGNAL(editTextChanged(QString)),
 		this, SLOT(hostnameUpdated(QString)));
+	connect(&hosts, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(indexChanged(int)));
 	layout.addWidget(&hosts);
 
 #ifdef Q_WS_MAEMO_5
@@ -84,6 +86,15 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	setLayout(&layout);
 }
 
+void ConnectDialog::indexChanged(int index) {
+	if(index == -1)
+		return;
+
+	//disallow editing for special entries (icon set)
+	hosts.setEditable(hosts.itemIcon(index).isNull());
+}
+
+
 void ConnectDialog::hostnameUpdated(QString newtext)
 {
 	//clean up hostname
@@ -109,6 +120,11 @@ void ConnectDialog::accept()
 
 	QString selected_host = hosts.currentText();
 	if(selected_host.isEmpty()) {
+		deleteLater();
+		return;
+	}
+	if(!hosts.itemIcon(hosts.currentIndex()).isNull()) {
+		emit connectToHost("", 2, 5900); //TODO: quality and port from user input
 		deleteLater();
 		return;
 	}
@@ -142,6 +158,6 @@ void ConnectDialog::accept()
 	settings.endGroup();
 	settings.sync();
 
-	emit connectToHost(QString("vnc://%1").arg(selected_host), quality);
+	emit connectToHost(QString("vnc://%1").arg(selected_host), quality, 0);
 	deleteLater();
 }
