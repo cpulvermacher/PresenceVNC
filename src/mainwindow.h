@@ -70,7 +70,7 @@ private:
 	void reloadSettings();
 	VncView *vnc_view;
 	ScrollArea *scroll_area;
-	QToolBar *toolbar, *zoombar;
+	QToolBar *toolbar;
 	QSlider *zoom_slider;
 	QAction *scaling, *show_toolbar, *disconnect_action;
 	KeyMenu *key_menu;

@@ -60,24 +60,23 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel()));
 #endif
 
+	/*
 	//move remaining buttons to the right
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	toolbar->addWidget(spacer);
+	*/
 
-	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
-	addToolBar(toolbar);
-	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
-
-	//set up zoombar
-	zoombar = new QToolBar(0);
 	zoom_slider = new QSlider(Qt::Horizontal, 0);
 	zoom_slider->setRange(0, 100);
 	connect(zoom_slider, SIGNAL(valueChanged(int)),
 		this, SLOT(setZoomLevel(int)));
 	zoom_slider->setValue(settings.value("zoomlevel", 95).toInt());
-	zoombar->addWidget(zoom_slider);
-	addToolBar(zoombar);
+	toolbar->addWidget(zoom_slider);
+
+	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
+	addToolBar(toolbar);
+	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
 
 	//set up menu
 	QAction *connect_action = new QAction(tr("Connect"), this);
@@ -335,6 +334,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 	forceResize();
 	if(vnc_view)
 		vnc_view->setZoomLevel(zoom_slider->value());
+	
+#ifdef Q_WS_MAEMO_5
+	//hide zoom slider in portrait mode
+	zoom_slider->setVisible(height() < width());
+#endif
 }
 
 void MainWindow::showInputPanel()
