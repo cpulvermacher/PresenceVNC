@@ -395,16 +395,16 @@ void VncView::setZoomLevel(int level)
 	}
 
 	double factor; //actual magnification
-	if(level > 95) {
+	if(level == 100) {
 		factor = 2.0;
-	} else if(level > 90) {
+	} else if(level >= 90) {
 		factor = 1.0;
 	} else {
 		const double min_horiz_factor = double(parentWidget()->width())/m_frame.width();
 		const double min_vert_factor = double(parentWidget()->height())/m_frame.height();
 		const double fit_screen_factor = qMin(min_horiz_factor, min_vert_factor);
 
-		//level=900 => factor=1.0, level=0 => factor=fit_screen_factor
+		//level=90 => factor=1.0, level=0 => factor=fit_screen_factor
 		factor = (level)/90.0*(1.0 - fit_screen_factor) + fit_screen_factor;
 	}
 
