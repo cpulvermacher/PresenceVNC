@@ -1,6 +1,8 @@
 presencevnc (0.6) unstable; urgency=low
 
-  * ...
+  * Stability fixes
+  * Add zoom bar
+  * Add "Listen for Incoming Connections" option to host list
 
  -- Christian Pulvermacher <christian@hazel>  Fri, 01 Oct 2010 14:54:43 +0200
 
