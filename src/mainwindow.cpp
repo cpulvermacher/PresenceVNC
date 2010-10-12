@@ -32,7 +32,6 @@
 #endif
 
 
-
 MainWindow::MainWindow(QString url, int quality):
 	QMainWindow(0),
 	vnc_view(0),
@@ -355,6 +354,18 @@ void MainWindow::showInputPanel()
 
 void MainWindow::setZoomLevel(int level)
 {
-	if(vnc_view)
-		vnc_view->setZoomLevel(level);
+	if(!vnc_view)
+		return;
+	
+	int old_width = vnc_view->width();
+	QPoint center = vnc_view->visibleRegion().boundingRect().center();
+
+	vnc_view->setZoomLevel(level);
+
+	int new_width = vnc_view->width();
+	center = center * (double(new_width)/old_width);
+
+	//scroll to center
+	scroll_area->ensureVisible(center.x(), center.y(),
+		scroll_area->width()/2, scroll_area->height()/2);
 }
