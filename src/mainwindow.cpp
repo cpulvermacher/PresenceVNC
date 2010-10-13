@@ -69,6 +69,8 @@ MainWindow::MainWindow(QString url, int quality):
 	zoom_slider->setRange(0, 100);
 	connect(zoom_slider, SIGNAL(valueChanged(int)),
 		this, SLOT(setZoomLevel(int)));
+	connect(zoom_slider, SIGNAL(sliderReleased()),
+		this, SLOT(forceRepaint()));
 	zoom_slider->setValue(settings.value("zoomlevel", 95).toInt());
 	toolbar->addWidget(zoom_slider);
 
@@ -266,7 +268,13 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 	old_status = status;
 }
 
-//resizes the widget to use available screen space
+void MainWindow::forceRepaint()
+{
+	if(vnc_view)
+		vnc_view->forceFullRepaint();
+}
+
+//updates available screen space for current zoom level
 //necessary when rotating, showing fullscreen, etc.
 void MainWindow::forceResize()
 {
@@ -362,9 +370,12 @@ void MainWindow::setZoomLevel(int level)
 	vnc_view->setZoomLevel(level);
 
 	int new_width = vnc_view->width();
-	center = center * (double(new_width)/old_width);
 
-	//scroll to center
-	scroll_area->ensureVisible(center.x(), center.y(),
-		scroll_area->width()/2, scroll_area->height()/2);
+	//scroll to center, if zoom level actually changed
+	if(new_width != old_width) {
+		center = center * (double(new_width)/old_width);
+		scroll_area->ensureVisible(center.x(), center.y(),
+			scroll_area->width()/2, scroll_area->height()/2);
+		vnc_view->update();
+	}
 }

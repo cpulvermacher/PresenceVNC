@@ -49,6 +49,7 @@ public slots:
 	void showConnectDialog();
 	void connectToHost(QString url, int quality, int listen_port);
 	void disconnectFromHost();
+	void forceRepaint();
 	void forceResize();
 	void forceResizeDelayed();
 	void sendTab() { vnc_view->sendKey(Qt::Key_Tab); }

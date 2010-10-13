@@ -450,7 +450,7 @@ void VncView::paintEvent(QPaintEvent *event)
 void VncView::resizeEvent(QResizeEvent *event)
 {
     RemoteView::resizeEvent(event);
-    forceFullRepaint();
+    update();
 }
 
 bool VncView::event(QEvent *event)
