@@ -39,6 +39,7 @@ MainWindow::MainWindow(QString url, int quality):
 	key_menu(new KeyMenu(this))
 {
 	setWindowTitle("Presence VNC");
+	setContextMenuPolicy(Qt::NoContextMenu);
 #ifdef Q_WS_MAEMO_5
 	setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
