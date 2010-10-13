@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET = presencevnc-bin
 LIBS += -Llibvnc/libvncclient/.libs -lvncclient
 DEFINES += QTONLY
-CONFIG += silent release
+CONFIG += silent debug
 
 maemo5 {
 	QT += maemo5

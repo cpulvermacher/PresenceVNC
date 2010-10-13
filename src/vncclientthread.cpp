@@ -159,6 +159,7 @@ VncClientThread::VncClientThread(QObject *parent)
         : QThread(parent)
         , frameBuffer(0)
 {
+	outputErrorMessageString.clear(); //don't deliver error messages of old instances...
     QMutexLocker locker(&mutex);
     m_stopped = false;
 
@@ -243,15 +244,20 @@ void VncClientThread::emitGotCut(const QString &text)
 
 void VncClientThread::stop()
 {
-    QMutexLocker locker(&mutex);
+	if(m_stopped)
+		return;
 
-    m_stopped = true;
+	//also abort listening for connections, should be safe without locking
+	if(listen_port)
+		cl->listenSpecified = false;
+
+	QMutexLocker locker(&mutex);
+	m_stopped = true;
 }
 
 void VncClientThread::run()
 {
     QMutexLocker locker(&mutex);
-	bool clean = false;
 
     int passwd_failures = 0;
     while (!m_stopped) { // try to connect as long as the server allows
@@ -293,11 +299,13 @@ void VncClientThread::run()
 			passwd_failures++;
 			if(passwd_failures > 2) {
 				m_stopped = true;
-				clean = true; //rfbInitClient cleans up after itself upon failure
+				return;
 			}
 			continue;
 		}
 
+		//clean, just exit
+		m_stopped = true;
         return;
     }
 
@@ -326,8 +334,7 @@ void VncClientThread::run()
 
     // Cleanup allocated resources
     locker.relock();
-	if(!clean)
-		rfbClientCleanup(cl);
+	rfbClientCleanup(cl);
     m_stopped = true;
 }
 

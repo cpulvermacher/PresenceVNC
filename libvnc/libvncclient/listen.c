@@ -63,7 +63,7 @@ listenForIncomingConnections(rfbClient* client)
   rfbClientLog("Command line errors are not reported until "
 	  "a connection comes in.\n");
 
-  while (TRUE) {
+  while (client->listenSpecified) {
 
     /* reap any zombies */
     int status, pid;
@@ -75,7 +75,12 @@ listenForIncomingConnections(rfbClient* client)
 
     FD_SET(listenSocket, &fds);
 
-    select(FD_SETSIZE, &fds, NULL, NULL, NULL);
+	//100ms
+    struct timeval timeout;
+    timeout.tv_sec=0;
+    timeout.tv_usec=100000;
+
+    select(FD_SETSIZE, &fds, NULL, NULL, &timeout);
 
     if (FD_ISSET(listenSocket, &fds)) {
       client->sock = AcceptTcpConnection(listenSocket);
@@ -87,29 +92,12 @@ listenForIncomingConnections(rfbClient* client)
 	//modified to accept only a single connection
 	//if something goes wrong, we can always create another listening socket
 	rfbClientLog("Accepted connection.\n");
-	close(listenSocket);
-	return;
+	break;
 
-//      /* Now fork off a new process to deal with it... */
-//
-//      switch (fork()) {
-//
-//      case -1: 
-//	rfbClientErr("fork\n"); 
-//	return;
-//
-//      case 0:
-//	/* child - return to caller */
-//	close(listenSocket);
-//	return;
-//
-//      default:
-//	/* parent - go round and listen again */
-//	close(client->sock); 
-//	break;
-//      }
-    }
+	}
   }
+
+  close(listenSocket);
 #endif
 }
 

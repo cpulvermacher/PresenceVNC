@@ -237,7 +237,8 @@ void VncView::requestPassword()
 	QHBoxLayout layout1;
 	QVBoxLayout layout2;
 	layout2.addWidget(&passwordbox);
-	layout2.addWidget(&save_password);
+	if(!m_host.isEmpty()) //don't save incomming connections
+		layout2.addWidget(&save_password);
 	layout1.addLayout(&layout2);
 	layout1.addWidget(&ok_button);
 	dialog.setLayout(&layout1);
@@ -245,7 +246,7 @@ void VncView::requestPassword()
 	if(dialog.exec()) { //dialog accepted
 		password = passwordbox.text();
 
-		if(save_password.isChecked()) {
+		if(!m_host.isEmpty() and save_password.isChecked()) {
 			kDebug(5011) << "Saving password for host '" << m_host << "'";
 
 			settings.setValue(QString("%1/password").arg(m_host), password);
@@ -260,8 +261,6 @@ void VncView::requestPassword()
 
 void VncView::outputErrorMessage(const QString &message)
 {
-    kDebug(5011) << message;
-
     if (message == "INTERNAL:APPLE_VNC_COMPATIBILTY") {
         setCursor(localDotCursor());
         m_forceLocalCursor = true;

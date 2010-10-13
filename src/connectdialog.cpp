@@ -24,6 +24,7 @@
 #endif
 
 #include "connectdialog.h"
+#include "rfb/rfbclient.h"
 
 
 ConnectDialog::ConnectDialog(QWidget *parent):
@@ -134,8 +135,9 @@ void ConnectDialog::accept()
 
 	QSettings settings;
 	if(!hosts.itemIcon(hosts.currentIndex()).isNull()) {
-		int listen_port = settings.value("listen_port", 5500).toInt();
+		int listen_port = settings.value("listen_port", LISTEN_PORT_OFFSET).toInt();
 
+#if QT_VERSION >= 0x040500
 		//ask user if listen_port is correct
 		bool ok;
 		listen_port = QInputDialog::getInt(this,
@@ -143,6 +145,9 @@ void ConnectDialog::accept()
 			tr("Listen on Port:"),
 			listen_port, 1, 65535, //value, min, max
 			1, &ok);
+#else
+		bool ok = true;
+#endif
 		if(ok) {
 			settings.setValue("listen_port", listen_port);
 			emit connectToHost("", quality, listen_port);
