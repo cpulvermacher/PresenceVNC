@@ -211,12 +211,12 @@ void MainWindow::disconnectFromHost()
 	if(!vnc_view)
 		return;
 
+	disconnect_action->setEnabled(false);
+	toolbar->setEnabled(false);
 	scroll_area->setWidget(0);
 
 	delete vnc_view;
 	vnc_view = 0;
-	disconnect_action->setEnabled(false);
-	toolbar->setEnabled(false);
 }
 
 void MainWindow::statusChanged(RemoteView::RemoteStatus status)
@@ -241,7 +241,8 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 	case RemoteView::Disconnecting:
 		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
 #ifdef Q_WS_MAEMO_5
-			QMaemo5InformationBox::information(this, tr("Connection lost"));
+			if(disconnect_action->isEnabled()) //don't show when manually disconnecting
+				QMaemo5InformationBox::information(this, tr("Connection lost"));
 #endif
 			
 			//clean up
