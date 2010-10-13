@@ -84,6 +84,9 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	layout.addWidget(done);
 
 	setLayout(&layout);
+
+	connect(this, SIGNAL(finished(int)),
+		this, SLOT(deleteLater()));
 }
 
 void ConnectDialog::indexChanged(int index) {
@@ -120,12 +123,10 @@ void ConnectDialog::accept()
 
 	QString selected_host = hosts.currentText();
 	if(selected_host.isEmpty()) {
-		deleteLater();
 		return;
 	}
 	if(!hosts.itemIcon(hosts.currentIndex()).isNull()) {
 		emit connectToHost("", 2, 5900); //TODO: quality and port from user input
-		deleteLater();
 		return;
 	}
 
@@ -159,5 +160,4 @@ void ConnectDialog::accept()
 	settings.sync();
 
 	emit connectToHost(QString("vnc://%1").arg(selected_host), quality, 0);
-	deleteLater();
 }
