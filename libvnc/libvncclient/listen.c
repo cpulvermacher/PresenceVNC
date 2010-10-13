@@ -58,10 +58,10 @@ listenForIncomingConnections(rfbClient* client)
   if ((listenSocket < 0))
     return;
 
-  rfbClientLog("%s -listen: Listening on port %d\n",
-	  client->programName,client->listenPort);
-  rfbClientLog("%s -listen: Command line errors are not reported until "
-	  "a connection comes in.\n", client->programName);
+  rfbClientLog("Listening on port %d\n",
+	  client->listenPort);
+  rfbClientLog("Command line errors are not reported until "
+	  "a connection comes in.\n");
 
   while (TRUE) {
 
@@ -86,6 +86,7 @@ listenForIncomingConnections(rfbClient* client)
 
 	//modified to accept only a single connection
 	//if something goes wrong, we can always create another listening socket
+	rfbClientLog("Accepted connection.\n");
 	close(listenSocket);
 	return;
 

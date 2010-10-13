@@ -36,16 +36,14 @@ MainWindow::MainWindow(QString url, int quality):
 	QMainWindow(0),
 	vnc_view(0),
 	scroll_area(new ScrollArea(0)),
-	key_menu(0)
+	key_menu(new KeyMenu(this))
 {
 	setWindowTitle("Presence VNC");
-
-	migrateConfiguration();
-	QSettings settings;
-
 #ifdef Q_WS_MAEMO_5
 	setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
+
+	migrateConfiguration();
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
@@ -66,6 +64,7 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addWidget(spacer);
 	*/
 
+	QSettings settings;
 	zoom_slider = new QSlider(Qt::Horizontal, 0);
 	zoom_slider->setRange(0, 100);
 	connect(zoom_slider, SIGNAL(valueChanged(int)),
@@ -137,7 +136,6 @@ MainWindow::MainWindow(QString url, int quality):
 			this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 		scroll_area->setWidget(vnc_view);
 		vnc_view->start();
-		key_menu = new KeyMenu(this);
 	}
 }
 
@@ -197,11 +195,12 @@ void MainWindow::connectToHost(QString url, int quality, int listen_port)
 		this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 	scroll_area->setWidget(vnc_view);
 	vnc_view->start();
+
 	disconnect_action->setEnabled(true);
 	toolbar->setEnabled(true);
 
-	if(key_menu) //reset
-		delete key_menu;
+	//reset key menu
+	delete key_menu;
 	key_menu = new KeyMenu(this);
 }
 

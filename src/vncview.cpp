@@ -53,7 +53,11 @@ critical(parent, caption, message)
 #define KMOD_Shift_L	0x10
 
 //local cursor width/height in px, should be an odd number
-const int cursor_size = 7;
+const int CURSOR_SIZE = 7;
+
+const int TAP_PRESS_TIME = 180;
+const int DOUBLE_TAP_UP_TIME = 500;
+
 
 VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, int listen_port)
         : RemoteView(parent),
@@ -277,43 +281,10 @@ void VncView::updateImage(int x, int y, int w, int h)
 
      //kDebug(5011) << "got update" << width() << height();
 
-     /*
-     static unsigned int frames = 0;
-     static unsigned int updates = 0;
-     static QTime time = QTime::currentTime();
-     updates++;
-     if(updates % 100 == 0)
-	     kDebug(5011) << "u/s: " << updates/double(time.elapsed()) * 1000.0;
-if(x == 0 and y == 0) {
-	frames++;
-     if(frames % 100 == 0)
-	     kDebug(5011) << "f/s: " << frames/double(time.elapsed()) * 1000.0;
-}
-*/
-
     m_x = x;
     m_y = y;
     m_w = w;
     m_h = h;
-
-
-	//with scaled view, artefacts occur because of rounding errors
-	//we'll try to only update chunks of screen space that correspond to integer pixel sizes in m_frame
-	//put this into paintEvent
-	/*
-	int frame_x = x/m_horizontalFactor;
-	int frame_w = w/m_horizontalFactor;
-	int frame_y = y/m_verticalFactor;
-	int frame_h = h/m_verticalFactor;
-	
-	m_x = frame_x*m_horizontalFactor;
-	m_y = frame_y*m_verticalFactor;
-
-	m_w = (frame_w+2)*m_horizontalFactor;
-	m_h = (frame_h+2)*m_verticalFactor;
-	kDebug(5011)<< "update);
-	*/
-
 
     if (m_horizontalFactor != 1.0 || m_verticalFactor != 1.0) {
         // If the view is scaled, grow the update rectangle to avoid artifacts
@@ -379,11 +350,6 @@ void VncView::showDotCursor(DotCursorState state)
     setCursor(state == CursorOn ? localDotCursor() : Qt::BlankCursor);
 }
 
-void VncView::enableScaling(bool scale)
-{
-    RemoteView::enableScaling(scale);
-}
-
 //level should be in [0, 100]
 void VncView::setZoomLevel(int level)
 {
@@ -394,32 +360,26 @@ void VncView::setZoomLevel(int level)
 		return;
 	}
 
-	double factor; //actual magnification
+	double magnification;
 	if(level == 100) {
-		factor = 2.0;
+		magnification = 2.0;
 	} else if(level >= 90) {
-		factor = 1.0;
+		magnification = 1.0;
 	} else {
-		const double min_horiz_factor = double(parentWidget()->width())/m_frame.width();
-		const double min_vert_factor = double(parentWidget()->height())/m_frame.height();
-		const double fit_screen_factor = qMin(min_horiz_factor, min_vert_factor);
+		const double min_horiz_magnification = double(parentWidget()->width())/m_frame.width();
+		const double min_vert_magnification = double(parentWidget()->height())/m_frame.height();
+		const double fit_screen_magnification = qMin(min_horiz_magnification, min_vert_magnification);
 
-		//level=90 => factor=1.0, level=0 => factor=fit_screen_factor
-		factor = (level)/90.0*(1.0 - fit_screen_factor) + fit_screen_factor;
+		//level=90 => magnification=1.0, level=0 => magnification=fit_screen_magnification
+		magnification = (level)/90.0*(1.0 - fit_screen_magnification) + fit_screen_magnification;
 	}
 
-	if(factor < 0) {
-		//remote display smaller than local?
-		kDebug(5011) << "remote display smaller than local?";
-		factor = 1.0;
-	}
-	if(factor != factor) //nan
-		factor = 1.0;
+	if(magnification < 0			//remote display smaller than local?
+	or magnification != magnification)	//nan
+		magnification = 1.0;
 	
-	kDebug(5011) << "factor" << factor;
-
-	m_verticalFactor = m_horizontalFactor = factor;
-	resize(m_frame.width()*factor, m_frame.height()*factor);
+	m_verticalFactor = m_horizontalFactor =	magnification;
+	resize(m_frame.width()*magnification, m_frame.height()*magnification);
 }
 
 void VncView::setCut(const QString &text)
@@ -481,7 +441,7 @@ void VncView::paintEvent(QPaintEvent *event)
 		painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
 #endif
 		//rectangle size includes 1px pen width
-		painter.drawRect(cursor_x*m_horizontalFactor - cursor_size/2, cursor_y*m_verticalFactor - cursor_size/2, cursor_size-1, cursor_size-1);
+		painter.drawRect(cursor_x*m_horizontalFactor - CURSOR_SIZE/2, cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE-1, CURSOR_SIZE-1);
 	}
 
     RemoteView::paintEvent(event);
@@ -531,9 +491,6 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	static bool tap_drag_detected = false;
 	static QTime press_time;
 	static QTime up_time; //used for double clicks/tap&drag, for time after first tap
-
-	const int TAP_PRESS_TIME = 180;
-	const int DOUBLE_TAP_UP_TIME = 500;
 
 	if(!e) { //flush held taps
 		if(tap_detected) {
@@ -614,9 +571,9 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	if(((m_dotCursorState == CursorOn) || m_forceLocalCursor)
 	and (cursor_x != old_cursor_x or cursor_y != old_cursor_y)) {
 		//clear last position
-		repaint(old_cursor_x*m_horizontalFactor - cursor_size/2, old_cursor_y*m_verticalFactor - cursor_size/2, cursor_size, cursor_size);
+		repaint(old_cursor_x*m_horizontalFactor - CURSOR_SIZE/2, old_cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
 		//and refresh new one
-		repaint(cursor_x*m_horizontalFactor - cursor_size/2, cursor_y*m_verticalFactor - cursor_size/2, cursor_size, cursor_size);
+		repaint(cursor_x*m_horizontalFactor - CURSOR_SIZE/2, cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
 
 		old_cursor_x = cursor_x; old_cursor_y = cursor_y;
 	}
