@@ -125,12 +125,31 @@ void ConnectDialog::accept()
 	if(selected_host.isEmpty()) {
 		return;
 	}
+
+#ifdef Q_WS_MAEMO_5
+	int quality = quality_selector->currentIndex() + 1;
+#else
+	int quality = 2;
+#endif
+
+	QSettings settings;
 	if(!hosts.itemIcon(hosts.currentIndex()).isNull()) {
-		emit connectToHost("", 2, 5900); //TODO: quality and port from user input
+		int listen_port = settings.value("listen_port", 5500).toInt();
+
+		//ask user if listen_port is correct
+		bool ok;
+		listen_port = QInputDialog::getInt(this,
+			tr("Listen for Incoming Connections"),
+			tr("Listen on Port:"),
+			listen_port, 1, 65535, //value, min, max
+			1, &ok);
+		if(ok) {
+			settings.setValue("listen_port", listen_port);
+			emit connectToHost("", quality, listen_port);
+		}
 		return;
 	}
 
-	QSettings settings;
 	settings.beginGroup("hosts");
 	bool new_item = !hostnames_sorted.contains(selected_host);
 	bool used_old_host = !new_item and hosts.currentIndex() > 0;
@@ -150,10 +169,7 @@ void ConnectDialog::accept()
 	}
 
 #ifdef Q_WS_MAEMO_5
-	int quality = quality_selector->currentIndex() + 1;
 	settings.setValue(QString("%1/quality").arg(selected_host), quality);
-#else
-	int quality = 2;
 #endif
 
 	settings.endGroup();
