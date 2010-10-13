@@ -78,6 +78,7 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
 	addToolBar(toolbar);
 	toolbar->setVisible(settings.value("show_toolbar", true).toBool());
+	toolbar->setEnabled(false);
 
 	//set up menu
 	QAction *connect_action = new QAction(tr("Connect"), this);
@@ -131,7 +132,6 @@ MainWindow::MainWindow(QString url, int quality):
 
 	if(url.isNull()) {
 		disconnect_action->setEnabled(false);
-		toolbar->setEnabled(false);
 		showConnectDialog();
 	} else {
 		vnc_view = new VncView(this, url, RemoteView::Quality(quality));
@@ -200,7 +200,6 @@ void MainWindow::connectToHost(QString url, int quality, int listen_port)
 	vnc_view->start();
 
 	disconnect_action->setEnabled(true);
-	toolbar->setEnabled(true);
 
 	//reset key menu
 	delete key_menu;
@@ -234,6 +233,8 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 #ifdef Q_WS_MAEMO_5
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
+		toolbar->setEnabled(true);
+
 		vnc_view->setZoomLevel(zoom_slider->value());
 		vnc_view->forceFullRepaint();
 		break;
