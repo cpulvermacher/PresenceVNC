@@ -265,7 +265,7 @@ void VncClientThread::run()
 
         rfbClientLog = outputHandler;
         rfbClientErr = outputHandler;
-        cl = rfbGetClient(8, 3, 4);
+        cl = rfbGetClient(8, 3, 4); // bitsPerSample, samplesPerPixel, bytesPerPixel
         cl->MallocFrameBuffer = newclient;
         cl->canHandleNewFBSize = true;
         cl->GetPassword = passwdHandler;
@@ -282,31 +282,24 @@ void VncClientThread::run()
             m_port += 5900;
         cl->serverPort = m_port;
 
+		cl->listenSpecified = rfbBool(listen_port > 0);
+		cl->listenPort = listen_port;
+
         kDebug(5011) << "--------------------- trying init ---------------------";
 
-		if(listen_port) { //listen for incoming connections
-			int argc = 2;
-			char* argv[2] = { "x", "-listen" }; //this isn't exactly elegant..
-			cl->listenPort = listen_port;
-			if (rfbInitClient(cl, &argc, argv))
-				break;
-		} else { //connect to host
-			if (rfbInitClient(cl, 0, 0))
-				break;
-		}
+		if (rfbInitClient(cl, 0, 0))
+			break;
 
+		//init failed...
         if (m_passwordError) {
 			passwd_failures++;
-			if(passwd_failures > 2) {
-				m_stopped = true;
-				return;
-			}
-			continue;
+			if(passwd_failures < 3)
+				continue; //that's ok, try again
 		}
 
-		//clean, just exit
+		//stop connecting
 		m_stopped = true;
-        return;
+        return; //no cleanup necessary, cl was free()d by rfbInitClient()
     }
 
     locker.unlock();

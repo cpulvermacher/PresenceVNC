@@ -816,10 +816,12 @@ void VncView::sendKeySequence(QKeySequence keys)
 
 	//to get at individual key presses, we split 'keys' into its components
 	QList<int> key_list;
-	for(int i = 0; ; i++) {
-		QString k = keys.toString().section('+', i, i);
+	int pos = 0;
+	while(true) {
+		QString k = keys.toString().section('+', pos, pos);
 		if(k.isEmpty())
 			break;
+
 		//kDebug(5011) << "found key: " << k;
 		if(k == "Alt") {
 			key_list.append(Qt::Key_Alt);
@@ -830,6 +832,8 @@ void VncView::sendKeySequence(QKeySequence keys)
 		} else {
 			key_list.append(QKeySequence(k)[0]);
 		}
+		
+		pos++;
 	}
 	
 	for(int i = 0; i < key_list.count(); i++)

@@ -282,6 +282,8 @@ rfbBool rfbInitClient(rfbClient* client,int* argc,char** argv) {
 	i--;
       }
     }
+  } else if(client->listenSpecified) {
+	listenForIncomingConnections(client);
   }
 
   if(!rfbInitConnection(client)) {
