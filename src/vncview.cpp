@@ -255,7 +255,7 @@ void VncView::requestPassword()
 
 		vncThread.setPassword(password);
 	} else {
-		startQuitting();
+		vncThread.setPassword(QString()); //null string to exit
 	}
 }
 

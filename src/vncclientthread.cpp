@@ -116,10 +116,18 @@ char *VncClientThread::passwdHandler(rfbClient *cl)
     VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);
     Q_ASSERT(t);
 
-    t->passwordRequest();
     t->m_passwordError = true;
+    t->passwordRequest();
 
     return strdup(t->password().toLocal8Bit());
+}
+
+void VncClientThread::setPassword(const QString &password)
+{
+	if(password.isNull()) //cancelled, don't retry
+		m_passwordError = false;
+
+	m_password = password;
 }
 
 void VncClientThread::outputHandler(const char *format, ...)

@@ -108,7 +108,7 @@ public:
     void setPort(int port);
 	void setListenPort(int port) { listen_port = port; }
     void setQuality(RemoteView::Quality quality);
-    void setPassword(const QString &password) { m_password = password; }
+    void setPassword(const QString &password);
     const QString password() const { return m_password; }
 
     RemoteView::Quality quality() const;
