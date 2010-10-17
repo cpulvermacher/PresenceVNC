@@ -122,7 +122,7 @@ MainWindow::MainWindow(QString url, int quality):
 	connect(show_toolbar, SIGNAL(toggled(bool)),
 		toolbar, SLOT(setVisible(bool)));
 	connect(show_toolbar, SIGNAL(toggled(bool)),
-		this, SLOT(forceResizeDelayed()));
+		this, SLOT(updateScreenSpaceDelayed()));
 
 	setCentralWidget(scroll_area);
 	new FullScreenExitButton(this);
@@ -279,16 +279,16 @@ void MainWindow::forceRepaint()
 
 //updates available screen space for current zoom level
 //necessary when rotating, showing fullscreen, etc.
-void MainWindow::forceResize()
+void MainWindow::updateScreenSpace()
 {
 	if(vnc_view) {
-		vnc_view->resize(scroll_area->size());
+		vnc_view->setZoomLevel();
 	}
 } 
 
-void MainWindow::forceResizeDelayed()
+void MainWindow::updateScreenSpaceDelayed()
 {
-	QTimer::singleShot(500, this, SLOT(forceResize()));
+	QTimer::singleShot(500, this, SLOT(updateScreenSpace()));
 }
 
 void MainWindow::toggleFullscreen()
@@ -304,7 +304,7 @@ void MainWindow::toggleFullscreen()
 #endif
 
 	setWindowState(windowState() ^ Qt::WindowFullScreen); 
-	forceResizeDelayed();
+	updateScreenSpaceDelayed();
 }
 
 void MainWindow::showKeyMenu()
@@ -340,7 +340,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
 	QMainWindow::resizeEvent(event);
 
-	forceResize();
+	updateScreenSpace();
 	if(vnc_view)
 		vnc_view->setZoomLevel(zoom_slider->value());
 	

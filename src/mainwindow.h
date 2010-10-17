@@ -50,8 +50,8 @@ public slots:
 	void connectToHost(QString url, int quality, int listen_port);
 	void disconnectFromHost();
 	void forceRepaint();
-	void forceResize();
-	void forceResizeDelayed();
+	void updateScreenSpace();
+	void updateScreenSpaceDelayed();
 	void sendTab() { vnc_view->sendKey(Qt::Key_Tab); }
 	void sendEsc() { vnc_view->sendKey(Qt::Key_Escape); }
 	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
