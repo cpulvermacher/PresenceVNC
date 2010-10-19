@@ -86,6 +86,9 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, 
     connect(&vncThread, SIGNAL(passwordRequest()), this, SLOT(requestPassword()), Qt::BlockingQueuedConnection);
     connect(&vncThread, SIGNAL(outputErrorMessage(QString)), this, SLOT(outputErrorMessage(QString)));
 
+	//don't miss early connection failures
+	connect(&vncThread, SIGNAL(finished()), this, SLOT(startQuitting()));
+
     m_clipboard = QApplication::clipboard();
     connect(m_clipboard, SIGNAL(selectionChanged()), this, SLOT(clipboardSelectionChanged()));
     connect(m_clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
@@ -141,6 +144,9 @@ QSize VncView::minimumSizeHint() const
 
 void VncView::startQuitting()
 {
+	if(isQuitting())
+		return;
+
     kDebug(5011) << "about to quit";
 
     //const bool connected = status() == RemoteView::Connected;

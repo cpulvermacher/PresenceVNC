@@ -47,7 +47,6 @@ public:
     QSize framebufferSize();
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-    void startQuitting();
     bool isQuitting();
     void reloadSettings();
     bool start();
@@ -62,6 +61,7 @@ public slots:
     void setZoomLevel(int level = -1); //'level' doesn't correspond to actual magnification, though mapping is done here
     void sendKey(Qt::Key key);
     void sendKeySequence(QKeySequence keys);
+    void startQuitting();
     void forceFullRepaint();
 
 protected:

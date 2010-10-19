@@ -324,8 +324,8 @@ void MainWindow::showPreferences()
 
 void MainWindow::reloadSettings()
 {
-	QSettings settings;
 #ifdef Q_WS_MAEMO_5
+	QSettings settings;
 	int rotation = settings.value("screen_rotation", 0).toInt();
 	setAttribute(Qt::WA_Maemo5AutoOrientation, rotation == 0);
 	setAttribute(Qt::WA_Maemo5LandscapeOrientation, rotation == 1);

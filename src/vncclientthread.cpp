@@ -167,7 +167,6 @@ VncClientThread::VncClientThread(QObject *parent)
         : QThread(parent)
         , frameBuffer(0)
 {
-	outputErrorMessageString.clear(); //don't deliver error messages of old instances...
     QMutexLocker locker(&mutex);
     m_stopped = false;
 
@@ -270,6 +269,7 @@ void VncClientThread::run()
     int passwd_failures = 0;
     while (!m_stopped) { // try to connect as long as the server allows
         m_passwordError = false;
+		outputErrorMessageString.clear(); //don't deliver error messages of old instances...
 
         rfbClientLog = outputHandler;
         rfbClientErr = outputHandler;
