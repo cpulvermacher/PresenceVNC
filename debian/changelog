@@ -4,7 +4,7 @@ presencevnc (0.6) unstable; urgency=low
   * Add "Listen for Incoming Connections" option to host list
   * Stability fixes
 
- -- Christian Pulvermacher <christian@hazel>  Wed, 20 Oct 2010 18:47:05 +0200
+ -- Christian Pulvermacher <pulvermacher@gmx.de>  Wed, 20 Oct 2010 18:47:05 +0200
 
 presencevnc (0.5) unstable; urgency=low
 
@@ -14,7 +14,7 @@ presencevnc (0.5) unstable; urgency=low
   * Don't start virtual keyboard with caps lock enabled (partial fix)
   * Add quality setting (per connection)
 
- -- Christian Pulvermacher <christian@hazel>  Fri, 01 Oct 2010 14:53:51 +0200
+ -- Christian Pulvermacher <pulvermacher@gmx.de>  Fri, 01 Oct 2010 14:53:51 +0200
 
 presencevnc (0.4) unstable; urgency=low
 
