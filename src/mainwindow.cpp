@@ -378,7 +378,8 @@ void MainWindow::setZoomLevel(int level)
 	if(new_width != old_width) {
 		center = center * (double(new_width)/old_width);
 		scroll_area->ensureVisible(center.x(), center.y(),
-			scroll_area->width()/2, scroll_area->height()/2);
+			vnc_view->visibleRegion().boundingRect().width()/2,
+			vnc_view->visibleRegion().boundingRect().height()/2);
 		vnc_view->update();
 	}
 }
