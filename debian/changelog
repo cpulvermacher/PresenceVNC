@@ -1,3 +1,9 @@
+presencevnc (0.7) unstable; urgency=low
+
+  * ...
+
+ -- Christian Pulvermacher <pulvermacher@gmx.de>  Sat, 23 Oct 2010 18:32:50 +0200
+
 presencevnc (0.6) unstable; urgency=low
 
   * Add zoom bar

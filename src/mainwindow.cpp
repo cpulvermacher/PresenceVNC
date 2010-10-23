@@ -381,5 +381,9 @@ void MainWindow::setZoomLevel(int level)
 			vnc_view->visibleRegion().boundingRect().width()/2,
 			vnc_view->visibleRegion().boundingRect().height()/2);
 		vnc_view->update();
+
+#ifdef Q_WS_MAEMO_5
+		QMaemo5InformationBox::information(this, tr("%1\%").arg(qRound(100*vnc_view->getZoomFactor())));
+#endif
 	}
 }

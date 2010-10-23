@@ -48,6 +48,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
     bool isQuitting();
+    qreal getZoomFactor() { return m_horizontalFactor;} //assumes fixed aspect ratio
     void reloadSettings();
     bool start();
     bool supportsScaling() const;
