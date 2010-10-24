@@ -360,22 +360,21 @@ void MainWindow::setZoomLevel(int level)
 	if(!vnc_view)
 		return;
 	
-	//TODO: use getZoomFactor() instead
-	int old_width = vnc_view->width();
+	const qreal old_factor = vnc_view->getZoomFactor();
 	QPoint center = vnc_view->visibleRegion().boundingRect().center();
 
 	vnc_view->setZoomLevel(level);
 
-	int new_width = vnc_view->width();
+	const qreal new_factor = vnc_view->getZoomFactor();
 
 	//scroll to center, if zoom level actually changed
-	if(new_width != old_width) {
-		center = center * (double(new_width)/old_width);
+	if(old_factor != new_factor) {
+		center = center * (double(new_factor)/old_factor);
 		scroll_area->ensureVisible(center.x(), center.y(),
 			vnc_view->visibleRegion().boundingRect().width()/2,
 			vnc_view->visibleRegion().boundingRect().height()/2);
 		vnc_view->update();
 
-		scroll_area->showMessage(tr("Zoom: %1\%").arg(qRound(100*vnc_view->getZoomFactor())));
+		scroll_area->showMessage(tr("Zoom: %1\%").arg(qRound(100*new_factor)));
 	}
 }
