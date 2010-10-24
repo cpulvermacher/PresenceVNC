@@ -304,7 +304,7 @@ void VncView::updateImage(int x, int y, int w, int h)
 
     m_frame = vncThread.image();
 
-    if (!m_initDone) {
+    if (!m_initDone) { //TODO this seems an odd place for initialization
         setAttribute(Qt::WA_StaticContents);
         setAttribute(Qt::WA_OpaquePaintEvent);
         installEventFilter(this);
@@ -412,7 +412,8 @@ void VncView::paintEvent(QPaintEvent *event)
 	if( m_horizontalFactor >= 1.0 )
 		transformation_mode = Qt::FastTransformation;
 
-    if (m_repaint and !force_full_repaint) {
+	//TODO: seems to have no purpose, remove
+    if (false and m_repaint and !force_full_repaint) {
 //         kDebug(5011) << "normal repaint";
         painter.drawImage(QRect(qRound(m_x*m_horizontalFactor), qRound(m_y*m_verticalFactor),
                                 qRound(m_w*m_horizontalFactor), qRound(m_h*m_verticalFactor)), 
@@ -421,7 +422,7 @@ void VncView::paintEvent(QPaintEvent *event)
                                                                   Qt::IgnoreAspectRatio, transformation_mode));
     } else {
          //kDebug(5011) << "resize repaint";
-        QRect rect = event->rect();
+        const QRect rect = event->rect();
         if (!force_full_repaint and (rect.width() != width() || rect.height() != height())) {
           //   kDebug(5011) << "Partial repaint";
             const int sx = rect.x()/m_horizontalFactor;
@@ -432,7 +433,7 @@ void VncView::paintEvent(QPaintEvent *event)
                               m_frame.copy(sx, sy, sw, sh).scaled(rect.width(), rect.height(),
                                                                   Qt::IgnoreAspectRatio, transformation_mode));
         } else {
-             kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
+			kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
             painter.drawImage(QRect(0, 0, width(), height()), 
                               m_frame.scaled(m_frame.width() * m_horizontalFactor, m_frame.height() * m_verticalFactor,
                                              Qt::IgnoreAspectRatio, transformation_mode));
