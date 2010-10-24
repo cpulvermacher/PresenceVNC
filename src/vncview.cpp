@@ -71,7 +71,6 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, 
         m_horizontalFactor(1.0),
         m_verticalFactor(1.0),
         m_forceLocalCursor(false),
-	force_full_repaint(false),
 	quality(quality),
 	listen_port(listen_port)
 {
@@ -103,12 +102,6 @@ VncView::~VncView()
     vncThread.disconnect();
 
     startQuitting();
-}
-
-void VncView::forceFullRepaint()
-{
-	force_full_repaint = true;
-	repaint();
 }
 
 bool VncView::eventFilter(QObject *obj, QEvent *event)
@@ -408,7 +401,7 @@ void VncView::paintEvent(QPaintEvent *event)
 
 	const QRect update_rect = event->rect();
     QPainter painter(this);
-	if (!force_full_repaint and (update_rect.width() != width() || update_rect.height() != height())) {
+	if (update_rect != rect()) {
 		// kDebug(5011) << "Partial repaint";
 		const int sx = qRound(update_rect.x()/m_horizontalFactor);
 		const int sy = qRound(update_rect.y()/m_verticalFactor);
@@ -422,7 +415,6 @@ void VncView::paintEvent(QPaintEvent *event)
 
 		painter.drawImage(rect(),
 						  m_frame.scaled(size(), Qt::IgnoreAspectRatio, transformation_mode));
-		force_full_repaint = false;
     }
 
 	//draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling

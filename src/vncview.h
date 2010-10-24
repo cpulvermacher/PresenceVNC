@@ -63,7 +63,6 @@ public slots:
     void sendKey(Qt::Key key);
     void sendKeySequence(QKeySequence keys);
     void startQuitting();
-    void forceFullRepaint();
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -87,7 +86,6 @@ private:
     qreal m_verticalFactor;
     QImage m_frame;
     bool m_forceLocalCursor;
-    bool force_full_repaint;
     int left_zoom, right_zoom;
     bool disable_tapping;
     RemoteView::Quality quality;

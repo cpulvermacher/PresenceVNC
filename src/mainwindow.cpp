@@ -230,7 +230,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		toolbar->setEnabled(true);
 
 		vnc_view->setZoomLevel(zoom_slider->value());
-		vnc_view->forceFullRepaint();
+		vnc_view->repaint();
 		break;
 	case RemoteView::Disconnecting:
 		if(old_status == RemoteView::Disconnected) //Disconnecting also occurs while connecting, so check last state
@@ -376,7 +376,7 @@ void MainWindow::setZoomLevel(int level)
 void MainWindow::zoomSliderReleased()
 {
 	static QTime time;
-	if(!time.isNull() and time.elapsed() < 700) //double clicked
+	if(!time.isNull() and time.elapsed() < 500) //double clicked
 		zoom_slider->setValue(95); //100%
 	
 	time.restart();
