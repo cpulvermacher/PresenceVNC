@@ -25,20 +25,7 @@
 #include <QtGui>
 
 class KeyMenu;
-
-//fix tearing during scrolling
-class ScrollArea : public QScrollArea {
-public:
-	ScrollArea(QWidget *parent) : QScrollArea(parent) { }
-protected:
-	virtual void scrollContentsBy(int dx, int dy)
-	{
-		QScrollArea::scrollContentsBy(dx, dy);
-		if(widget())
-			widget()->update(); //update whole widget
-	}
-};
-
+class ScrollArea;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -57,7 +44,7 @@ public slots:
 	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
 	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
 	void sendReturn() { vnc_view->sendKey(Qt::Key_Return); }
-    void setZoomLevel(int level);
+	void setZoomLevel(int level);
 	void showInputPanel();
 	void showKeyMenu();
 	void showPreferences();

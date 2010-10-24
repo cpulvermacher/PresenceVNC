@@ -1,6 +1,6 @@
 presencevnc (0.7) unstable; urgency=low
 
-  * ...
+  * Show current magnification when zooming
 
  -- Christian Pulvermacher <pulvermacher@gmx.de>  Sat, 23 Oct 2010 18:32:50 +0200
 

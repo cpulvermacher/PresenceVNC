@@ -21,6 +21,7 @@
 #include "keymenu.h"
 #include "mainwindow.h"
 #include "preferences.h"
+#include "scrollarea.h"
 #include "vncview.h"
 
 #ifdef Q_WS_MAEMO_5
@@ -57,13 +58,6 @@ MainWindow::MainWindow(QString url, int quality):
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/chat_enter.png"), "", this, SLOT(sendReturn()));
 	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel()));
 #endif
-
-	/*
-	//move remaining buttons to the right
-	QWidget *spacer = new QWidget();
-	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	toolbar->addWidget(spacer);
-	*/
 
 	QSettings settings;
 	zoom_slider = new QSlider(Qt::Horizontal, 0);
@@ -239,22 +233,21 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		vnc_view->forceFullRepaint();
 		break;
 	case RemoteView::Disconnecting:
-		if(old_status != RemoteView::Disconnected) { //Disconnecting also occurs while connecting, so check last state
-#ifdef Q_WS_MAEMO_5
-			if(disconnect_action->isEnabled()) //don't show when manually disconnecting
-				QMaemo5InformationBox::information(this, tr("Connection lost"));
-#endif
-			
-			//clean up
-			scroll_area->setWidget(0);
-			vnc_view = 0;
-			disconnect_action->setEnabled(false);
-			toolbar->setEnabled(false);
+		if(old_status == RemoteView::Disconnected) //Disconnecting also occurs while connecting, so check last state
+			break;
 
-			//exit fullscreen mode
-			if(windowState() & Qt::WindowFullScreen)
-				setWindowState(windowState() ^ Qt::WindowFullScreen);
-		}
+		if(disconnect_action->isEnabled()) //don't show when manually disconnecting
+			scroll_area->showMessage(tr("Connection lost"));
+		
+		//clean up
+		scroll_area->setWidget(0);
+		vnc_view = 0;
+		disconnect_action->setEnabled(false);
+		toolbar->setEnabled(false);
+
+		//exit fullscreen mode
+		if(windowState() & Qt::WindowFullScreen)
+			setWindowState(windowState() ^ Qt::WindowFullScreen);
 		break;
 	case RemoteView::Disconnected:
 #ifdef Q_WS_MAEMO_5
@@ -367,6 +360,7 @@ void MainWindow::setZoomLevel(int level)
 	if(!vnc_view)
 		return;
 	
+	//TODO: use getZoomFactor() instead
 	int old_width = vnc_view->width();
 	QPoint center = vnc_view->visibleRegion().boundingRect().center();
 
@@ -382,8 +376,6 @@ void MainWindow::setZoomLevel(int level)
 			vnc_view->visibleRegion().boundingRect().height()/2);
 		vnc_view->update();
 
-#ifdef Q_WS_MAEMO_5
-		QMaemo5InformationBox::information(this, tr("%1\%").arg(qRound(100*vnc_view->getZoomFactor())));
-#endif
+		scroll_area->showMessage(tr("Zoom: %1\%").arg(qRound(100*vnc_view->getZoomFactor())));
 	}
 }
