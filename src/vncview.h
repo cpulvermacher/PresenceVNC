@@ -80,7 +80,6 @@ private:
     QMap<unsigned int, bool> m_mods;
     int m_x, m_y, m_w, m_h;
     int cursor_x, cursor_y;
-    bool m_repaint;
     bool m_quitFlag;
     bool m_firstPasswordTry;
     bool m_dontSendClipboard;

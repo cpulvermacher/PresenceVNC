@@ -65,7 +65,6 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, 
         m_buttonMask(0),
 	cursor_x(0),
 	cursor_y(0),
-        m_repaint(false),
         m_quitFlag(false),
         m_firstPasswordTry(true),
         m_dontSendClipboard(false),
@@ -314,7 +313,6 @@ void VncView::updateImage(int x, int y, int w, int h)
         setMouseTracking(true); // get mouse events even when there is no mousebutton pressed
         setFocusPolicy(Qt::WheelFocus);
         setStatus(Connected);
-//         emit framebufferSizeChanged(m_frame.width(), m_frame.height());
         emit connected();
         
 		resize(width(), height());
@@ -331,9 +329,7 @@ void VncView::updateImage(int x, int y, int w, int h)
         emit framebufferSizeChanged(m_frame.width(), m_frame.height());
     }
 
-    m_repaint = true;
     repaint(qRound(m_x * m_horizontalFactor), qRound(m_y * m_verticalFactor), qRound(m_w * m_horizontalFactor), qRound(m_h * m_verticalFactor));
-    m_repaint = false;
 }
 
 void VncView::setViewOnly(bool viewOnly)
@@ -406,39 +402,27 @@ void VncView::paintEvent(QPaintEvent *event)
 
     event->accept();
 
-    QPainter painter(this);
-
 	Qt::TransformationMode transformation_mode = Qt::SmoothTransformation;
 	if( m_horizontalFactor >= 1.0 )
 		transformation_mode = Qt::FastTransformation;
 
-	//TODO: seems to have no purpose, remove
-    if (false and m_repaint and !force_full_repaint) {
-//         kDebug(5011) << "normal repaint";
-        painter.drawImage(QRect(qRound(m_x*m_horizontalFactor), qRound(m_y*m_verticalFactor),
-                                qRound(m_w*m_horizontalFactor), qRound(m_h*m_verticalFactor)), 
-                          m_frame.copy(m_x, m_y, m_w, m_h).scaled(qRound(m_w*m_horizontalFactor), 
-                                                                  qRound(m_h*m_verticalFactor),
-                                                                  Qt::IgnoreAspectRatio, transformation_mode));
-    } else {
-         //kDebug(5011) << "resize repaint";
-        const QRect rect = event->rect();
-        if (!force_full_repaint and (rect.width() != width() || rect.height() != height())) {
-          //   kDebug(5011) << "Partial repaint";
-            const int sx = rect.x()/m_horizontalFactor;
-            const int sy = rect.y()/m_verticalFactor;
-            const int sw = rect.width()/m_horizontalFactor;
-            const int sh = rect.height()/m_verticalFactor;
-            painter.drawImage(rect, 
-                              m_frame.copy(sx, sy, sw, sh).scaled(rect.width(), rect.height(),
-                                                                  Qt::IgnoreAspectRatio, transformation_mode));
-        } else {
-			kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
-            painter.drawImage(QRect(0, 0, width(), height()), 
-                              m_frame.scaled(m_frame.width() * m_horizontalFactor, m_frame.height() * m_verticalFactor,
-                                             Qt::IgnoreAspectRatio, transformation_mode));
-			force_full_repaint = false;
-        }
+	const QRect update_rect = event->rect();
+    QPainter painter(this);
+	if (!force_full_repaint and (update_rect.width() != width() || update_rect.height() != height())) {
+		// kDebug(5011) << "Partial repaint";
+		const int sx = qRound(update_rect.x()/m_horizontalFactor);
+		const int sy = qRound(update_rect.y()/m_verticalFactor);
+		const int sw = qRound(update_rect.width()/m_horizontalFactor);
+		const int sh = qRound(update_rect.height()/m_verticalFactor);
+
+		painter.drawImage(update_rect, 
+						  m_frame.copy(sx, sy, sw, sh).scaled(update_rect.size(), Qt::IgnoreAspectRatio, transformation_mode));
+	} else {
+		kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
+
+		painter.drawImage(rect(),
+						  m_frame.scaled(size(), Qt::IgnoreAspectRatio, transformation_mode));
+		force_full_repaint = false;
     }
 
 	//draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling
