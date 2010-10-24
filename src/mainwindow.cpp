@@ -264,12 +264,6 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 	old_status = status;
 }
 
-void MainWindow::forceRepaint()
-{
-	if(vnc_view)
-		vnc_view->forceFullRepaint();
-}
-
 //updates available screen space for current zoom level
 //necessary when rotating, showing fullscreen, etc.
 void MainWindow::updateScreenSpace()
@@ -384,8 +378,6 @@ void MainWindow::zoomSliderReleased()
 	static QTime time;
 	if(!time.isNull() and time.elapsed() < 700) //double clicked
 		zoom_slider->setValue(95); //100%
-	else 
-		forceRepaint();
 	
 	time.restart();
 }
