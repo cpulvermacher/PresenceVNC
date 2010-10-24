@@ -78,7 +78,7 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	hostnameUpdated(hosts.lineEdit()->text()); //get saved quality for last host, or 2
 #endif
 
-	QPushButton *done = new QPushButton(tr("Connect"));
+	done = new QPushButton(tr("Connect"));
 	done->setMaximumWidth(110);
 	connect(done, SIGNAL(clicked()),
 		this, SLOT(accept()));
@@ -95,7 +95,10 @@ void ConnectDialog::indexChanged(int index) {
 		return;
 
 	//disallow editing for special entries (icon set)
-	hosts.setEditable(hosts.itemIcon(index).isNull());
+	const bool normal_entry = hosts.itemIcon(index).isNull();
+	hosts.setEditable(normal_entry);
+
+	done->setText(normal_entry ? tr("Connect") : tr("Listen"));
 }
 
 

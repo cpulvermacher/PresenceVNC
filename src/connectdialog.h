@@ -38,6 +38,7 @@ private slots:
 private:
 	QHBoxLayout layout;
 	QStringList hostnames_sorted;
+	QPushButton *done;
 	QComboBox hosts;
 	QMaemo5ListPickSelector *quality_selector;
 };
