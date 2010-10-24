@@ -65,7 +65,7 @@ MainWindow::MainWindow(QString url, int quality):
 	connect(zoom_slider, SIGNAL(valueChanged(int)),
 		this, SLOT(setZoomLevel(int)));
 	connect(zoom_slider, SIGNAL(sliderReleased()),
-		this, SLOT(forceRepaint()));
+		this, SLOT(zoomSliderReleased()));
 	zoom_slider->setValue(settings.value("zoomlevel", 95).toInt());
 	toolbar->addWidget(zoom_slider);
 
@@ -377,4 +377,15 @@ void MainWindow::setZoomLevel(int level)
 
 		scroll_area->showMessage(tr("Zoom: %1\%").arg(qRound(100*new_factor)));
 	}
+}
+
+void MainWindow::zoomSliderReleased()
+{
+	static QTime time;
+	if(!time.isNull() and time.elapsed() < 700) //double clicked
+		zoom_slider->setValue(95); //100%
+	else 
+		forceRepaint();
+	
+	time.restart();
 }

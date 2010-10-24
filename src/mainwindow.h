@@ -50,6 +50,7 @@ public slots:
 	void showPreferences();
 	void statusChanged(RemoteView::RemoteStatus status);
 	void toggleFullscreen();
+	void zoomSliderReleased();
 protected:
 	void closeEvent(QCloseEvent*);
 	void resizeEvent(QResizeEvent *event);
