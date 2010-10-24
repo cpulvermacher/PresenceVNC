@@ -17,7 +17,6 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include <QApplication>
-#include <QInputDialog>
 #include <QString>
 
 #include "mainwindow.h"
@@ -29,7 +28,7 @@ int main(int argc, char *argv[])
 
 	QApplication app(argc, argv);
 
-	QString url;
+	QString url = QString();
 	int quality = 2;
 	QStringList arguments = QCoreApplication::arguments();
 	if (arguments.count() > 1) {
@@ -40,6 +39,7 @@ int main(int argc, char *argv[])
 		if(arguments.count() > 2)
 			quality = arguments.at(2).toInt();
 	}
+
 	MainWindow main(url, quality);
 	main.show();
 	return app.exec();
