@@ -27,6 +27,8 @@
 #include "rfb/rfbclient.h"
 
 
+const QString LISTEN_FOR_INCOMING_CONNECTIONS_STRING = QObject::tr("Listen for Incoming Connections");
+
 ConnectDialog::ConnectDialog(QWidget *parent):
 	QDialog(parent)
 {
@@ -51,7 +53,7 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	//set up combobox
 	hosts.addItems(hostnames_sorted);
 	hosts.insertSeparator(hosts.count());
-	hosts.addItem(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_received.png"), tr("Listen for Incoming Connections"));
+	hosts.addItem(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_received.png"), LISTEN_FOR_INCOMING_CONNECTIONS_STRING);
 	hosts.setEditable(true);
 #ifdef Q_WS_MAEMO_5
 	hosts.lineEdit()->setInputMethodHints(Qt::ImhNoAutoUppercase); //somehow this doesn't work that well here
@@ -94,17 +96,21 @@ void ConnectDialog::indexChanged(int index) {
 	if(index == -1)
 		return;
 
-	//disallow editing for special entries (icon set)
 	const bool normal_entry = hosts.itemIcon(index).isNull();
-	hosts.setEditable(normal_entry);
-
 	done->setText(normal_entry ? tr("Connect") : tr("Listen"));
 }
 
 
 void ConnectDialog::hostnameUpdated(QString newtext)
 {
-	//clean up hostname
+	//disallow editing for special entries
+	const bool normal_entry = hosts.itemIcon(hosts.currentIndex()).isNull();
+	if(!normal_entry) {
+		hosts.lineEdit()->setText(LISTEN_FOR_INCOMING_CONNECTIONS_STRING);
+		return;
+	}
+
+	//clean up hostname (we don't want / or \ in saved hostnames)
 	newtext.remove(QChar('/'));
 	newtext.remove(QChar('\\'));
 	int cursorpos = hosts.lineEdit()->cursorPosition();
@@ -159,8 +165,8 @@ void ConnectDialog::accept()
 	}
 
 	settings.beginGroup("hosts");
-	bool new_item = !hostnames_sorted.contains(selected_host);
-	bool used_old_host = !new_item and hosts.currentIndex() > 0;
+	const bool new_item = !hostnames_sorted.contains(selected_host);
+	const bool used_old_host = !new_item and hosts.currentIndex() > 0;
 	//if both are false, we don't need to mess with positions
 
 	if(new_item or used_old_host) {

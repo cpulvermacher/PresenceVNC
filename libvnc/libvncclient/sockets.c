@@ -536,5 +536,3 @@ int WaitForMessage(rfbClient* client,unsigned int usecs)
 
   return num;
 }
-
-
