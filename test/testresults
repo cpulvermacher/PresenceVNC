@@ -1,5 +1,4 @@
-eee-PC, fbdev, fullscreen, Qt 4.4.3
-
+eee-PC, x86, fbdev, fullscreen, Qt 4.4.3
 0:	69.0952 msecs per paint
 1:	42.7143 msecs per paint
 2:	70.4762 msecs per paint
@@ -14,3 +13,35 @@ eee-PC, fbdev, fullscreen, Qt 4.4.3
 11:	54.8571 msecs per paint
 12:	23.0476 msecs per paint
 13:	29.2381 msecs per paint
+
+x86, intel, Qt 4.6.3
+0:	67.1429 msecs per paint
+1:	27 msecs per paint
+2:	70.4286 msecs per paint
+3:	104.619 msecs per paint
+4:	106.19 msecs per paint
+5:	18.3333 msecs per paint
+6:	18.3333 msecs per paint
+7:	19.4762 msecs per paint
+8:	19 msecs per paint
+9:	11.2381 msecs per paint
+10:	12.619 msecs per paint
+11:	19.4762 msecs per paint
+12:	19.0952 msecs per paint
+13:	18.9048 msecs per paint
+
+n900, Qt 4.7.0~git20100909-0maemo1+0m5
+0:	106.333 msecs per paint
+1:	63.8095 msecs per paint
+2:	112.429 msecs per paint
+3:	76.8095 msecs per paint
+4:	50.8571 msecs per paint
+5:	39.4286 msecs per paint
+6:	39.381 msecs per paint
+7:	39.4286 msecs per paint
+8:	39.619 msecs per paint
+9:	18.381 msecs per paint
+10:	18.4762 msecs per paint
+11:	18.2857 msecs per paint
+12:	39.3333 msecs per paint
+13:	39.4762 msecs per paint
