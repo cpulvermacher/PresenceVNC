@@ -33,7 +33,6 @@ public slots:
 signals:
 	void connectToHost(QString url, int quality, int listen_port);
 private slots:
-	void indexChanged(int index);
 	void hostnameUpdated(QString newtext);
 private:
 	QHBoxLayout layout;

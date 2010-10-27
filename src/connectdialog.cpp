@@ -30,7 +30,8 @@
 const QString LISTEN_FOR_INCOMING_CONNECTIONS_STRING = QObject::tr("Listen for Incoming Connections");
 
 ConnectDialog::ConnectDialog(QWidget *parent):
-	QDialog(parent)
+	QDialog(parent),
+	done(new QPushButton)
 {
 	setWindowTitle(tr("Connect to VNC Server"));
 	QSettings settings;
@@ -60,8 +61,6 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 #endif
 	connect(&hosts, SIGNAL(editTextChanged(QString)),
 		this, SLOT(hostnameUpdated(QString)));
-	connect(&hosts, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(indexChanged(int)));
 	layout.addWidget(&hosts);
 
 #ifdef Q_WS_MAEMO_5
@@ -80,7 +79,6 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	hostnameUpdated(hosts.lineEdit()->text()); //get saved quality for last host, or 2
 #endif
 
-	done = new QPushButton(tr("Connect"));
 	done->setMaximumWidth(110);
 	connect(done, SIGNAL(clicked()),
 		this, SLOT(accept()));
@@ -92,29 +90,26 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 		this, SLOT(deleteLater()));
 }
 
-void ConnectDialog::indexChanged(int index) {
-	if(index == -1)
-		return;
-
-	const bool normal_entry = hosts.itemIcon(index).isNull();
-	done->setText(normal_entry ? tr("Connect") : tr("Listen"));
-}
-
-
 void ConnectDialog::hostnameUpdated(QString newtext)
 {
-	//disallow editing for special entries
+	const int cursorpos = hosts.lineEdit()->cursorPosition();
+
 	const bool normal_entry = hosts.itemIcon(hosts.currentIndex()).isNull();
+	done->setText(normal_entry ? tr("Connect") : tr("Listen"));
+
+	//unselect 'listen ...' entry if edited
 	if(!normal_entry) {
-		hosts.lineEdit()->setText(LISTEN_FOR_INCOMING_CONNECTIONS_STRING);
-		return;
+		if(newtext != LISTEN_FOR_INCOMING_CONNECTIONS_STRING) {
+			hosts.setCurrentIndex(-1);
+		} else { 
+			return;
+		}
 	}
 
 	//clean up hostname (we don't want / or \ in saved hostnames)
 	newtext.remove(QChar('/'));
 	newtext.remove(QChar('\\'));
-	int cursorpos = hosts.lineEdit()->cursorPosition();
-	hosts.lineEdit()->setText(newtext.toLower());
+	hosts.lineEdit()->setText(newtext);
 	hosts.lineEdit()->setCursorPosition(cursorpos);
 
 #ifdef Q_WS_MAEMO_5
