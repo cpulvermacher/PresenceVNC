@@ -57,6 +57,7 @@ public:
     void setQuality(int q);
     void setViewOnly(bool viewOnly);
     void showDotCursor(DotCursorState state);
+    void useFastTransformations(bool enabled);
     
 public slots:
     void setZoomLevel(int level = -1); //'level' doesn't correspond to actual magnification, though mapping is done here
@@ -90,6 +91,7 @@ private:
     bool disable_tapping;
     RemoteView::Quality quality;
 	int listen_port;
+	Qt::TransformationMode transformation_mode;
 
     void keyEventHandler(QKeyEvent *e);
     void unpressModifiers();

@@ -72,7 +72,8 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, 
         m_verticalFactor(1.0),
         m_forceLocalCursor(false),
 	quality(quality),
-	listen_port(listen_port)
+	listen_port(listen_port),
+	transformation_mode(Qt::FastTransformation)
 {
     m_url = url;
     m_host = url.host();
@@ -319,6 +320,8 @@ void VncView::updateImage(int x, int y, int w, int h)
 	    old_frame_size = m_frame.size();
         kDebug(5011) << "Updating framebuffer size";
 		setZoomLevel();
+		useFastTransformations(false);
+
         emit framebufferSizeChanged(m_frame.width(), m_frame.height());
     }
 
@@ -395,10 +398,6 @@ void VncView::paintEvent(QPaintEvent *event)
 
     event->accept();
 
-	Qt::TransformationMode transformation_mode = Qt::SmoothTransformation;
-	if( m_horizontalFactor >= 1.0 )
-		transformation_mode = Qt::FastTransformation;
-
 	const QRect update_rect = event->rect();
     QPainter painter(this);
 	if (update_rect != rect()) {
@@ -409,12 +408,13 @@ void VncView::paintEvent(QPaintEvent *event)
 		const int sh = qRound(update_rect.height()/m_verticalFactor);
 
 		painter.drawImage(update_rect, 
-						  m_frame.copy(sx, sy, sw, sh).scaled(update_rect.size(), Qt::IgnoreAspectRatio, transformation_mode));
+			  m_frame.copy(sx, sy, sw, sh)
+			  .scaled(update_rect.size(), Qt::IgnoreAspectRatio, transformation_mode));
 	} else {
 		kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
 
 		painter.drawImage(rect(),
-						  m_frame.scaled(size(), Qt::IgnoreAspectRatio, transformation_mode));
+			m_frame.scaled(size(), Qt::IgnoreAspectRatio, transformation_mode));
     }
 
 	//draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling
@@ -860,5 +860,14 @@ void VncView::inputMethodEvent(QInputMethodEvent *event)
 	}
 }
 
+void VncView::useFastTransformations(bool enabled)
+{
+	if(enabled or getZoomFactor() >= 1.0) {
+		transformation_mode = Qt::FastTransformation;
+	} else {
+		transformation_mode = Qt::SmoothTransformation;
+		update();
+	}
+}
 
 #include "moc_vncview.cpp"

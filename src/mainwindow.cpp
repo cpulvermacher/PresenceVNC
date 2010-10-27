@@ -230,6 +230,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		toolbar->setEnabled(true);
 
 		vnc_view->setZoomLevel(zoom_slider->value());
+		vnc_view->useFastTransformations(false);
 		vnc_view->repaint();
 		break;
 	case RemoteView::Disconnecting:
@@ -367,6 +368,8 @@ void MainWindow::setZoomLevel(int level)
 		scroll_area->ensureVisible(center.x(), center.y(),
 			vnc_view->visibleRegion().boundingRect().width()/2,
 			vnc_view->visibleRegion().boundingRect().height()/2);
+
+		vnc_view->useFastTransformations(zoom_slider->isSliderDown());
 		vnc_view->update();
 
 		scroll_area->showMessage(tr("Zoom: %1\%").arg(qRound(100*new_factor)));
@@ -380,4 +383,7 @@ void MainWindow::zoomSliderReleased()
 		zoom_slider->setValue(95); //100%
 	
 	time.restart();
+
+	//stopped zooming, reenable high quality
+	vnc_view->useFastTransformations(false);
 }
