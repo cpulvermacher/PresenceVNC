@@ -56,11 +56,13 @@ protected:
 private:
 	void grabZoomKeys(bool grab);
 	void reloadSettings();
+
 	VncView *vnc_view;
 	ScrollArea *scroll_area;
 	QToolBar *toolbar;
 	QSlider *zoom_slider;
 	QAction *scaling, *show_toolbar, *disconnect_action;
 	KeyMenu *key_menu;
+	bool zoom_to_cursor;
 };
 #endif

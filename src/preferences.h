@@ -40,6 +40,6 @@ private:
 	QMaemo5ListPickSelector *rightzoom_selector;
 	QCheckBox *disable_tapping;
 #endif
-	QCheckBox *always_show_local_cursor;
+	QCheckBox *always_show_local_cursor, *zoom_to_cursor;
 };
 #endif

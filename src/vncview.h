@@ -58,6 +58,7 @@ public:
     void setViewOnly(bool viewOnly);
     void showDotCursor(DotCursorState state);
     void useFastTransformations(bool enabled);
+    QPoint cursorPosition() { return QPoint(cursor_x, cursor_y); }
     
 public slots:
     void setZoomLevel(int level = -1); //'level' doesn't correspond to actual magnification, though mapping is done here
