@@ -42,8 +42,6 @@
 #ifndef FULLSCREENEXITBUTTON_H
 #define FULLSCREENEXITBUTTON_H
 
-#include "mainwindow.h"
-
 #include <QtGui/qtoolbutton.h>
 #include <QtGui/qevent.h>
 #include <QTimer>
@@ -52,7 +50,7 @@ class FullScreenExitButton : public QToolButton
 {
     Q_OBJECT
 public:
-    inline explicit FullScreenExitButton(MainWindow *parent);
+    inline explicit FullScreenExitButton(QWidget *parent);
 
 protected:
     inline bool eventFilter(QObject *obj, QEvent *ev);
@@ -61,7 +59,7 @@ private:
 	QTimer timer;
 };
 
-FullScreenExitButton::FullScreenExitButton(MainWindow *parent)
+FullScreenExitButton::FullScreenExitButton(QWidget *parent)
         : QToolButton(parent)
 {
     Q_ASSERT(parent);
@@ -82,9 +80,6 @@ FullScreenExitButton::FullScreenExitButton(MainWindow *parent)
     // ensure that we're painting our background
     setAutoFillBackground(true);
 
-    // when we're clicked, tell the parent to exit fullscreen
-    connect(this, SIGNAL(clicked()), parent, SLOT(toggleFullscreen()));
-
     // hide after 4s of inactivity
     connect(&timer, SIGNAL(timeout()), this, SLOT(hide()));
     timer.setInterval(4000);
@@ -102,8 +97,8 @@ bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
     if (obj != parent())
         return QToolButton::eventFilter(obj, ev);
 
-    QWidget *parent = parentWidget();
-    bool isFullScreen = parent->windowState() & Qt::WindowFullScreen;
+    const QWidget *parent = parentWidget();
+    const bool isFullScreen = parent->windowState() & Qt::WindowFullScreen;
 
     switch (ev->type()) {
     case QEvent::MouseButtonPress:
@@ -117,11 +112,10 @@ bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
             raise();
         // fall through
     case QEvent::Resize:
-        if (isVisible()) {
-            move(parent->width() - width(),
-                 parent->height() - height());
-	    timer.start();
-	}
+		if (isVisible()) {
+			move(parent->width() - width(), parent->height() - height());
+			timer.start();
+		}
         break;
     default:
         break;

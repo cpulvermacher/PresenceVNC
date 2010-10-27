@@ -119,7 +119,10 @@ MainWindow::MainWindow(QString url, int quality):
 		this, SLOT(updateScreenSpaceDelayed()));
 
 	setCentralWidget(scroll_area);
-	new FullScreenExitButton(this);
+
+	FullScreenExitButton* fullscreen_exit_button = new FullScreenExitButton(this);
+	connect(fullscreen_exit_button, SIGNAL(clicked()),
+		this, SLOT(toggleFullscreen()));
 
 	grabZoomKeys(true);
 	reloadSettings();
