@@ -389,9 +389,8 @@ void VncView::setCut(const QString &text)
 
 void VncView::paintEvent(QPaintEvent *event)
 {
-     //kDebug(5011) << "paint event: x: " << m_x << ", y: " << m_y << ", w: " << m_w << ", h: " << m_h;
     if (m_frame.isNull() || m_frame.format() == QImage::Format_Invalid) {
-        kDebug(5011) << "no valid image to paint";
+        //no valid image to paint
         RemoteView::paintEvent(event);
         return;
     }
@@ -411,7 +410,7 @@ void VncView::paintEvent(QPaintEvent *event)
 			  m_frame.copy(sx, sy, sw, sh)
 			  .scaled(update_rect.size(), Qt::IgnoreAspectRatio, transformation_mode));
 	} else {
-		kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
+		//kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
 
 		painter.drawImage(rect(),
 			m_frame.scaled(size(), Qt::IgnoreAspectRatio, transformation_mode));
