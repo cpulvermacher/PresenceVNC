@@ -79,6 +79,7 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	hostnameUpdated(hosts.lineEdit()->text()); //get saved quality for last host, or 2
 #endif
 
+	done->setText(tr("Connect"));
 	done->setMaximumWidth(110);
 	connect(done, SIGNAL(clicked()),
 		this, SLOT(accept()));
