@@ -1,3 +1,0 @@
-#!/bin/sh
-export LD_LIBRARY_PATH=/opt/presencevnc/
-exec /opt/presencevnc/presencevnc-bin "$@"
