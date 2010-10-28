@@ -315,8 +315,10 @@ void MainWindow::showPreferences()
 
 void MainWindow::reloadSettings()
 {
-#ifdef Q_WS_MAEMO_5
 	QSettings settings;
+	zoom_to_cursor = settings.value("zoom_to_cursor", true).toBool();
+	
+#ifdef Q_WS_MAEMO_5
 	int rotation = settings.value("screen_rotation", 0).toInt();
 	setAttribute(Qt::WA_Maemo5AutoOrientation, rotation == 0);
 	setAttribute(Qt::WA_Maemo5LandscapeOrientation, rotation == 1);
@@ -358,16 +360,20 @@ void MainWindow::setZoomLevel(int level)
 	if(!vnc_view)
 		return;
 	
-	const qreal old_factor = vnc_view->getZoomFactor();
+	const qreal old_factor = vnc_view->zoomFactor();
 	QPoint center = vnc_view->visibleRegion().boundingRect().center();
 
 	vnc_view->setZoomLevel(level);
 
-	const qreal new_factor = vnc_view->getZoomFactor();
+	const qreal new_factor = vnc_view->zoomFactor();
 
 	//scroll to center, if zoom level actually changed
 	if(old_factor != new_factor) {
-		center = center * (double(new_factor)/old_factor);
+		if(zoom_to_cursor)
+			center = new_factor * vnc_view->cursorPosition();
+		else //zoom to center of visible region
+			center = center * (double(new_factor)/old_factor);
+
 		scroll_area->ensureVisible(center.x(), center.y(),
 			vnc_view->visibleRegion().boundingRect().width()/2,
 			vnc_view->visibleRegion().boundingRect().height()/2);

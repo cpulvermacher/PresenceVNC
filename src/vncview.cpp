@@ -862,7 +862,7 @@ void VncView::inputMethodEvent(QInputMethodEvent *event)
 
 void VncView::useFastTransformations(bool enabled)
 {
-	if(enabled or getZoomFactor() >= 1.0) {
+	if(enabled or zoomFactor() >= 1.0) {
 		transformation_mode = Qt::FastTransformation;
 	} else {
 		transformation_mode = Qt::SmoothTransformation;
