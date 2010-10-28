@@ -18,7 +18,7 @@ build:
 	dh_testdir
 	install -d ${BUILDDIR}
 ifdef buildlibs
-	cd libvnc && ./configure && make
+	cd libvnc && ./configure && cd libvncclient && make
 endif
 	qmake-qt4 -after "DESTDIR=debian/build"
 	$(MAKE)
