@@ -16,28 +16,47 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+#include "mainwindow.h"
+
 #include <QApplication>
 #include <QString>
 
-#include "mainwindow.h"
+#include <iostream>
+
+
+const QString APPNAME("Presence VNC");
 
 int main(int argc, char *argv[])
 {
-	QCoreApplication::setOrganizationName("Presence VNC");
-	QCoreApplication::setApplicationName("Presence VNC");
+	QCoreApplication::setOrganizationName(APPNAME);
+	QCoreApplication::setApplicationName(APPNAME);
 
 	QApplication app(argc, argv);
 
-	QString url = QString();
+	QString url("");
 	int quality = 2;
-	QStringList arguments = QCoreApplication::arguments();
-	if (arguments.count() > 1) {
-		//Example: vnc://:password@server:1\n"
-		//"Optionally, you can define the quality as second argument (1-3, where 1 is the best). Default is 2.");
 
-		url = arguments.at(1);
-		if(arguments.count() > 2)
-			quality = arguments.at(2).toInt();
+	QStringList arguments = QCoreApplication::arguments();
+	for(int i = 1; i < arguments.count(); i++) {
+		if(arguments.at(i) == "--help") {
+			std::cout << "Usage: " << qPrintable(arguments.at(0)) << " [options] [URL [quality]]\n"
+
+				<< "\nOptions:\n"
+				<< " --help\t This text\n"
+
+				<< "\nURLs:\n"
+				<< " vnc://:password@server:display\n"
+				<< " Password and display can be omitted, e.g. vnc://server is a valid URL.\n"
+				<< " Optionally, you can define the quality as a second argument (1-3, where 1 is the best). Default is 2.\n";
+
+			return 0;
+		} else { //not a valid command line option, should be the url
+			url = arguments.at(i);
+			if(arguments.count() > i+1) { //having a --quality option would make more sense.
+					quality = arguments.at(i+1).toInt();
+					i++;
+			}
+		}
 	}
 
 	MainWindow main(url, quality);
