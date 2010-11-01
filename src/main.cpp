@@ -26,6 +26,19 @@
 
 const QString APPNAME("Presence VNC");
 
+void printHelp() {
+	std::cout << "Usage: " << qPrintable(QCoreApplication::arguments().at(0)) << " [options] [URL [quality]]\n"
+
+		<< "\nOptions:\n"
+		<< " --help\t\t Print this text and exit.\n"
+		<< " --viewonly\t Don't send mouse/keyboard input to remote desktop. This is only useful if you also supply a URL.\n"
+
+		<< "\nURLs:\n"
+		<< " vnc://:password@server:display\n\n"
+		<< " Password and display can be omitted, e.g. vnc://server is a valid URL.\n"
+		<< " Optionally, you can define the quality as a second argument (1-3, where 1 is the best). Default is 2.\n";
+}
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication::setOrganizationName(APPNAME);
@@ -40,16 +53,7 @@ int main(int argc, char *argv[])
 	QStringList arguments = QCoreApplication::arguments();
 	for(int i = 1; i < arguments.count(); i++) {
 		if(arguments.at(i) == "--help") {
-			std::cout << "Usage: " << qPrintable(arguments.at(0)) << " [options] [URL [quality]]\n"
-
-				<< "\nOptions:\n"
-				<< " --help\t\t Print this text and exit.\n"
-				<< " --viewonly\t Don't send mouse/keyboard input to remote desktop. This is only useful if you also supply a URL.\n"
-
-				<< "\nURLs:\n"
-				<< " vnc://:password@server:display\n\n"
-				<< " Password and display can be omitted, e.g. vnc://server is a valid URL.\n"
-				<< " Optionally, you can define the quality as a second argument (1-3, where 1 is the best). Default is 2.\n";
+			printHelp();
 
 			return 0;
 		} else if(arguments.at(i) == "--viewonly") {
@@ -57,9 +61,20 @@ int main(int argc, char *argv[])
 		} else { //not a valid command line option, should be the url
 			url = arguments.at(i);
 
+			//check url
+			if(!url.startsWith("vnc://")) {
+				std::cerr << "\"" << qPrintable(url) << "\" is not a valid command line option!\n\n";
+				printHelp();
+
+				return 1;
+			}
+
 			if(arguments.count() > i+1) { //having a --quality option would make more sense.
-				quality = arguments.at(i+1).toInt();
-				i++;
+				int arg = arguments.at(i+1).toInt();
+				if(1 <= arg and arg <= 3) { //check if arg is valid, might also be another option
+					quality = arg;
+					i++;
+				}
 			}
 		}
 	}
