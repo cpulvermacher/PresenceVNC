@@ -1,3 +1,9 @@
+presencevnc (0.8) unstable; urgency=low
+
+  * ...
+
+ -- Christian Pulvermacher <pulvermacher@gmx.de>  Thu, 28 Oct 2010 19:48:01 +0200
+
 presencevnc (0.7) unstable; urgency=low
 
   * Doubleclick zoom slider for 100%
