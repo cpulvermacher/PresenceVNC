@@ -396,3 +396,9 @@ void MainWindow::zoomSliderReleased()
 	//stopped zooming, reenable high quality
 	vnc_view->useFastTransformations(false);
 }
+
+void MainWindow::sendTab() { vnc_view->sendKey(Qt::Key_Tab); }
+void MainWindow::sendEsc() { vnc_view->sendKey(Qt::Key_Escape); }
+void MainWindow::sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
+void MainWindow::sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
+void MainWindow::sendReturn() { vnc_view->sendKey(Qt::Key_Return); }

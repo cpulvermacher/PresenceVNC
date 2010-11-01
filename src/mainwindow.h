@@ -20,12 +20,12 @@
 #define MAINWINDOW_H
 
 #include "remoteview.h"
-#include "vncview.h"
 
 #include <QtGui>
 
 class KeyMenu;
 class ScrollArea;
+class VncView;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -38,11 +38,11 @@ public slots:
 	void disconnectFromHost();
 	void updateScreenSpace();
 	void updateScreenSpaceDelayed();
-	void sendTab() { vnc_view->sendKey(Qt::Key_Tab); }
-	void sendEsc() { vnc_view->sendKey(Qt::Key_Escape); }
-	void sendPgUp() { vnc_view->sendKey(Qt::Key_PageUp); }
-	void sendPgDn() { vnc_view->sendKey(Qt::Key_PageDown); }
-	void sendReturn() { vnc_view->sendKey(Qt::Key_Return); }
+	void sendTab();
+	void sendEsc();
+	void sendPgUp();
+	void sendPgDn();
+	void sendReturn();
 	void setZoomLevel(int level);
 	void showInputPanel();
 	void showKeyMenu();
