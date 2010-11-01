@@ -114,9 +114,13 @@ bool VncView::eventFilter(QObject *obj, QEvent *event)
                 event->type() == QEvent::MouseButtonPress ||
                 event->type() == QEvent::MouseButtonRelease ||
                 event->type() == QEvent::Wheel ||
-                event->type() == QEvent::MouseMove)
+                event->type() == QEvent::MouseMove) {
+
+			event->ignore();
             return true;
+		}
     }
+
     return RemoteView::eventFilter(obj, event);
 }
 

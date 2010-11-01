@@ -30,7 +30,7 @@ class VncView;
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
-	MainWindow(QString url, int quality);
+	MainWindow(QString url, int quality, bool view_only);
 public slots:
 	void about();
 	void showConnectDialog();
@@ -62,6 +62,7 @@ private:
 	QToolBar *toolbar;
 	QSlider *zoom_slider;
 	QAction *scaling, *show_toolbar, *disconnect_action;
+	QActionGroup *input_toolbuttons;
 	KeyMenu *key_menu;
 	bool zoom_to_cursor;
 };

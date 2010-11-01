@@ -33,8 +33,9 @@ int main(int argc, char *argv[])
 
 	QApplication app(argc, argv);
 
-	QString url("");
+	QString url;
 	int quality = 2;
+	bool view_only = false;
 
 	QStringList arguments = QCoreApplication::arguments();
 	for(int i = 1; i < arguments.count(); i++) {
@@ -42,24 +43,28 @@ int main(int argc, char *argv[])
 			std::cout << "Usage: " << qPrintable(arguments.at(0)) << " [options] [URL [quality]]\n"
 
 				<< "\nOptions:\n"
-				<< " --help\t This text\n"
+				<< " --help\t\t Print this text and exit.\n"
+				<< " --viewonly\t Don't send mouse/keyboard input to remote desktop. This is only useful if you also supply a URL.\n"
 
 				<< "\nURLs:\n"
-				<< " vnc://:password@server:display\n"
+				<< " vnc://:password@server:display\n\n"
 				<< " Password and display can be omitted, e.g. vnc://server is a valid URL.\n"
 				<< " Optionally, you can define the quality as a second argument (1-3, where 1 is the best). Default is 2.\n";
 
 			return 0;
+		} else if(arguments.at(i) == "--viewonly") {
+			view_only = true;
 		} else { //not a valid command line option, should be the url
 			url = arguments.at(i);
+
 			if(arguments.count() > i+1) { //having a --quality option would make more sense.
-					quality = arguments.at(i+1).toInt();
-					i++;
+				quality = arguments.at(i+1).toInt();
+				i++;
 			}
 		}
 	}
 
-	MainWindow main(url, quality);
+	MainWindow main(url, quality, view_only);
 	main.show();
 	return app.exec();
 }

@@ -33,15 +33,16 @@
 #endif
 
 
-MainWindow::MainWindow(QString url, int quality):
+MainWindow::MainWindow(QString url, int quality, bool view_only):
 	QMainWindow(0),
 	vnc_view(0),
 	scroll_area(new ScrollArea(0)),
+	input_toolbuttons(new QActionGroup(this)),
 	key_menu(new KeyMenu(this))
 {
 	setWindowTitle("Presence VNC");
-	setContextMenuPolicy(Qt::NoContextMenu);
 #ifdef Q_WS_MAEMO_5
+	setContextMenuPolicy(Qt::NoContextMenu);
 	setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 
@@ -49,14 +50,14 @@ MainWindow::MainWindow(QString url, int quality):
 
 	//set up toolbar
 	toolbar = new QToolBar(0);
-	toolbar->addAction(QChar(0x2026), this, SLOT(showKeyMenu())); //"..." button
-	toolbar->addAction(tr("Tab"), this, SLOT(sendTab()));
-	toolbar->addAction(tr("Esc"), this, SLOT(sendEsc()));
-	toolbar->addAction(tr("PgUp"), this, SLOT(sendPgUp()));
-	toolbar->addAction(tr("PgDn"), this, SLOT(sendPgDn()));
+	input_toolbuttons->addAction(toolbar->addAction(QChar(0x2026), this, SLOT(showKeyMenu()))); //"..." button
+	input_toolbuttons->addAction(toolbar->addAction(tr("Tab"), this, SLOT(sendTab())));
+	input_toolbuttons->addAction(toolbar->addAction(tr("Esc"), this, SLOT(sendEsc())));
+	input_toolbuttons->addAction(toolbar->addAction(tr("PgUp"), this, SLOT(sendPgUp())));
+	input_toolbuttons->addAction(toolbar->addAction(tr("PgDn"), this, SLOT(sendPgDn())));
 #ifdef Q_WS_MAEMO_5
-	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/chat_enter.png"), "", this, SLOT(sendReturn()));
-	toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel()));
+	input_toolbuttons->addAction(toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/chat_enter.png"), "", this, SLOT(sendReturn())));
+	input_toolbuttons->addAction(toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/control_keyboard.png"), "", this, SLOT(showInputPanel())));
 #endif
 
 	QSettings settings;
@@ -127,7 +128,7 @@ MainWindow::MainWindow(QString url, int quality):
 	grabZoomKeys(true);
 	reloadSettings();
 
-	if(url.isNull()) {
+	if(url.isEmpty()) {
 		disconnect_action->setEnabled(false);
 		showConnectDialog();
 	} else {
@@ -135,6 +136,7 @@ MainWindow::MainWindow(QString url, int quality):
 		connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
 			this, SLOT(statusChanged(RemoteView::RemoteStatus)));
 		scroll_area->setWidget(vnc_view);
+		vnc_view->setViewOnly(view_only);
 		vnc_view->start();
 	}
 }
@@ -231,6 +233,9 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 		setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
 		toolbar->setEnabled(true);
+
+		//disable key input buttons in view only mode
+		input_toolbuttons->setEnabled(!vnc_view->viewOnly());
 
 		vnc_view->setZoomLevel(zoom_slider->value());
 		vnc_view->useFastTransformations(false);
