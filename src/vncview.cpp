@@ -23,26 +23,7 @@
 
 #include "vncview.h"
 
-#include <QMessageBox>
-#include <QInputDialog>
-#define KMessageBox QMessageBox
-#define error(parent, message, caption) \
-critical(parent, caption, message)
-
-#include <QApplication>
-#include <QBitmap>
-#include <QCheckBox>
-#include <QDialog>
-#include <QImage>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QPushButton>
-#include <QEvent>
-#include <QSettings>
-#include <QTime>
-#include <QTimer>
+#include <QtGui>
 
 
 // Definition of key modifier mask constants
@@ -55,6 +36,7 @@ critical(parent, caption, message)
 //local cursor width/height in px, should be an odd number
 const int CURSOR_SIZE = 7;
 
+//in miliseconds
 const int TAP_PRESS_TIME = 180;
 const int DOUBLE_TAP_UP_TIME = 500;
 
@@ -146,13 +128,10 @@ void VncView::startQuitting()
 
     kDebug(5011) << "about to quit";
 
-    //const bool connected = status() == RemoteView::Connected;
-
     setStatus(Disconnecting);
 
     m_quitFlag = true;
 
-	//if(connected) //remove if things work without it
 	vncThread.stop();
 
     const bool quitSuccess = vncThread.wait(700);
@@ -213,8 +192,9 @@ void VncView::requestPassword()
 
 	QSettings settings;
 	settings.beginGroup("hosts");
-	QString password = settings.value(QString("%1/password").arg(m_host), "").toString();
+
 	//check for saved password
+	QString password = settings.value(QString("%1/password").arg(m_host), "").toString();
 	if(m_firstPasswordTry and !password.isEmpty()) {
 		kDebug(5011) << "Trying saved password";
 		m_firstPasswordTry = false;
@@ -240,7 +220,7 @@ void VncView::requestPassword()
 	QHBoxLayout layout1;
 	QVBoxLayout layout2;
 	layout2.addWidget(&passwordbox);
-	if(!m_host.isEmpty()) //don't save incomming connections
+	if(!m_host.isEmpty()) //don't save incoming connections
 		layout2.addWidget(&save_password);
 	layout1.addLayout(&layout2);
 	layout1.addWidget(&ok_button);
@@ -440,32 +420,29 @@ void VncView::resizeEvent(QResizeEvent *event)
 
 bool VncView::event(QEvent *event)
 {
-    switch (event->type()) {
-    case QEvent::KeyPress:
-    case QEvent::KeyRelease:
-//         kDebug(5011) << "keyEvent";
-        keyEventHandler(static_cast<QKeyEvent*>(event));
-        return true;
-        break;
-    case QEvent::MouseButtonDblClick:
-    case QEvent::MouseButtonPress:
-    case QEvent::MouseButtonRelease:
-    case QEvent::MouseMove:
-//         kDebug(5011) << "mouseEvent";
-        mouseEventHandler(static_cast<QMouseEvent*>(event));
-        return true;
-        break;
-    case QEvent::Wheel:
-//         kDebug(5011) << "wheelEvent";
-        wheelEventHandler(static_cast<QWheelEvent*>(event));
-        return true;
-        break;
-    case QEvent::WindowActivate: //input panel may have been closed, prevent IM from interfering with hardware keyboard
-	setAttribute(Qt::WA_InputMethodEnabled, false);
-	//fall through
-    default:
-        return RemoteView::event(event);
-    }
+	switch (event->type()) {
+	case QEvent::KeyPress:
+	case QEvent::KeyRelease:
+		keyEventHandler(static_cast<QKeyEvent*>(event));
+		return true;
+
+	case QEvent::MouseButtonDblClick:
+	case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonRelease:
+	case QEvent::MouseMove:
+		mouseEventHandler(static_cast<QMouseEvent*>(event));
+		return true;
+
+	case QEvent::Wheel:
+		wheelEventHandler(static_cast<QWheelEvent*>(event));
+		return true;
+
+	case QEvent::WindowActivate: //input panel may have been closed, prevent IM from interfering with hardware keyboard
+		setAttribute(Qt::WA_InputMethodEnabled, false);
+		//fall through
+	default:
+		return RemoteView::event(event);
+	}
 }
 
 //call with e == 0 to flush held events
@@ -625,7 +602,7 @@ void VncView::keyEventHandler(QKeyEvent *e)
 	else if(e->key() == Qt::Key_F7)
 		current_zoom = right_zoom;
 	else if (k) {
-	//	kDebug(5011) << "got '" << e->text() << "'.";
+		// kDebug(5011) << "got '" << e->text() << "'.";
 		vncThread.keyEvent(k, pressed);
 	} else {
 		kDebug(5011) << "nativeVirtualKey() for '" << e->text() << "' failed.";
@@ -853,7 +830,7 @@ void VncView::inputMethodEvent(QInputMethodEvent *event)
 	//kDebug(5011) << event->commitString() << "|" << event->preeditString() << "|" << event->replacementLength() << "|" << event->replacementStart();
 	QString letters = event->commitString();
 	for(int i = 0; i < letters.length(); i++) {
-		char k = letters.at(i).toLatin1(); //works with all 'normal' keys, not umlauts.
+		char k = letters.at(i).toLatin1();
 		if(!k) {
 			kDebug(5011) << "unhandled key";
 			continue;
@@ -872,5 +849,3 @@ void VncView::useFastTransformations(bool enabled)
 		update();
 	}
 }
-
-#include "moc_vncview.cpp"

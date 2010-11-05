@@ -23,7 +23,6 @@
 
 #include "vncclientthread.h"
 
-#include <QCoreApplication>
 #include <QMutexLocker>
 #include <QTimer>
 
@@ -384,5 +383,3 @@ void VncClientThread::clientCut(const QString &text)
 
     m_eventQueue.enqueue(new ClientCutEvent(text));
 }
-
-#include "moc_vncclientthread.cpp"
