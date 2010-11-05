@@ -318,10 +318,12 @@ void VncView::setViewOnly(bool viewOnly)
 
     m_dontSendClipboard = viewOnly;
 
-    if (viewOnly)
+    if (viewOnly) {
+		showDotCursor(CursorOff);
         setCursor(Qt::ArrowCursor);
-    else
+    } else {
         setCursor(m_dotCursorState == CursorOn ? localDotCursor() : Qt::BlankCursor);
+	}
 }
 
 void VncView::showDotCursor(DotCursorState state)
