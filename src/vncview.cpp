@@ -23,6 +23,9 @@
 
 #include "vncview.h"
 
+//for mouse button masks
+#include "rfb/rfbproto.h"
+
 #include <QtGui>
 
 
@@ -456,15 +459,16 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	static QTime press_time;
 	static QTime up_time; //used for double clicks/tap&drag, for time after first tap
 
+
 	if(!e) { //flush held taps
 		if(tap_detected) {
-			m_buttonMask |= 0x01;
+			m_buttonMask |= rfbButton1Mask;
 			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-			m_buttonMask &= 0xfe;
+			m_buttonMask &= ~rfbButton1Mask;
 			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 			tap_detected = false;
 		} else if(double_tap_detected and press_time.elapsed() > TAP_PRESS_TIME) { //got tap + another press -> tap & drag
-			m_buttonMask |= 0x01;
+			m_buttonMask |= rfbButton1Mask;
 			vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 			double_tap_detected = false;
 			tap_drag_detected = true;
@@ -492,20 +496,20 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 				QTimer::singleShot(TAP_PRESS_TIME, this, SLOT(mouseEventHandler()));
 			}
 		} else if(e->type() == QEvent::MouseButtonRelease) {
-			if(tap_drag_detected) {
-				m_buttonMask &= 0xfe;
+			if(tap_drag_detected) { //end tap & drag
+				m_buttonMask &= ~rfbButton1Mask;
 				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 				tap_drag_detected = false;
 			} else if(double_tap_detected) { //double click
 				double_tap_detected = false;
 
-				m_buttonMask |= 0x01;
+				m_buttonMask |= rfbButton1Mask;
 				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-				m_buttonMask &= 0xfe;
+				m_buttonMask &= ~rfbButton1Mask;
 				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-				m_buttonMask |= 0x01;
+				m_buttonMask |= rfbButton1Mask;
 				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
-				m_buttonMask &= 0xfe;
+				m_buttonMask &= ~rfbButton1Mask;
 				vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 			} else if(press_time.elapsed() < TAP_PRESS_TIME) { //tap
 				up_time.start();
@@ -517,14 +521,14 @@ void VncView::mouseEventHandler(QMouseEvent *e)
 	} else { //middle or right button, send directly
 		if ((e->type() == QEvent::MouseButtonPress)) {
 		    if (e->button() & Qt::MidButton)
-			m_buttonMask |= 0x02;
+				m_buttonMask |= rfbButton2Mask;
 		    if (e->button() & Qt::RightButton)
-			m_buttonMask |= 0x04;
+				m_buttonMask |= rfbButton3Mask;
 		} else if (e->type() == QEvent::MouseButtonRelease) {
 		    if (e->button() & Qt::MidButton)
-			m_buttonMask &= 0xfd;
+				m_buttonMask &= ~rfbButton2Mask;
 		    if (e->button() & Qt::RightButton)
-			m_buttonMask &= 0xfb;
+				m_buttonMask &= ~rfbButton3Mask;
 		}
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	}
@@ -547,14 +551,14 @@ void VncView::wheelEventHandler(QWheelEvent *event)
 {
     int eb = 0;
     if (event->delta() < 0)
-        eb |= 0x10;
+        eb |= rfbWheelDownMask;
     else
-        eb |= 0x8;
+        eb |= rfbWheelUpMask;
 
     const int x = qRound(event->x() / m_horizontalFactor);
     const int y = qRound(event->y() / m_verticalFactor);
 
-    vncThread.mouseEvent(x, y, eb | m_buttonMask);
+    vncThread.mouseEvent(x, y, m_buttonMask | eb);
     vncThread.mouseEvent(x, y, m_buttonMask);
 }
 
@@ -617,29 +621,27 @@ void VncView::keyEventHandler(QKeyEvent *e)
 	//handle zoom buttons
 	if(current_zoom == 0) { //left click
 		if(pressed)
-			m_buttonMask |= 0x01;
+			m_buttonMask |= rfbButton1Mask;
 		else
-			m_buttonMask &= 0xfe;
+			m_buttonMask &= ~rfbButton1Mask;
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	} else if(current_zoom == 1) { //right click
 		if(pressed)
-			m_buttonMask |= 0x04;
+			m_buttonMask |= rfbButton3Mask;
 		else
-			m_buttonMask &= 0xfb;
+			m_buttonMask &= ~rfbButton3Mask;
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	} else if(current_zoom == 2) { //middle click
 		if(pressed)
-			m_buttonMask |= 0x02;
+			m_buttonMask |= rfbButton2Mask;
 		else
-			m_buttonMask &= 0xfd;
+			m_buttonMask &= ~rfbButton2Mask;
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	} else if(current_zoom == 3 and pressed) { //wheel up
-		int eb = 0x8;
-		vncThread.mouseEvent(cursor_x, cursor_y, eb | m_buttonMask);
+		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask | rfbWheelUpMask);
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	} else if(current_zoom == 4 and pressed) { //wheel down
-		int eb = 0x10;
-		vncThread.mouseEvent(cursor_x, cursor_y, eb | m_buttonMask);
+		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask | rfbWheelDownMask);
 		vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
 	} else if(current_zoom == 5) { //page up
 		vncThread.keyEvent(0xff55, pressed);
