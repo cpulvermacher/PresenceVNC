@@ -27,7 +27,7 @@
 #include "rfb/rfbclient.h"
 
 
-const QString LISTEN_FOR_INCOMING_CONNECTIONS_STRING = QObject::tr("Listen for Incoming Connections");
+const QString LISTEN_FOR_INCOMING_CONNECTIONS_STRING = QObject::tr("Listen for incoming connections");
 
 ConnectDialog::ConnectDialog(QWidget *parent):
 	QDialog(parent),
