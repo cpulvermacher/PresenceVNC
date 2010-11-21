@@ -99,7 +99,7 @@ Preferences::Preferences(QWidget *parent):
 	QVBoxLayout *layout2 = new QVBoxLayout();
 
 #ifdef Q_WS_MAEMO_5
-	QMaemo5ValueButton *rotation = new QMaemo5ValueButton(tr("Screen Rotation"), this);
+	QMaemo5ValueButton *rotation = new QMaemo5ValueButton(tr("Screen rotation"), this);
 	rotation_selector = new QMaemo5ListPickSelector(this);
 	QStandardItemModel *model = new QStandardItemModel(0, 1, this);
 	model->appendRow(new QStandardItem(tr("Automatic")));
@@ -111,23 +111,23 @@ Preferences::Preferences(QWidget *parent):
 	rotation->setValueLayout(QMaemo5ValueButton::ValueBesideText);
 	layout2->addWidget(rotation);
 
-	QMaemo5ValueButton *leftzoom = new QMaemo5ValueButton(tr("Left Zoom Button"), this);
+	QMaemo5ValueButton *leftzoom = new QMaemo5ValueButton(tr("Left zoom button"), this);
 	leftzoom_selector = new QMaemo5ListPickSelector(this);
 	QStandardItemModel *key_model = new QStandardItemModel(0, 1, this);
-	key_model->insertRow(0, new QStandardItem(tr("Left Click")));
-	key_model->insertRow(1, new QStandardItem(tr("Right Click")));
-	key_model->insertRow(2, new QStandardItem(tr("Middle Click")));
-	key_model->insertRow(3, new QStandardItem(tr("Wheel Up")));
-	key_model->insertRow(4, new QStandardItem(tr("Wheel Down")));
-	key_model->insertRow(5, new QStandardItem(tr("Page Up")));
-	key_model->insertRow(6, new QStandardItem(tr("Page Down")));
+	key_model->insertRow(0, new QStandardItem(tr("Left click")));
+	key_model->insertRow(1, new QStandardItem(tr("Right click")));
+	key_model->insertRow(2, new QStandardItem(tr("Middle click")));
+	key_model->insertRow(3, new QStandardItem(tr("Wheel up")));
+	key_model->insertRow(4, new QStandardItem(tr("Wheel down")));
+	key_model->insertRow(5, new QStandardItem(tr("Page up")));
+	key_model->insertRow(6, new QStandardItem(tr("Page down")));
 	leftzoom_selector->setModel(key_model);
 	leftzoom_selector->setCurrentIndex(settings.value("left_zoom", 0).toInt());
 	leftzoom->setPickSelector(leftzoom_selector);
 	leftzoom->setValueLayout(QMaemo5ValueButton::ValueBesideText);
 	layout2->addWidget(leftzoom);
 
-	QMaemo5ValueButton *rightzoom = new QMaemo5ValueButton(tr("Right Zoom Button"), this);
+	QMaemo5ValueButton *rightzoom = new QMaemo5ValueButton(tr("Right zoom button"), this);
 	rightzoom_selector = new QMaemo5ListPickSelector(this);
 	rightzoom_selector->setModel(key_model);
 	rightzoom_selector->setCurrentIndex(settings.value("right_zoom", 1).toInt());
@@ -136,7 +136,7 @@ Preferences::Preferences(QWidget *parent):
 	layout2->addWidget(rightzoom);
 
 	//useful if one only wants to click using the zoom buttons exclusively
-	disable_tapping = new QCheckBox(tr("Disable Tapping"), this);
+	disable_tapping = new QCheckBox(tr("Disable tapping"), this);
 	disable_tapping->setChecked(settings.value("disable_tapping", false).toBool());
 	layout2->addWidget(disable_tapping);
 #endif

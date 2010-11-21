@@ -78,7 +78,7 @@ MainWindow::MainWindow(QString url, int quality, bool view_only):
 	//set up menu
 	QAction *connect_action = new QAction(tr("Connect"), this);
 	disconnect_action = new QAction(tr("Disconnect"), this);
-	show_toolbar = new QAction(tr("Show Toolbar"), this);
+	show_toolbar = new QAction(tr("Show toolbar"), this);
 	show_toolbar->setCheckable(true);
 	show_toolbar->setChecked(settings.value("show_toolbar", true).toBool());
 	QAction *pref_action = new QAction(tr("Preferences"), this);
