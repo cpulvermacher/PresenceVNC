@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+ <title>Presence VNC - A touchscreen friendly VNC client</title>
+ <style type="text/css">
+  @import "clean.css";
+ </style>
+</head>
+<body>
+
+<h1>Presence VNC</h1>
+<p id="head">A touchscreen friendly VNC client</p>
+
+<ul class="menu">
+ <li><a href="https://garage.maemo.org/projects/presencevnc/">Garage Home</a></li>
+ <li><a href="https://garage.maemo.org/tracker/?group_id=1831">Bug Tracker</a></li>
+ <li><a href="http://maemo.org/packages/view/presencevnc/">Package Page</a></li>
+</ul>
+
+
+<div class="main">
+<h2>Features</h2>
+<ul>
+ <li>Viewport can be dragged around without using scrollbars</li>
+ <li>Touchpad-like mouse input: Tap the screen for a single click, tap twice for a double click, single tap plus dragging motion to drag objects on the remote desktop</li>
+ <li>Fit remote desktop to screen</li>
+ <li>Configurable zoom buttons</li>
+ <li>Portrait mode support</li>
+ <li>Support for server-initiated connections (Listen for Incoming Connections)</li>
+</ul>
+
+<h2>Download</h2>
+<p>
+Presence VNC can be <a href="http://maemo.org/downloads/product/raw/Maemo5/presencevnc/?get_installfile">installed from Maemo Extras</a>, older versions and source code are available from the <a href="https://garage.maemo.org/frs/?group_id=1831">project filelist</a>.
+</p>
+
+
+<h2>Help</h2>
+
+<!--
+<h3>Introduction</h3>
+<p>TODO </p>
+-->
+
+<h3>Connecting</h3>
+<p><img src="connecting.png" alt="Connect to VNC Server" /></p>
+<p>Enter the hostname or IP address of the computer running the VNC server.
+You can specify the display number after a colon. (e.g.: <tt>hostname:1</tt>)
+If no display is given, 0 will be assumed.</p>
+
+<p>Pressing the arrow symbol next to the input field will bring up the list of recently used hosts.
+Additionally, you can select the <strong>Listen for incoming connections</strong> option to accept a "reverse" connection from the server.
+You can specify the port to listen on after clicking the <strong>Listen</strong> button.
+Servers that support this feature include x11vnc (<tt>-connect</tt>), RealVNC and TightVNC (right-click on icon -&gt; "Add New Client").
+</p>
+
+<p>Please note that all data transferred using VNC (except your password) is <em>unencrypted</em>. That means your session could be viewed/recorded and even taken over by someone else on your network.
+To prevent this, you can use <a href="http://en.wikipedia.org/wiki/Secure_Shell">SSH</a> or <a href="http://en.wikipedia.org/wiki/Virtual_private_network">VPN</a> to create an encrypted tunnel for your VNC connection. (<a href="http://wiki.maemo.org/Presencevnc">HOWTO (SSH, Linux)</a>)</p>
+
+
+<h3>Main window</h3>
+<p><img src="main_100.png" alt="Presence VNC main window, 100% zoom" /></p>
+
+<h4>Toolbar</h4>
+<dl>
+ <dt>...</dt>
+ <dd>Shows a menu of various other keys unavailable from hardware/on-screen keyboard. Please note that the modifier keys (<strong>Win</strong> or <strong>Alt</strong>) will stay pressed until you press them a second time in the <strong>...</strong> menu.</dd>
+
+ <dt>Tab, Esc, PgUp, PgDn, Return</dt>
+ <dd>Send Tab, Escape, Page Up, Page Down or Return, respectively.</dd>
+
+ <dt>On-screen keyboard</dt>
+ <dd>Opens the on-screen keyboard (OSK). If the hardware keyboard is open, this button has no effect.<br />
+<em>Limitations:</em>
+The OSK Return key does not work, please use the toolbar button instead. <!-- You can blame Nokia for this one -->
+The Backspace button will only delete text still visible in the OSK, you may need to use its counterpart in the <strong>...</strong> menu or the hardware keyboard.</dd>
+
+ <dt>Zoom slider</dt>
+ <dd>You can change the zoom level by dragging the slider. At its lowest setting (left), the remote display will be resized to fit the available screen space; the highest setting (right) will double the size of the remote display.
+Double clicking the slider will set the zoom to 100%.</dd>
+
+ <dt>Fullscreen</dt>
+ <dd>Hides menu and toolbar.
+To leave fullscreen mode, press the button in the lower right corner (visible for a few seconds after each mouse/keyboard input).</dd>
+</dl>
+
+<h3>Preferences</h3>
+<p><img src="preferences.png" alt="Preferences window" /></p>
+<dl>
+ <dt>Screen rotation</dt>
+ <dd>Wether you want automatic screen rotation when the device is rotated or fixed portrait/landscape mode. Default: Automatic</dd>
+
+ <dt>Left/Right zoom button</dt>
+ <dd>Allows you to assign actions to the zoom/volume buttons of the N900.
+ The default actions are left and right click, respectively.</dd>
+
+ <dt>Disable tapping</dt>
+ <dd>If this option is checked, tapping your finger on the displayed remote desktop will not produce mouse clicks.
+ You can still click using the zoom/volume buttons (see above).
+ This option is off by default.</dd>
+
+ <dt>Always show local cursor</dt>
+ <dd>When enabled, Presence VNC will show a small rectangle to indicate the cursor position.
+ This option is especially useful on slow connections (laggy remote cursor).
+ Zooming will not affect the size of the local cursor.
+ Default: off</dd>
+
+ <dt>Zoom to cursor</dt>
+ <dd>When enabled, zooming will keep the cursor near to the middle of the screen.
+ Otherwise, the center of the currently visible area will be kept visible.
+ Default: on</dd>
+</dl>
+
+
+<!--
+<p><img src="main_fit_to_screen.png" alt="Presence VNC main window, lowest zoom level" /></p>
+-->
+
+</div>
+
+<p id="footer">&copy;2010 Christian Pulvermacher</p>
+</body>
+</html>

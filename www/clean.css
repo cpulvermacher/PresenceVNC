@@ -1,0 +1,99 @@
+html {
+ background-color: #fff;
+}
+body {
+ color:	#000;
+ font-family: Arial,Sans-Serif;
+ font-size: 1em;
+ background: #fff url("icon.png") no-repeat 10px 0;
+}
+.main {
+ background-color: #fff;
+ margin-left: 150px;
+}
+h1 {
+ margin-bottom: 0;
+ padding-left: 90px;
+}
+#head {
+ margin-top: 0.2em;
+ font-variant: small-caps;
+ font-size: 1.4em;
+ padding-left: 90px;
+ margin-bottom: 40px;
+}
+a{
+ color:	#046;
+}
+a:visited {
+ color:	#555;
+}
+a:hover {
+ text-decoration: underline;
+}
+em {
+ color: #c00;
+}
+img {
+ border: none;
+}
+fieldset {
+ padding: 5px;
+ border: 1px solid #AAA;
+}
+samp, .red {
+ color: #A00;
+}
+#footer {
+ border: 1px solid #AAA;
+ text-align: center;
+}
+dl dt {
+ font-weight: bold;
+ background-color: #EEE;
+}
+dl dd {
+}
+pre {
+ background-color: #EEE;
+ border: 1px solid #AAA;
+ padding: 5px;
+ margin-left: 20px;
+}
+.menu {
+ background-color: #EEE;
+ border: 1px solid #AAA;
+ padding: 5px;
+ width: 100px;
+ float: left;
+ list-style-type: none;
+ margin: 10px;
+}
+input, textarea {
+ margin: 3px;
+}
+label {
+ vertical-align: top;
+}
+.caption {
+ float:	left;
+ width:	101px;
+ display: inline;
+ text-align: right;
+ margin-right: 1em;
+}
+table {
+ border-collapse: collapse;
+}
+th, td {
+ border: 1px solid black;
+}
+tr.e {
+ background: #eee;
+}
+thead tr {
+ background: #ccc;
+}
+var {
+ color: #A00;
+}
