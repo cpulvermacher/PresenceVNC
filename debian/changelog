@@ -1,6 +1,6 @@
 presencevnc (0.8) unstable; urgency=low
 
-  * ...
+  * Add --viewonly and --help command line options
 
  -- Christian Pulvermacher <pulvermacher@gmx.de>  Thu, 28 Oct 2010 19:48:01 +0200
 

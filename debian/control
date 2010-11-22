@@ -3,7 +3,7 @@ Section: user/utilities
 Priority: optional
 Maintainer: Christian Pulvermacher <pulvermacher@gmx.de>
 Build-Depends: libqt4-dev, debhelper (>= 5.0.0), mce-dev, libx11-dev, zlib1g-dev, libjpeg62-dev
-Homepage: https://garage.maemo.org/projects/presencevnc/
+Homepage: http://presencevnc.garage.maemo.org/
 Standards-Version: 3.7.3
 
 Package: presencevnc
@@ -16,7 +16,7 @@ Description: A touchscreen friendly VNC client
     click, tap twice for a double click, single tap plus
     dragging motion to drag objects on the remote desktop
   * Fit remote desktop to screen
-  * Configurable zoom buttons
+  * Configurable zoom/volume buttons
   * Portrait mode support
 XB-Maemo-Display-Name: Presence VNC
 XSBC-Bugtracker: https://garage.maemo.org/tracker/?group_id=1831
