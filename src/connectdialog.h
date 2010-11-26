@@ -22,6 +22,7 @@
 
 #include <QtGui>
 
+
 class QMaemo5ListPickSelector;
 
 class ConnectDialog : public QDialog {
@@ -39,6 +40,11 @@ private:
 	QStringList hostnames_sorted;
 	QPushButton *done;
 	QComboBox hosts;
+
+#ifdef Q_WS_MAEMO_5
 	QMaemo5ListPickSelector *quality_selector;
+#else
+	QComboBox quality_combobox;
+#endif
 };
 #endif

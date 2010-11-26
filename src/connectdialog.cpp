@@ -16,15 +16,16 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+
+#include "connectdialog.h"
+#include "rfb/rfbclient.h"
+
 #include <QtGui>
 
 #ifdef Q_WS_MAEMO_5
 #include <QMaemo5ValueButton>
 #include <QMaemo5ListPickSelector>
 #endif
-
-#include "connectdialog.h"
-#include "rfb/rfbclient.h"
 
 
 const QString LISTEN_FOR_INCOMING_CONNECTIONS_STRING = QObject::tr("Listen for incoming connections");
@@ -75,9 +76,16 @@ ConnectDialog::ConnectDialog(QWidget *parent):
 	quality->setValueLayout(QMaemo5ValueButton::ValueUnderText);
 	quality->setMaximumWidth(120);
 	layout.addWidget(quality);
+#else
+	//combobox numbering starts from 0, so currentIndex() == quality-1
+	quality_combobox.addItem(tr("High quality (LAN)")); //1
+	quality_combobox.addItem(tr("Medium quality (DSL)")); //2
+	quality_combobox.addItem(tr("Low quality (ISDN)")); //3
+	//quality_combobox.setMaximumWidth(120);
+	layout.addWidget(&quality_combobox);
+#endif
 
 	hostnameUpdated(hosts.lineEdit()->text()); //get saved quality for last host, or 2
-#endif
 
 	done->setText(tr("Connect"));
 	done->setMaximumWidth(110);
@@ -113,13 +121,15 @@ void ConnectDialog::hostnameUpdated(QString newtext)
 	hosts.lineEdit()->setText(newtext);
 	hosts.lineEdit()->setCursorPosition(cursorpos);
 
-#ifdef Q_WS_MAEMO_5
 	//saved quality setting available?
 	QSettings settings;
 	int quality = settings.value(QString("hosts/%1/quality").arg(hosts.lineEdit()->text()), 2).toInt();
 	if(quality < 1 or quality > 3)
 		quality = 2;
+#ifdef Q_WS_MAEMO_5
 	quality_selector->setCurrentIndex(quality-1);
+#else
+	quality_combobox.setCurrentIndex(quality-1);
 #endif
 }
 
@@ -135,7 +145,7 @@ void ConnectDialog::accept()
 #ifdef Q_WS_MAEMO_5
 	int quality = quality_selector->currentIndex() + 1;
 #else
-	int quality = 2;
+	int quality = quality_combobox.currentIndex() + 1;
 #endif
 
 	QSettings settings;
