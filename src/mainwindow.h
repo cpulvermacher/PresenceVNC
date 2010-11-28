@@ -34,7 +34,7 @@ public:
 public slots:
 	void about();
 	void showConnectDialog();
-	void connectToHost(QString url, int quality, int listen_port);
+	void connectToHost(QString url, int quality, int listen_port, bool view_only);
 	void disconnectFromHost();
 	void updateScreenSpace();
 	void updateScreenSpaceDelayed();
