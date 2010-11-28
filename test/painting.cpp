@@ -15,7 +15,7 @@ public:
 		QWidget(0)
 	{
 		msecs = paints = mode = 0;
-		img = QImage("test.png");
+		img = QImage("stripes.png");
 
 		QTimer *timer = new QTimer(this);
 		connect(timer, SIGNAL(timeout()),
@@ -33,6 +33,7 @@ private:
 void Widget::paintEvent(QPaintEvent*)
 {
 	QPainter painter(this);
+	//painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
 	QTime t;
 	t.start();
