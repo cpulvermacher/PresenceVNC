@@ -172,7 +172,7 @@ void MainWindow::about() {
 	QMessageBox::about(this, tr("About Presence VNC"),
 		tr("<center><h1>Presence VNC 0.8</h1>\
 <p>A touchscreen friendly VNC client</p>\
-<p><a href=\"https://garage.maemo.org/projects/presencevnc/\">https://garage.maemo.org/projects/presencevnc</a></p></center>\
+<p><a href=\"http://presencevnc.garage.maemo.org/\">http://presencevnc.garage.maemo.org/</a></p></center>\
 <small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;<br />\
 Based on KRDC, &copy; 2007-2008 Urs Wolfer<br />\
 and LibVNCServer, &copy; 2001-2003 Johannes E. Schindelin</p>\
