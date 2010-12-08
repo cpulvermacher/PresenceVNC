@@ -17,6 +17,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "mainwindow.h"
+#include "rfb/rfbclient.h"
 
 #include <QApplication>
 #include <QString>
@@ -30,8 +31,9 @@ void printHelp() {
 	std::cout << "Usage: " << qPrintable(QCoreApplication::arguments().at(0)) << " [options] [URL [quality]]\n"
 
 		<< "\nOptions:\n"
-		<< " --help\t\t Print this text and exit.\n"
-		<< " --viewonly\t Don't send mouse/keyboard input to remote desktop. This is only useful if you also supply a URL.\n"
+		<< " --help\t\t\t Print this text and exit.\n"
+		<< " --listen [port]\t Listen for incoming connections on given port, or 5500 if omitted. Cannot be used with an URL.\n"
+		<< " --viewonly\t\t Don't send mouse/keyboard input to remote desktop. This is only useful if you also supply a URL, or --listen.\n"
 
 		<< "\nURLs:\n"
 		<< " vnc://:password@server:display\n\n"
@@ -48,6 +50,7 @@ int main(int argc, char *argv[])
 
 	QString url;
 	int quality = 2;
+	int listen_port = 0; //only used if >0
 	bool view_only = false;
 
 	QStringList arguments = QCoreApplication::arguments();
@@ -56,6 +59,21 @@ int main(int argc, char *argv[])
 			printHelp();
 
 			return 0;
+		} else if(arguments.at(i) == "--listen") {
+			if(arguments.count() <= i+1 or arguments.at(i+1).startsWith("--")) {
+				//no argument found, use default
+				listen_port = LISTEN_PORT_OFFSET;
+			} else {
+				//next argument should be a port number
+				listen_port = arguments.at(i+1).toInt();
+				if(listen_port < 1 or listen_port > 65535) {
+					std::cerr << "\"" << qPrintable(arguments.at(i+1)) << "\" is not a valid port number!\n\n";
+					return 1;
+				}
+
+				//everything ok
+				i++;
+			}
 		} else if(arguments.at(i) == "--viewonly") {
 			view_only = true;
 		} else { //not a valid command line option, should be the url
@@ -69,7 +87,7 @@ int main(int argc, char *argv[])
 				return 1;
 			}
 
-			if(arguments.count() > i+1) { //having a --quality option would make more sense.
+			if(arguments.count() > i+1) { //TODO: having a --quality option would make more sense.
 				int arg = arguments.at(i+1).toInt();
 				if(1 <= arg and arg <= 3) { //check if arg is valid, might also be another option
 					quality = arg;
@@ -79,7 +97,12 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	MainWindow main(url, quality, view_only);
+	if(!url.isNull() and listen_port > 0) {
+		std::cerr << "--listen cannot be used with an URL!\n";
+		return 1;
+	}
+
+	MainWindow main(url, quality, listen_port, view_only);
 	main.show();
 	return app.exec();
 }

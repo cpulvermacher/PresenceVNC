@@ -33,12 +33,12 @@
 #endif
 
 
-MainWindow::MainWindow(QString url, int quality, bool view_only):
+MainWindow::MainWindow(QString url, int quality, int listen_port, bool view_only):
 	QMainWindow(0),
 	vnc_view(0),
 	scroll_area(new ScrollArea(0)),
 	input_toolbuttons(new QActionGroup(this)),
-	key_menu(new KeyMenu(this))
+	key_menu(0)
 {
 	setWindowTitle("Presence VNC");
 #ifdef Q_WS_MAEMO_5
@@ -128,16 +128,11 @@ MainWindow::MainWindow(QString url, int quality, bool view_only):
 	grabZoomKeys(true);
 	reloadSettings();
 
-	if(url.isEmpty()) {
+	if(url.isEmpty() and listen_port == 0) {
 		disconnect_action->setEnabled(false);
 		showConnectDialog();
 	} else {
-		vnc_view = new VncView(this, url, RemoteView::Quality(quality));
-		connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
-			this, SLOT(statusChanged(RemoteView::RemoteStatus)));
-		scroll_area->setWidget(vnc_view);
-		vnc_view->setViewOnly(view_only);
-		vnc_view->start();
+		connectToHost(url, quality, listen_port, view_only);
 	}
 }
 
@@ -185,6 +180,7 @@ void MainWindow::showConnectDialog()
 	connect(connect_dialog, SIGNAL(connectToHost(QString, int, int, bool)),
 		this, SLOT(connectToHost(QString, int, int, bool)));
 	connect_dialog->exec();
+	//ConnectDialog cleans up after itself
 }
 
 void MainWindow::connectToHost(QString url, int quality, int listen_port, bool view_only)

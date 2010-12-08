@@ -30,7 +30,7 @@ class VncView;
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
-	MainWindow(QString url, int quality, bool view_only);
+	MainWindow(QString url, int quality, int listen_port, bool view_only);
 public slots:
 	void about();
 	void showConnectDialog();
