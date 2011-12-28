@@ -2,7 +2,9 @@ TEMPLATE = app
 TARGET = presencevnc
 LIBS += -ljpeg -Llibvnc/libvncclient/.libs libvnc/libvncclient/.libs/libvncclient.a
 DEFINES += QTONLY
-CONFIG += silent release
+CONFIG += silent release warn_on
+
+QMAKE_CXXFLAGS_WARN_ON = -Wall -Wundef -Wextra
 
 maemo5 {
 	QT += maemo5
