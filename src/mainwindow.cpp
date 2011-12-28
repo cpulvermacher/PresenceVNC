@@ -27,6 +27,10 @@
 #ifdef Q_WS_MAEMO_5
 #include <QtMaemo5>
 #include <QX11Info>
+#include <QDBusConnection>
+
+#include <mce/mode-names.h>
+#include <mce/dbus-names.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -118,6 +122,10 @@ MainWindow::MainWindow(QString url, int quality, int listen_port, bool view_only
 		toolbar, SLOT(setVisible(bool)));
 	connect(show_toolbar, SIGNAL(toggled(bool)),
 		this, SLOT(updateScreenSpaceDelayed()));
+#ifdef Q_WS_MAEMO_5
+    QDBusConnection::systemBus().connect("", MCE_SIGNAL_PATH, MCE_SIGNAL_IF, MCE_DISPLAY_SIG,
+        this, SLOT(displayStateChanged(QString)));
+#endif
 
 	setCentralWidget(scroll_area);
 
@@ -397,6 +405,13 @@ void MainWindow::zoomSliderReleased()
 
 	//stopped zooming, reenable high quality
 	vnc_view->useFastTransformations(false);
+}
+
+void MainWindow::displayStateChanged(QString state)
+{
+    const bool display_on = (state != "off");
+    if(vnc_view)
+        vnc_view->setDisplayOff(!display_on);
 }
 
 void MainWindow::sendTab() { vnc_view->sendKey(Qt::Key_Tab); }

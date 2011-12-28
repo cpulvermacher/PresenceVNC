@@ -59,6 +59,7 @@ public:
     void showDotCursor(DotCursorState state);
     void useFastTransformations(bool enabled);
     QPoint cursorPosition() { return QPoint(cursor_x, cursor_y); }
+		void setDisplayOff(bool off) { display_off = off; }
     
 public slots:
     void setZoomLevel(int level = -1); //'level' doesn't correspond to actual magnification, though mapping is done here
@@ -91,8 +92,9 @@ private:
     int left_zoom, right_zoom;
     bool disable_tapping;
     RemoteView::Quality quality;
-	int listen_port;
-	Qt::TransformationMode transformation_mode;
+    int listen_port;
+    Qt::TransformationMode transformation_mode;
+		bool display_off;
 
     void keyEventHandler(QKeyEvent *e);
     void unpressModifiers();

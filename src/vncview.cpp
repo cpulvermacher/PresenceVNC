@@ -48,17 +48,18 @@ VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, 
         : RemoteView(parent),
         m_initDone(false),
         m_buttonMask(0),
-	cursor_x(0),
-	cursor_y(0),
+				cursor_x(0),
+				cursor_y(0),
         m_quitFlag(false),
         m_firstPasswordTry(true),
         m_dontSendClipboard(false),
         m_horizontalFactor(1.0),
         m_verticalFactor(1.0),
         m_forceLocalCursor(false),
-	quality(quality),
-	listen_port(listen_port),
-	transformation_mode(Qt::FastTransformation)
+				quality(quality),
+				listen_port(listen_port),
+				transformation_mode(Qt::FastTransformation),
+				display_off(false)
 {
     m_url = url;
     m_host = url.host();
@@ -260,7 +261,8 @@ void VncView::outputErrorMessage(const QString &message)
 
 void VncView::updateImage(int x, int y, int w, int h)
 {
-	if(!QApplication::focusWidget()) { //no focus, we're probably minimized
+	//don't update if window is out of focus / display is off
+	if(!QApplication::focusWidget() || display_off) {
 		return;
 	}
 
