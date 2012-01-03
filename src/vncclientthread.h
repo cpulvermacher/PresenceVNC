@@ -106,7 +106,7 @@ public:
     void stop();
     void setHost(const QString &host);
     void setPort(int port);
-	void setListenPort(int port) { listen_port = port; }
+    void setListenPort(int port) { listen_port = port; }
     void setQuality(RemoteView::Quality quality);
     void setPassword(const QString &password);
     const QString password() const { return m_password; }

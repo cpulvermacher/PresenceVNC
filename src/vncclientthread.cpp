@@ -49,25 +49,25 @@ rfbBool VncClientThread::newclient(rfbClient *cl)
     cl->format.blueMax = 0xff;
 
     switch (t->quality()) {
-    case RemoteView::High:
-        cl->appData.useBGR233 = 0;
-        cl->appData.encodingsString = "copyrect hextile raw";
-        cl->appData.compressLevel = 0;
-        cl->appData.qualityLevel = 9;
-        break;
-    case RemoteView::Medium:
-        cl->appData.useBGR233 = 0;
-        cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
-        cl->appData.compressLevel = 5;
-        cl->appData.qualityLevel = 7;
-        break;
-    case RemoteView::Low:
-    case RemoteView::Unknown:
-    default:
-        cl->appData.useBGR233 = 1;
-        cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
-        cl->appData.compressLevel = 9;
-        cl->appData.qualityLevel = 1;
+        case RemoteView::High:
+            cl->appData.useBGR233 = 0;
+            cl->appData.encodingsString = "copyrect hextile raw";
+            cl->appData.compressLevel = 0;
+            cl->appData.qualityLevel = 9;
+            break;
+        case RemoteView::Medium:
+            cl->appData.useBGR233 = 0;
+            cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
+            cl->appData.compressLevel = 5;
+            cl->appData.qualityLevel = 7;
+            break;
+        case RemoteView::Low:
+        case RemoteView::Unknown:
+        default:
+            cl->appData.useBGR233 = 1;
+            cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
+            cl->appData.compressLevel = 9;
+            cl->appData.qualityLevel = 1;
     }
 
     SetFormatAndEncodings(cl);
@@ -77,7 +77,7 @@ rfbBool VncClientThread::newclient(rfbClient *cl)
 
 void VncClientThread::updatefb(rfbClient* cl, int x, int y, int w, int h)
 {
-     //kDebug(5011) << "updated client: x: " << x << ", y: " << y << ", w: " << w << ", h: " << h;
+    //kDebug(5011) << "updated client: x: " << x << ", y: " << y << ", w: " << w << ", h: " << h;
 
     const int width = cl->width, height = cl->height;
 
@@ -123,10 +123,10 @@ char *VncClientThread::passwdHandler(rfbClient *cl)
 
 void VncClientThread::setPassword(const QString &password)
 {
-	if(password.isNull()) //cancelled, don't retry
-		m_passwordError = false;
+    if(password.isNull()) //cancelled, don't retry
+        m_passwordError = false;
 
-	m_password = password;
+    m_password = password;
 }
 
 void VncClientThread::outputHandler(const char *format, ...)
@@ -162,9 +162,9 @@ void VncClientThread::outputHandler(const char *format, ...)
         outputErrorMessageString = "INTERNAL:APPLE_VNC_COMPATIBILTY";
 }
 
-VncClientThread::VncClientThread(QObject *parent)
-        : QThread(parent)
-        , frameBuffer(0)
+    VncClientThread::VncClientThread(QObject *parent)
+    : QThread(parent)
+      , frameBuffer(0)
 {
     QMutexLocker locker(&mutex);
     m_stopped = false;
@@ -181,9 +181,9 @@ VncClientThread::~VncClientThread()
 
     const bool quitSuccess = wait(1000);
 
-	if(!quitSuccess)
-		kDebug(5011) << "~VncClientThread(): Quit failed";
-    
+    if(!quitSuccess)
+        kDebug(5011) << "~VncClientThread(): Quit failed";
+
     delete [] frameBuffer;
     //cl is free()d when event loop exits.
 }
@@ -250,15 +250,15 @@ void VncClientThread::emitGotCut(const QString &text)
 
 void VncClientThread::stop()
 {
-	if(m_stopped)
-		return;
+    if(m_stopped)
+        return;
 
-	//also abort listening for connections, should be safe without locking
-	if(listen_port)
-		cl->listenSpecified = false;
+    //also abort listening for connections, should be safe without locking
+    if(listen_port)
+        cl->listenSpecified = false;
 
-	QMutexLocker locker(&mutex);
-	m_stopped = true;
+    QMutexLocker locker(&mutex);
+    m_stopped = true;
 }
 
 void VncClientThread::run()
@@ -268,7 +268,7 @@ void VncClientThread::run()
     int passwd_failures = 0;
     while (!m_stopped) { // try to connect as long as the server allows
         m_passwordError = false;
-		outputErrorMessageString.clear(); //don't deliver error messages of old instances...
+        outputErrorMessageString.clear(); //don't deliver error messages of old instances...
 
         rfbClientLog = outputHandler;
         rfbClientErr = outputHandler;
@@ -289,23 +289,23 @@ void VncClientThread::run()
             m_port += 5900;
         cl->serverPort = m_port;
 
-		cl->listenSpecified = rfbBool(listen_port > 0);
-		cl->listenPort = listen_port;
+        cl->listenSpecified = rfbBool(listen_port > 0);
+        cl->listenPort = listen_port;
 
         kDebug(5011) << "--------------------- trying init ---------------------";
 
-		if (rfbInitClient(cl, 0, 0))
-			break;
+        if (rfbInitClient(cl, 0, 0))
+            break;
 
-		//init failed...
+        //init failed...
         if (m_passwordError) {
-			passwd_failures++;
-			if(passwd_failures < 3)
-				continue; //that's ok, try again
-		}
+            passwd_failures++;
+            if(passwd_failures < 3)
+                continue; //that's ok, try again
+        }
 
-		//stop connecting
-		m_stopped = true;
+        //stop connecting
+        m_stopped = true;
         return; //no cleanup necessary, cl was free()d by rfbInitClient()
     }
 
@@ -314,8 +314,8 @@ void VncClientThread::run()
     // Main VNC event loop
     while (!m_stopped) {
         const int i = WaitForMessage(cl, 500);
-		if(m_stopped or i < 0)
-			break;
+        if(m_stopped or i < 0)
+            break;
 
         if (i)
             if (!HandleRFBServerMessage(cl))
@@ -334,7 +334,7 @@ void VncClientThread::run()
 
     // Cleanup allocated resources
     locker.relock();
-	rfbClientCleanup(cl);
+    rfbClientCleanup(cl);
     m_stopped = true;
 }
 

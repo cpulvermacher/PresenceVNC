@@ -56,7 +56,7 @@ protected:
     inline bool eventFilter(QObject *obj, QEvent *ev);
 
 private:
-	QTimer timer;
+    QTimer timer;
 };
 
 FullScreenExitButton::FullScreenExitButton(QWidget *parent)
@@ -112,10 +112,10 @@ bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
             raise();
         // fall through
     case QEvent::Resize:
-		if (isVisible()) {
-			move(parent->width() - width(), parent->height() - height());
-			timer.start();
-		}
+        if (isVisible()) {
+            move(parent->width() - width(), parent->height() - height());
+            timer.start();
+        }
         break;
     default:
         break;
