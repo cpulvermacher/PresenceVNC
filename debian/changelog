@@ -1,6 +1,7 @@
 presencevnc (0.8) unstable; urgency=low
 
-  * Add --viewonly and --help command line options
+  * Add --viewonly, --listen and --help command line options
+  * Use less CPU when display is off
 
  -- Christian Pulvermacher <pulvermacher@gmx.de>  Thu, 28 Oct 2010 19:48:01 +0200
 
@@ -22,7 +23,7 @@ presencevnc (0.6) unstable; urgency=low
 
 presencevnc (0.5) unstable; urgency=low
 
-  * Add "..." menu for additional keys 
+  * Add "..." menu for additional keys
   * Add local cursor option
   * Symbol key (Fn+Ctrl) fixed
   * Don't start virtual keyboard with caps lock enabled (partial fix)

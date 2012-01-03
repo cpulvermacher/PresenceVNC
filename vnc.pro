@@ -7,7 +7,7 @@ CONFIG += silent release warn_on
 QMAKE_CXXFLAGS_WARN_ON = -Wall -Wundef -Wextra
 
 maemo5 {
-	QT += maemo5
+	QT += maemo5 dbus
 }
 
 OBJECTS_DIR = $${PWD}/tmp
