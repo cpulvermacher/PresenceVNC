@@ -202,6 +202,7 @@ void MainWindow::connectToHost(QString url, int quality, int listen_port, bool v
             this, SLOT(statusChanged(RemoteView::RemoteStatus)));
     scroll_area->setWidget(vnc_view);
     vnc_view->start();
+    setWindowTitle(QString("Presence VNC - %1").arg(vnc_view->host()));
 
     disconnect_action->setEnabled(true);
 
@@ -215,6 +216,7 @@ void MainWindow::disconnectFromHost()
     if(!vnc_view)
         return;
 
+    setWindowTitle("Presence VNC");
     disconnect_action->setEnabled(false);
     toolbar->setEnabled(false);
     scroll_area->setWidget(0);
@@ -256,6 +258,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
             //clean up
             scroll_area->setWidget(0);
             vnc_view = 0;
+            setWindowTitle("Presence VNC");
             disconnect_action->setEnabled(false);
             toolbar->setEnabled(false);
 
@@ -285,7 +288,7 @@ void MainWindow::updateScreenSpace()
     if(vnc_view) {
         vnc_view->setZoomLevel();
     }
-} 
+}
 
 void MainWindow::updateScreenSpaceDelayed()
 {
