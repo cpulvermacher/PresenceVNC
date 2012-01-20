@@ -23,28 +23,30 @@
 #include <QtGui>
 
 
-class KeyMenu : public QDialog {
-	Q_OBJECT
+class KeyMenu : public QDialog
+{
+    Q_OBJECT
 public:
-	KeyMenu(QWidget *parent);
-	QKeySequence getKeySequence() { return keysequence; }
+    KeyMenu(QWidget *parent);
+    QKeySequence getKeySequence() { return keysequence; }
 public slots:
-	virtual void accept();
-	virtual int exec() { keysequence = QKeySequence(); return QDialog::exec(); }
+    virtual void accept();
+    virtual int exec() { keysequence = QKeySequence(); return QDialog::exec(); }
 private:
-	QKeySequence keysequence;
+    QKeySequence keysequence;
 };
 
 
-class ActionTab : public QScrollArea {
-	Q_OBJECT
+class ActionTab : public QScrollArea
+{
+    Q_OBJECT
 public:
-	ActionTab(KeyMenu *parent);
-	void addAction(QAction *action); //adds action and connects it to keymenu->accept()
-	void addAction(QString text, QKeySequence keysequence);
+    ActionTab(KeyMenu *parent);
+    void addAction(QAction *action); //adds action and connects it to keymenu->accept()
+    void addAction(QString text, QKeySequence keysequence);
 private:
-	QWidget widget;
-	QHBoxLayout layout;
-	KeyMenu *keymenu;
+    QWidget widget;
+    QHBoxLayout layout;
+    KeyMenu *keymenu;
 };
 #endif

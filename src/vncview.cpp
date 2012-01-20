@@ -45,21 +45,21 @@ const int DOUBLE_TAP_UP_TIME = 500;
 
 
 VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, int listen_port)
-        : RemoteView(parent),
-        m_initDone(false),
-        m_buttonMask(0),
-        cursor_x(0),
-        cursor_y(0),
-        m_quitFlag(false),
-        m_firstPasswordTry(true),
-        m_dontSendClipboard(false),
-        m_horizontalFactor(1.0),
-        m_verticalFactor(1.0),
-        m_forceLocalCursor(false),
-        quality(quality),
-        listen_port(listen_port),
-        transformation_mode(Qt::FastTransformation),
-        display_off(false)
+    : RemoteView(parent),
+      m_initDone(false),
+      m_buttonMask(0),
+      cursor_x(0),
+      cursor_y(0),
+      m_quitFlag(false),
+      m_firstPasswordTry(true),
+      m_dontSendClipboard(false),
+      m_horizontalFactor(1.0),
+      m_verticalFactor(1.0),
+      m_forceLocalCursor(false),
+      quality(quality),
+      listen_port(listen_port),
+      transformation_mode(Qt::FastTransformation),
+      display_off(false)
 {
     m_url = url;
     m_host = url.host();
@@ -104,7 +104,7 @@ bool VncView::eventFilter(QObject *obj, QEvent *event)
 
             event->ignore();
             return true;
-		}
+        }
     }
 
     return RemoteView::eventFilter(obj, event);
@@ -136,7 +136,7 @@ void VncView::startQuitting()
 
     m_quitFlag = true;
 
-	vncThread.stop();
+    vncThread.stop();
 
     const bool quitSuccess = vncThread.wait(700);
     if(!quitSuccess) {
@@ -159,7 +159,7 @@ bool VncView::start()
 {
     vncThread.setHost(m_host);
     vncThread.setPort(m_port);
-	vncThread.setListenPort(listen_port); //if port is != 0, thread will listen for connections
+    vncThread.setListenPort(listen_port); //if port is != 0, thread will listen for connections
     vncThread.setQuality(quality);
 
     // set local cursor on by default because low quality mostly means slow internet connection
@@ -266,7 +266,7 @@ void VncView::updateImage(int x, int y, int w, int h)
         return;
     }
 
-     //kDebug(5011) << "got update" << width() << height();
+    //kDebug(5011) << "got update" << width() << height();
 
     m_x = x;
     m_y = y;
@@ -297,15 +297,15 @@ void VncView::updateImage(int x, int y, int w, int h)
         setFocusPolicy(Qt::WheelFocus);
         setStatus(Connected);
         emit connected();
-        
+
         resize(width(), height());
-        
+
         m_initDone = true;
     }
 
-	static QSize old_frame_size = QSize();
+    static QSize old_frame_size = QSize();
     if ((y == 0 && x == 0) && (m_frame.size() != old_frame_size)) {
-	    old_frame_size = m_frame.size();
+        old_frame_size = m_frame.size();
         kDebug(5011) << "Updating framebuffer size";
         setZoomLevel();
         useFastTransformations(false);
@@ -323,11 +323,11 @@ void VncView::setViewOnly(bool viewOnly)
     m_dontSendClipboard = viewOnly;
 
     if (viewOnly) {
-		showDotCursor(CursorOff);
+        showDotCursor(CursorOff);
         setCursor(Qt::ArrowCursor);
     } else {
         setCursor(m_dotCursorState == CursorOn ? localDotCursor() : Qt::BlankCursor);
-	}
+    }
 }
 
 void VncView::showDotCursor(DotCursorState state)
@@ -396,14 +396,14 @@ void VncView::paintEvent(QPaintEvent *event)
         const int sw = qRound(update_rect.width()/m_horizontalFactor);
         const int sh = qRound(update_rect.height()/m_verticalFactor);
 
-        painter.drawImage(update_rect, 
-                m_frame.copy(sx, sy, sw, sh)
-                .scaled(update_rect.size(), Qt::IgnoreAspectRatio, transformation_mode));
+        painter.drawImage(update_rect,
+                          m_frame.copy(sx, sy, sw, sh)
+                          .scaled(update_rect.size(), Qt::IgnoreAspectRatio, transformation_mode));
     } else {
         //kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
 
         painter.drawImage(rect(),
-                m_frame.scaled(size(), Qt::IgnoreAspectRatio, transformation_mode));
+                          m_frame.scaled(size(), Qt::IgnoreAspectRatio, transformation_mode));
     }
 
     //draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling
@@ -544,7 +544,8 @@ void VncView::mouseEventHandler(QMouseEvent *e)
         //and refresh new one
         repaint(cursor_x*m_horizontalFactor - CURSOR_SIZE/2, cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
 
-        old_cursor_x = cursor_x; old_cursor_y = cursor_y;
+        old_cursor_x = cursor_x;
+        old_cursor_y = cursor_y;
     }
 }
 
@@ -585,9 +586,9 @@ void VncView::keyEventHandler(QKeyEvent *e)
     //don't send ISO_Level3_Shift (would break things like Win+0-9)
     //also enable IM so symbol key works
     if(k == 0xfe03) {
-	    setAttribute(Qt::WA_InputMethodEnabled, pressed);
-	    e->ignore();
-	    return;
+        setAttribute(Qt::WA_InputMethodEnabled, pressed);
+        e->ignore();
+        return;
     }
 #endif
 

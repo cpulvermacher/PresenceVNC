@@ -24,49 +24,46 @@
 #include <QTimer>
 
 //fixes tearing during scrolling and can display messages
-class ScrollArea : public QScrollArea {
+class ScrollArea : public QScrollArea
+{
 public:
-	ScrollArea(QWidget *parent):
-		QScrollArea(parent)
-	{
-		message.setParent(this);
-		message.setVisible(false);
-		message.setAlignment(Qt::AlignCenter);
-		message.setWordWrap(true);
+    ScrollArea(QWidget *parent):
+        QScrollArea(parent) {
+        message.setParent(this);
+        message.setVisible(false);
+        message.setAlignment(Qt::AlignCenter);
+        message.setWordWrap(true);
 
-		QPalette pal = message.palette();
-		QColor backgroundColor = pal.color(backgroundRole());
-		backgroundColor.setAlpha(128);
-		pal.setColor(backgroundRole(), backgroundColor);
-		message.setPalette(pal);
-		message.setAutoFillBackground(true);
+        QPalette pal = message.palette();
+        QColor backgroundColor = pal.color(backgroundRole());
+        backgroundColor.setAlpha(128);
+        pal.setColor(backgroundRole(), backgroundColor);
+        message.setPalette(pal);
+        message.setAutoFillBackground(true);
 
-		timer.setSingleShot(true);
-		timer.setInterval(2500);
-		connect(&timer, SIGNAL(timeout()),
-			&message, SLOT(hide()));
-	}
+        timer.setSingleShot(true);
+        timer.setInterval(2500);
+        connect(&timer, SIGNAL(timeout()),
+                &message, SLOT(hide()));
+    }
 
-	void showMessage(const QString &s)
-	{
-		message.setText(s);
-		message.show();
-		timer.start();
-	}
+    void showMessage(const QString &s) {
+        message.setText(s);
+        message.show();
+        timer.start();
+    }
 protected:
-	virtual void resizeEvent(QResizeEvent* ev)
-	{
-		QScrollArea::resizeEvent(ev);
-		message.setFixedWidth(width());
-	}
-	virtual void scrollContentsBy(int dx, int dy)
-	{
-		QScrollArea::scrollContentsBy(dx, dy);
-		if(widget())
-			widget()->update(); //update whole widget
-	}
+    virtual void resizeEvent(QResizeEvent* ev) {
+        QScrollArea::resizeEvent(ev);
+        message.setFixedWidth(width());
+    }
+    virtual void scrollContentsBy(int dx, int dy) {
+        QScrollArea::scrollContentsBy(dx, dy);
+        if(widget())
+            widget()->update(); //update whole widget
+    }
 private:
-	QLabel message;
-	QTimer timer;
+    QLabel message;
+    QTimer timer;
 };
 #endif

@@ -60,7 +60,7 @@ private:
 };
 
 FullScreenExitButton::FullScreenExitButton(QWidget *parent)
-        : QToolButton(parent)
+    : QToolButton(parent)
 {
     Q_ASSERT(parent);
 
@@ -105,7 +105,7 @@ bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
     case QEvent::MouseButtonRelease:
     case QEvent::MouseMove:
     case QEvent::HoverMove:
-	//fall through to show button
+        //fall through to show button
     case QEvent::WindowStateChange:
         setVisible(isFullScreen);
         if (isFullScreen)

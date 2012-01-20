@@ -25,25 +25,25 @@
 #include "remoteview.h"
 
 #ifndef QTONLY
-    #include <KDebug>
-    #include <KStandardDirs>
+#include <KDebug>
+#include <KStandardDirs>
 #endif
 
 #include <QBitmap>
 
 RemoteView::RemoteView(QWidget *parent)
-        : QWidget(parent),
-        m_status(Disconnected),
-        m_host(QString()),
-        m_port(0),
-        m_viewOnly(false),
-        m_grabAllKeys(false),
-        m_scale(true),
-        m_keyboardIsGrabbed(false),
+    : QWidget(parent),
+      m_status(Disconnected),
+      m_host(QString()),
+      m_port(0),
+      m_viewOnly(false),
+      m_grabAllKeys(false),
+      m_scale(true),
+      m_keyboardIsGrabbed(false),
 #ifndef QTONLY
-        m_wallet(0),
+      m_wallet(0),
 #endif
-        m_dotCursorState(CursorOff)
+      m_dotCursorState(CursorOff)
 {
 }
 
@@ -209,7 +209,7 @@ QString RemoteView::readWalletPassword(bool fromUserNameOnly)
             kDebug(5010) << "Wallet OK";
             m_wallet->setFolder(KRDCFOLDER);
             QString password;
-            
+
             QString key;
             if (fromUserNameOnly)
                 key = m_url.userName();
@@ -244,8 +244,8 @@ void RemoteView::saveWalletPassword(const QString &password, bool fromUserNameOn
 
 QCursor RemoteView::localDotCursor() const
 {
-	//we take care of this in paintEvent()
-	return QCursor(Qt::BlankCursor);
+    //we take care of this in paintEvent()
+    return QCursor(Qt::BlankCursor);
 }
 
 void RemoteView::focusInEvent(QFocusEvent *event)

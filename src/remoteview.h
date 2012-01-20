@@ -26,12 +26,12 @@
 #define REMOTEVIEW_H
 
 #ifdef QTONLY
-    #include <QUrl>
-    #define KUrl QUrl
-    #define KDE_EXPORT
+#include <QUrl>
+#define KUrl QUrl
+#define KDE_EXPORT
 #else
-    #include <KUrl>
-    #include <KWallet/Wallet>
+#include <KUrl>
+#include <KWallet/Wallet>
 #endif
 
 #include <QWidget>
@@ -237,20 +237,20 @@ public:
      * @see statusChanged()
      */
     virtual bool start() = 0;
-    
+
     /**
      * Called when the configuration is changed.
      * The default implementation does nothing.
      */
     virtual void updateConfiguration();
-    
+
 #ifndef QTONLY
     /**
      * Returns the current host preferences of this view.
      */
     virtual HostPreferences* hostPreferences() = 0;
 #endif
-    
+
     /**
      * Returns the current status of the connection.
      * @return the status of the connection
@@ -340,7 +340,7 @@ signals:
      * Emitted when the view has a specific error.
      */
     void errorMessage(const QString &title, const QString &message);
- 
+
     /**
      * Emitted when the status of the view changed.
      * @param s the new status

@@ -24,21 +24,22 @@
 
 class QMaemo5ListPickSelector;
 
-class ConnectDialog : public QDialog {
-	Q_OBJECT
+class ConnectDialog : public QDialog
+{
+    Q_OBJECT
 public:
-	ConnectDialog(QWidget *parent);
+    ConnectDialog(QWidget *parent);
 public slots:
-	virtual void accept();
+    virtual void accept();
 signals:
-	void connectToHost(QString url, int quality, int listen_port, bool view_only);
+    void connectToHost(QString url, int quality, int listen_port, bool view_only);
 private slots:
-	void hostnameUpdated(QString newtext);
+    void hostnameUpdated(QString newtext);
 private:
-	QStringList hostnames_sorted;
-	QPushButton done;
-	QComboBox hosts;
-	QComboBox quality_combobox;
-	QCheckBox viewonly;
+    QStringList hostnames_sorted;
+    QPushButton done;
+    QComboBox hosts;
+    QComboBox quality_combobox;
+    QCheckBox viewonly;
 };
 #endif

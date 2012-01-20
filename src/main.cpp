@@ -27,18 +27,19 @@
 
 const QString APPNAME("Presence VNC");
 
-void printHelp() {
+void printHelp()
+{
     std::cout << "Usage: " << qPrintable(QCoreApplication::arguments().at(0)) << " [options] [URL [quality]]\n"
 
-        << "\nOptions:\n"
-        << " --help\t\t\t Print this text and exit.\n"
-        << " --listen [port]\t Listen for incoming connections on given port, or 5500 if omitted. Cannot be used with an URL.\n"
-        << " --viewonly\t\t Don't send mouse/keyboard input to remote desktop. This is only useful if you also supply a URL, or --listen.\n"
+              << "\nOptions:\n"
+              << " --help\t\t\t Print this text and exit.\n"
+              << " --listen [port]\t Listen for incoming connections on given port, or 5500 if omitted. Cannot be used with an URL.\n"
+              << " --viewonly\t\t Don't send mouse/keyboard input to remote desktop. This is only useful if you also supply a URL, or --listen.\n"
 
-        << "\nURLs:\n"
-        << " vnc://:password@server:display\n\n"
-        << " Password and display can be omitted, e.g. vnc://server is a valid URL.\n"
-        << " Optionally, you can define the quality as a second argument (1-3, where 1 is the best). Default is 2.\n";
+              << "\nURLs:\n"
+              << " vnc://:password@server:display\n\n"
+              << " Password and display can be omitted, e.g. vnc://server is a valid URL.\n"
+              << " Optionally, you can define the quality as a second argument (1-3, where 1 is the best). Default is 2.\n";
 }
 
 int main(int argc, char *argv[])

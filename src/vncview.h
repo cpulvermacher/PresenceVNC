@@ -27,7 +27,7 @@
 #include "remoteview.h"
 #include "vncclientthread.h"
 
-class KConfigGroup{};
+class KConfigGroup {};
 
 #include <QClipboard>
 
@@ -52,14 +52,14 @@ public:
     bool start();
     bool supportsScaling() const;
     bool supportsLocalCursor() const;
-    
+
     void setQuality(int q);
     void setViewOnly(bool viewOnly);
     void showDotCursor(DotCursorState state);
     void useFastTransformations(bool enabled);
     QPoint cursorPosition() { return QPoint(cursor_x, cursor_y); }
     void setDisplayOff(bool off) { display_off = off; }
-    
+
 public slots:
     void setZoomLevel(int level = -1); //'level' doesn't correspond to actual magnification, though mapping is done here
     void sendKey(Qt::Key key);
@@ -98,7 +98,7 @@ private:
     void keyEventHandler(QKeyEvent *e);
     void unpressModifiers();
     void wheelEventHandler(QWheelEvent *event);
-    
+
 private slots:
     void mouseEventHandler(QMouseEvent *event = 0);
 

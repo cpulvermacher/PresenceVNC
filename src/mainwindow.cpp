@@ -124,7 +124,7 @@ MainWindow::MainWindow(QString url, int quality, int listen_port, bool view_only
             this, SLOT(updateScreenSpaceDelayed()));
 #ifdef Q_WS_MAEMO_5
     QDBusConnection::systemBus().connect("", MCE_SIGNAL_PATH, MCE_SIGNAL_IF, MCE_DISPLAY_SIG,
-            this, SLOT(displayStateChanged(QString)));
+                                         this, SLOT(displayStateChanged(QString)));
 #endif
 
     setCentralWidget(scroll_area);
@@ -154,11 +154,12 @@ void MainWindow::grabZoomKeys(bool grab)
         return;
     }
     XChangeProperty(QX11Info::display(), winId(), atom, XA_INTEGER,
-            32, PropModeReplace, reinterpret_cast<unsigned char *>(&val), 1);
+                    32, PropModeReplace, reinterpret_cast<unsigned char *>(&val), 1);
 #endif
 }
 
-void MainWindow::closeEvent(QCloseEvent*) {
+void MainWindow::closeEvent(QCloseEvent*)
+{
     grabZoomKeys(false);
 
     QSettings settings;
@@ -171,9 +172,10 @@ void MainWindow::closeEvent(QCloseEvent*) {
     disconnectFromHost();
 }
 
-void MainWindow::about() {
+void MainWindow::about()
+{
     QMessageBox::about(this, tr("About Presence VNC"),
-            tr("<center><h1>Presence VNC 0.8</h1>\
+                       tr("<center><h1>Presence VNC 0.8</h1>\
                 <p>A touchscreen friendly VNC client</p>\
                 <p><a href=\"http://presencevnc.garage.maemo.org/\">http://presencevnc.garage.maemo.org/</a></p></center>\
                 <small><p>&copy;2010 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;<br />\
@@ -230,52 +232,52 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
     static RemoteView::RemoteStatus old_status = RemoteView::Disconnected;
 
     switch(status) {
-        case RemoteView::Connecting:
+    case RemoteView::Connecting:
 #ifdef Q_WS_MAEMO_5
-            setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+        setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
 #endif
-            break;
-        case RemoteView::Connected:
+        break;
+    case RemoteView::Connected:
 #ifdef Q_WS_MAEMO_5
-            setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+        setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
-            toolbar->setEnabled(true);
+        toolbar->setEnabled(true);
 
-            //disable key input buttons in view only mode
-            input_toolbuttons->setEnabled(!vnc_view->viewOnly());
+        //disable key input buttons in view only mode
+        input_toolbuttons->setEnabled(!vnc_view->viewOnly());
 
-            vnc_view->setZoomLevel(zoom_slider->value());
-            vnc_view->useFastTransformations(false);
-            vnc_view->repaint();
+        vnc_view->setZoomLevel(zoom_slider->value());
+        vnc_view->useFastTransformations(false);
+        vnc_view->repaint();
+        break;
+    case RemoteView::Disconnecting:
+        if(old_status == RemoteView::Disconnected) //Disconnecting also occurs while connecting, so check last state
             break;
-        case RemoteView::Disconnecting:
-            if(old_status == RemoteView::Disconnected) //Disconnecting also occurs while connecting, so check last state
-                break;
 
-            if(disconnect_action->isEnabled()) //don't show when manually disconnecting
-                scroll_area->showMessage(tr("Connection lost"));
+        if(disconnect_action->isEnabled()) //don't show when manually disconnecting
+            scroll_area->showMessage(tr("Connection lost"));
 
-            //clean up
-            scroll_area->setWidget(0);
-            vnc_view = 0;
-            setWindowTitle("Presence VNC");
-            disconnect_action->setEnabled(false);
-            toolbar->setEnabled(false);
+        //clean up
+        scroll_area->setWidget(0);
+        vnc_view = 0;
+        setWindowTitle("Presence VNC");
+        disconnect_action->setEnabled(false);
+        toolbar->setEnabled(false);
 
-            //exit fullscreen mode
-            if(windowState() & Qt::WindowFullScreen)
-                setWindowState(windowState() ^ Qt::WindowFullScreen);
-            break;
-        case RemoteView::Disconnected:
+        //exit fullscreen mode
+        if(windowState() & Qt::WindowFullScreen)
+            setWindowState(windowState() ^ Qt::WindowFullScreen);
+        break;
+    case RemoteView::Disconnected:
 #ifdef Q_WS_MAEMO_5
-            setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+        setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
-            if(old_status == RemoteView::Disconnecting) {
-                scroll_area->setWidget(0); //remove widget
-            }
-            break;
-        default: //avoid compiler warnings
-            break;
+        if(old_status == RemoteView::Disconnecting) {
+            scroll_area->setWidget(0); //remove widget
+        }
+        break;
+    default: //avoid compiler warnings
+        break;
     }
 
     old_status = status;
@@ -307,7 +309,7 @@ void MainWindow::toggleFullscreen()
     menuBar()->setVisible(in_fullscreen);
 #endif
 
-    setWindowState(windowState() ^ Qt::WindowFullScreen); 
+    setWindowState(windowState() ^ Qt::WindowFullScreen);
     updateScreenSpaceDelayed();
 }
 
@@ -388,8 +390,8 @@ void MainWindow::setZoomLevel(int level)
             center = center * (double(new_factor)/old_factor);
 
         scroll_area->ensureVisible(center.x(), center.y(),
-                vnc_view->visibleRegion().boundingRect().width()/2,
-                vnc_view->visibleRegion().boundingRect().height()/2);
+                                   vnc_view->visibleRegion().boundingRect().width()/2,
+                                   vnc_view->visibleRegion().boundingRect().height()/2);
 
         vnc_view->useFastTransformations(zoom_slider->isSliderDown());
         vnc_view->update();

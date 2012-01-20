@@ -27,44 +27,45 @@ class KeyMenu;
 class ScrollArea;
 class VncView;
 
-class MainWindow : public QMainWindow {
-	Q_OBJECT
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
 public:
-	MainWindow(QString url, int quality, int listen_port, bool view_only);
+    MainWindow(QString url, int quality, int listen_port, bool view_only);
 public slots:
-	void about();
-	void showConnectDialog();
-	void connectToHost(QString url, int quality, int listen_port, bool view_only);
-	void disconnectFromHost();
-	void updateScreenSpace();
-	void updateScreenSpaceDelayed();
-	void sendTab();
-	void sendEsc();
-	void sendPgUp();
-	void sendPgDn();
-	void sendReturn();
-	void setZoomLevel(int level);
-	void showInputPanel();
-	void showKeyMenu();
-	void showPreferences();
-	void statusChanged(RemoteView::RemoteStatus status);
-	void toggleFullscreen();
-	void zoomSliderReleased();
+    void about();
+    void showConnectDialog();
+    void connectToHost(QString url, int quality, int listen_port, bool view_only);
+    void disconnectFromHost();
+    void updateScreenSpace();
+    void updateScreenSpaceDelayed();
+    void sendTab();
+    void sendEsc();
+    void sendPgUp();
+    void sendPgDn();
+    void sendReturn();
+    void setZoomLevel(int level);
+    void showInputPanel();
+    void showKeyMenu();
+    void showPreferences();
+    void statusChanged(RemoteView::RemoteStatus status);
+    void toggleFullscreen();
+    void zoomSliderReleased();
     void displayStateChanged(QString state);
 protected:
-	void closeEvent(QCloseEvent*);
-	void resizeEvent(QResizeEvent *event);
+    void closeEvent(QCloseEvent*);
+    void resizeEvent(QResizeEvent *event);
 private:
-	void grabZoomKeys(bool grab);
-	void reloadSettings();
+    void grabZoomKeys(bool grab);
+    void reloadSettings();
 
-	VncView *vnc_view;
-	ScrollArea *scroll_area;
-	QToolBar *toolbar;
-	QSlider *zoom_slider;
-	QAction *scaling, *show_toolbar, *disconnect_action;
-	QActionGroup *input_toolbuttons;
-	KeyMenu *key_menu;
-	bool zoom_to_cursor;
+    VncView *vnc_view;
+    ScrollArea *scroll_area;
+    QToolBar *toolbar;
+    QSlider *zoom_slider;
+    QAction *scaling, *show_toolbar, *disconnect_action;
+    QActionGroup *input_toolbuttons;
+    KeyMenu *key_menu;
+    bool zoom_to_cursor;
 };
 #endif

@@ -25,13 +25,13 @@
 #define VNCCLIENTTHREAD_H
 
 #ifdef QTONLY
-    #include <QDebug>
-    #define kDebug(n) qDebug()
-    #define kBacktrace() ""
-    #define i18n tr
+#include <QDebug>
+#define kDebug(n) qDebug()
+#define kBacktrace() ""
+#define i18n tr
 #else
-    #include <KDebug>
-    #include <KLocale>
+#include <KDebug>
+#include <KLocale>
 #endif
 
 #include "remoteview.h"
@@ -57,7 +57,7 @@ class KeyClientEvent : public ClientEvent
 {
 public:
     KeyClientEvent(int key, int pressed)
-            : m_key(key), m_pressed(pressed) {}
+        : m_key(key), m_pressed(pressed) {}
 
     void fire(rfbClient*);
 
@@ -70,7 +70,7 @@ class PointerClientEvent : public ClientEvent
 {
 public:
     PointerClientEvent(int x, int y, int buttonMask)
-            : m_x(x), m_y(y), m_buttonMask(buttonMask) {}
+        : m_x(x), m_y(y), m_buttonMask(buttonMask) {}
 
     void fire(rfbClient*);
 
@@ -84,7 +84,7 @@ class ClientCutEvent : public ClientEvent
 {
 public:
     ClientCutEvent(const QString &text)
-            : text(text) {}
+        : text(text) {}
 
     void fire(rfbClient*);
 

@@ -49,25 +49,25 @@ rfbBool VncClientThread::newclient(rfbClient *cl)
     cl->format.blueMax = 0xff;
 
     switch (t->quality()) {
-        case RemoteView::High:
-            cl->appData.useBGR233 = 0;
-            cl->appData.encodingsString = "copyrect hextile raw";
-            cl->appData.compressLevel = 0;
-            cl->appData.qualityLevel = 9;
-            break;
-        case RemoteView::Medium:
-            cl->appData.useBGR233 = 0;
-            cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
-            cl->appData.compressLevel = 5;
-            cl->appData.qualityLevel = 7;
-            break;
-        case RemoteView::Low:
-        case RemoteView::Unknown:
-        default:
-            cl->appData.useBGR233 = 1;
-            cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
-            cl->appData.compressLevel = 9;
-            cl->appData.qualityLevel = 1;
+    case RemoteView::High:
+        cl->appData.useBGR233 = 0;
+        cl->appData.encodingsString = "copyrect hextile raw";
+        cl->appData.compressLevel = 0;
+        cl->appData.qualityLevel = 9;
+        break;
+    case RemoteView::Medium:
+        cl->appData.useBGR233 = 0;
+        cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
+        cl->appData.compressLevel = 5;
+        cl->appData.qualityLevel = 7;
+        break;
+    case RemoteView::Low:
+    case RemoteView::Unknown:
+    default:
+        cl->appData.useBGR233 = 1;
+        cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
+        cl->appData.compressLevel = 9;
+        cl->appData.qualityLevel = 1;
     }
 
     SetFormatAndEncodings(cl);
@@ -162,9 +162,9 @@ void VncClientThread::outputHandler(const char *format, ...)
         outputErrorMessageString = "INTERNAL:APPLE_VNC_COMPATIBILTY";
 }
 
-    VncClientThread::VncClientThread(QObject *parent)
+VncClientThread::VncClientThread(QObject *parent)
     : QThread(parent)
-      , frameBuffer(0)
+    , frameBuffer(0)
 {
     QMutexLocker locker(&mutex);
     m_stopped = false;

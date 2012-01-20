@@ -95,7 +95,7 @@ void ConnectDialog::hostnameUpdated(QString newtext)
     if(!normal_entry) {
         if(newtext != LISTEN_FOR_INCOMING_CONNECTIONS_STRING) {
             hosts.setCurrentIndex(-1);
-        } else { 
+        } else {
             return;
         }
     }
@@ -136,10 +136,10 @@ void ConnectDialog::accept()
         //ask user if listen_port is correct
         bool ok;
         listen_port = QInputDialog::getInt(this,
-                tr("Listen for Incoming Connections"),
-                tr("Listen on Port:"),
-                listen_port, 1, 65535, //value, min, max
-                1, &ok);
+                                           tr("Listen for Incoming Connections"),
+                                           tr("Listen on Port:"),
+                                           listen_port, 1, 65535, //value, min, max
+                                           1, &ok);
 
         if(ok) {
             settings.setValue("listen_port", listen_port);
