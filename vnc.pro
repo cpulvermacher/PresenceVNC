@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = presencevnc
-LIBS += -ljpeg -Llibvnc/libvncclient/.libs libvnc/libvncclient/.libs/libvncclient.a
+LIBS += -ljpeg -lz -Llibvnc/libvncclient/.libs libvnc/libvncclient/.libs/libvncclient.a
 DEFINES += QTONLY
 CONFIG += silent release warn_on
 
