@@ -74,7 +74,11 @@ MainWindow::MainWindow(QString url, int quality, int listen_port, bool view_only
     zoom_slider->setValue(settings.value("zoomlevel", 95).toInt());
     toolbar->addWidget(zoom_slider);
 
+#ifdef Q_WS_MAEMO_5
     toolbar->addAction(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"), "", this, SLOT(toggleFullscreen()));
+#else
+    toolbar->addAction(tr("Toggle Fullscreen"), this, SLOT(toggleFullscreen()));
+#endif
     addToolBar(toolbar);
     toolbar->setVisible(settings.value("show_toolbar", true).toBool());
     toolbar->setEnabled(false);

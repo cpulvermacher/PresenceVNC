@@ -64,8 +64,12 @@ FullScreenExitButton::FullScreenExitButton(QWidget *parent)
 {
     Q_ASSERT(parent);
 
+#ifdef Q_WS_MAEMO_5
     // set the fullsize icon from Maemo's theme
     setIcon(QIcon("/usr/share/icons/hicolor/48x48/hildon/general_fullsize.png"));
+#else
+    setText(tr("Toggle Fullscreen"));
+#endif
 
     // ensure that our size is fixed to our ideal size
     setFixedSize(sizeHint());
