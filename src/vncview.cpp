@@ -289,8 +289,7 @@ void VncView::updateImage(int x, int y, int w, int h)
     m_frame = vncThread.image();
 
     if (!m_initDone) { //TODO this seems an odd place for initialization
-        setAttribute(Qt::WA_StaticContents);
-        setAttribute(Qt::WA_OpaquePaintEvent);
+        setAttribute(Qt::WA_NoSystemBackground);
         installEventFilter(this);
 
         setCursor(((m_dotCursorState == CursorOn) || m_forceLocalCursor) ? localDotCursor() : Qt::BlankCursor);
@@ -315,7 +314,7 @@ void VncView::updateImage(int x, int y, int w, int h)
         emit framebufferSizeChanged(m_frame.width(), m_frame.height());
     }
 
-    repaint(qRound(m_x * m_horizontalFactor), qRound(m_y * m_verticalFactor), qRound(m_w * m_horizontalFactor), qRound(m_h * m_verticalFactor));
+    update(qRound(m_x * m_horizontalFactor), qRound(m_y * m_verticalFactor), qRound(m_w * m_horizontalFactor), qRound(m_h * m_verticalFactor));
 }
 
 void VncView::setViewOnly(bool viewOnly)
@@ -538,9 +537,9 @@ void VncView::mouseEventHandler(QMouseEvent *e)
     if(((m_dotCursorState == CursorOn) || m_forceLocalCursor)
             and (cursor_x != old_cursor_x or cursor_y != old_cursor_y)) {
         //clear last position
-        repaint(old_cursor_x*m_horizontalFactor - CURSOR_SIZE/2, old_cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
+        update(old_cursor_x*m_horizontalFactor - CURSOR_SIZE/2, old_cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
         //and refresh new one
-        repaint(cursor_x*m_horizontalFactor - CURSOR_SIZE/2, cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
+        update(cursor_x*m_horizontalFactor - CURSOR_SIZE/2, cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
 
         old_cursor_x = cursor_x;
         old_cursor_y = cursor_y;

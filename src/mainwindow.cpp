@@ -252,7 +252,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 
         vnc_view->setZoomLevel(zoom_slider->value());
         vnc_view->useFastTransformations(false);
-        vnc_view->repaint();
+        vnc_view->update();
         break;
     case RemoteView::Disconnecting:
         if(old_status == RemoteView::Disconnected) //Disconnecting also occurs while connecting, so check last state
