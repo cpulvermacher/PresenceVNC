@@ -818,8 +818,7 @@ void VncView::reloadSettings()
     disable_tapping = settings.value("disable_tapping", false).toBool();
 
     bool always_show_local_cursor = settings.value("always_show_local_cursor", false).toBool();
-    if(always_show_local_cursor)
-        showDotCursor(CursorOn);
+    showDotCursor(always_show_local_cursor?CursorOn:CursorOff);
 
     enableScaling(true);
 }
