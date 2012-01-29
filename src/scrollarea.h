@@ -27,7 +27,7 @@
 class ScrollArea : public QScrollArea
 {
 public:
-    ScrollArea(QWidget *parent):
+    explicit ScrollArea(QWidget *parent):
         QScrollArea(parent) {
         message.setParent(this);
         message.setVisible(false);
@@ -41,16 +41,16 @@ public:
         message.setPalette(pal);
         message.setAutoFillBackground(true);
 
-        timer.setSingleShot(true);
-        timer.setInterval(2500);
-        connect(&timer, SIGNAL(timeout()),
+        message_timer.setSingleShot(true);
+        message_timer.setInterval(2500);
+        connect(&message_timer, SIGNAL(timeout()),
                 &message, SLOT(hide()));
     }
 
     void showMessage(const QString &s) {
         message.setText(s);
         message.show();
-        timer.start();
+        message_timer.start();
     }
 protected:
     virtual void resizeEvent(QResizeEvent* ev) {
@@ -59,11 +59,16 @@ protected:
     }
     virtual void scrollContentsBy(int dx, int dy) {
         QScrollArea::scrollContentsBy(dx, dy);
-        if(widget())
-            widget()->update(); //update whole widget
+        if(widget()) {
+            const QRegion visible_region_new = widget()->visibleRegion();
+            const QRegion visible_region_old = visible_region_new.translated(-dx, -dy);
+
+            //now update only the region that became visible
+            widget()->update(visible_region_new - visible_region_old);
+        }
     }
 private:
     QLabel message;
-    QTimer timer;
+    QTimer message_timer;
 };
 #endif

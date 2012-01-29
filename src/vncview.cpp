@@ -387,23 +387,19 @@ void VncView::paintEvent(QPaintEvent *event)
 
     event->accept();
 
-    const QRect update_rect = event->rect();
+    //split update region into smaller non-intersecting rectangles and only paint those
     QPainter painter(this);
-    if (update_rect != rect()) {
-        // kDebug(5011) << "Partial repaint";
+    foreach(const QRect& update_rect, event->region().rects()) {
         const int sx = qRound(update_rect.x()/m_horizontalFactor);
         const int sy = qRound(update_rect.y()/m_verticalFactor);
         const int sw = qRound(update_rect.width()/m_horizontalFactor);
         const int sh = qRound(update_rect.height()/m_verticalFactor);
 
+        //kDebug(5011) << "Partial repaint, widget x,y,w,h:" << update_rect.x() << update_rect.y() << update_rect.width() << update_rect.height() << "orig: " << sx << sy << sw << sh;
+
         painter.drawImage(update_rect,
                           m_frame.copy(sx, sy, sw, sh)
                           .scaled(update_rect.size(), Qt::IgnoreAspectRatio, transformation_mode));
-    } else {
-        //kDebug(5011) << "Full repaint" << width() << height() << m_frame.width() << m_frame.height();
-
-        painter.drawImage(rect(),
-                          m_frame.scaled(size(), Qt::IgnoreAspectRatio, transformation_mode));
     }
 
     //draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling
