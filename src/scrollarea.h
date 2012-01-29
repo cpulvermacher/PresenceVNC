@@ -45,6 +45,13 @@ public:
         message_timer.setInterval(2500);
         connect(&message_timer, SIGNAL(timeout()),
                 &message, SLOT(hide()));
+
+#ifdef Q_WS_MAEMO_5
+        // disable overshooting because it somehow causes repaint events for the whole widget (slow)
+        QAbstractKineticScroller *scroller = property("kineticScroller").value<QAbstractKineticScroller *>();
+        if (scroller)
+            scroller->setOvershootPolicy(QAbstractKineticScroller::OvershootAlwaysOff);
+#endif
     }
 
     void showMessage(const QString &s) {
@@ -59,13 +66,8 @@ protected:
     }
     virtual void scrollContentsBy(int dx, int dy) {
         QScrollArea::scrollContentsBy(dx, dy);
-        if(widget()) {
-            const QRegion visible_region_new = widget()->visibleRegion();
-            const QRegion visible_region_old = visible_region_new.translated(-dx, -dy);
-
-            //now update only the region that became visible
-            widget()->update(visible_region_new - visible_region_old);
-        }
+        if(widget())
+            message.hide(); //overlay-widget slows down scrolling
     }
 private:
     QLabel message;
