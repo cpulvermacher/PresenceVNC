@@ -89,7 +89,6 @@ FullScreenExitButton::FullScreenExitButton(QWidget *parent)
     parent->installEventFilter(this);
 
     setVisible(false); //assuming we don't start in fullscreen
-    timer.start();
 }
 
 bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
@@ -110,6 +109,8 @@ bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
         setVisible(isFullScreen);
         if (isFullScreen)
             raise();
+        timer.start();
+        break;
         // fall through
     case QEvent::Resize:
         if (isVisible()) {
