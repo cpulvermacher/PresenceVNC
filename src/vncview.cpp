@@ -261,10 +261,12 @@ void VncView::outputErrorMessage(const QString &message)
 
 void VncView::updateImage(int x, int y, int w, int h)
 {
+#ifdef Q_WS_MAEMO_5
     //don't update if window is out of focus / display is off
     if(!QApplication::focusWidget() || display_off) {
         return;
     }
+#endif
 
     //kDebug(5011) << "got update" << width() << height();
 
