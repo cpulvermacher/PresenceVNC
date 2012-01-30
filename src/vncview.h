@@ -43,11 +43,11 @@ public:
     explicit VncView(QWidget *parent = 0, const KUrl &url = KUrl(), RemoteView::Quality quality = RemoteView::Medium, int listen_port = 0);
     ~VncView();
 
-    QSize framebufferSize();
+    QSize framebufferSize() const;
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-    bool isQuitting();
-    qreal zoomFactor() { return m_horizontalFactor;} //assumes fixed aspect ratio
+    bool isQuitting() const;
+    qreal zoomFactor() const { return m_horizontalFactor;} //assumes fixed aspect ratio
     void reloadSettings();
     bool start();
     bool supportsScaling() const;
@@ -57,7 +57,7 @@ public:
     void setViewOnly(bool viewOnly);
     void showDotCursor(DotCursorState state);
     void useFastTransformations(bool enabled);
-    QPoint cursorPosition() { return QPoint(cursor_x, cursor_y); }
+    QPoint cursorPosition() const { return QPoint(cursor_x, cursor_y); }
     void setDisplayOff(bool off) { display_off = off; }
 
 public slots:

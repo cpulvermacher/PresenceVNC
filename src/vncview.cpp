@@ -110,7 +110,7 @@ bool VncView::eventFilter(QObject *obj, QEvent *event)
     return RemoteView::eventFilter(obj, event);
 }
 
-QSize VncView::framebufferSize()
+QSize VncView::framebufferSize() const
 {
     return m_frame.size();
 }
@@ -150,7 +150,7 @@ void VncView::startQuitting()
     setStatus(Disconnected);
 }
 
-bool VncView::isQuitting()
+bool VncView::isQuitting() const
 {
     return m_quitFlag;
 }
