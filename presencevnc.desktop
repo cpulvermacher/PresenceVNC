@@ -4,4 +4,4 @@ Comment=A touchscreen friendly VNC client
 Exec=presencevnc
 Icon=presencevnc
 Type=Application
-Categories=Utility;
+Categories=Network;
