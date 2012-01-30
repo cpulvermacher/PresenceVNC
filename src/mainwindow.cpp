@@ -359,8 +359,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         vnc_view->setZoomLevel(zoom_slider->value());
 
 #ifdef Q_WS_MAEMO_5
-    //hide zoom slider in portrait mode
-    zoom_slider->setVisible(height() < width());
+    //in portrait mode, show only zoom slider and fullscreen button
+    //(opening HW keyboard or OSK will return to landscape)
+    const bool portrait = height() > width();
+    for(int i = 0; i < 7; i++)
+        toolbar->actions()[i]->setVisible(!portrait);
 #endif
 }
 
