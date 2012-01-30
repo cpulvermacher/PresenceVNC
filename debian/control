@@ -11,15 +11,12 @@ Architecture: armel
 Depends: ${shlibs:Depends}, ${misc:Depends}, mce
 Description: A touchscreen friendly VNC client
  Features:
-  * Viewport can be dragged around without using scrollbars
-  * Touchpad-like mouse input: Tap the screen for a single
-    click, tap twice for a double click, single tap plus
-    dragging motion to drag objects on the remote desktop
-  * Magnification can be changed via zoom slider
-    (double-click for 1:1)
-  * Configurable volume buttons
-  * Portrait mode support
-  * 
+ * Viewport can be dragged around without using scrollbars
+ * Touchpad-like mouse input: Tap the screen for a single click, tap twice for a double click, single tap plus dragging motion to drag objects on the remote desktop
+ * Magnification can be changed via zoom slider (double-click for 1:1)
+ * Configurable volume buttons
+ * Portrait mode support
+ * Support for server-initiated connections (Listen for Incoming Connections)
 XB-Maemo-Display-Name: Presence VNC
 XSBC-Bugtracker: https://garage.maemo.org/tracker/?group_id=1831
 XB-Maemo-Icon-26: 
