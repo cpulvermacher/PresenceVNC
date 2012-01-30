@@ -1,5 +1,5 @@
 Source: presencevnc
-Section: user/utilities
+Section: user/network
 Priority: optional
 Maintainer: Christian Pulvermacher <pulvermacher@gmx.de>
 Build-Depends: libqt4-dev, debhelper (>= 5.0.0), mce-dev, libx11-dev, zlib1g-dev, libjpeg62-dev
@@ -15,9 +15,11 @@ Description: A touchscreen friendly VNC client
   * Touchpad-like mouse input: Tap the screen for a single
     click, tap twice for a double click, single tap plus
     dragging motion to drag objects on the remote desktop
-  * Fit remote desktop to screen
-  * Configurable zoom/volume buttons
+  * Magnification can be changed via zoom slider
+    (double-click for 1:1)
+  * Configurable volume buttons
   * Portrait mode support
+  * 
 XB-Maemo-Display-Name: Presence VNC
 XSBC-Bugtracker: https://garage.maemo.org/tracker/?group_id=1831
 XB-Maemo-Icon-26: 
