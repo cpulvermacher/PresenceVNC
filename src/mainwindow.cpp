@@ -54,7 +54,8 @@ MainWindow::MainWindow(QString url, int quality, int listen_port, bool view_only
 
     //set up toolbar
     toolbar = new QToolBar(0);
-    input_toolbuttons->addAction(toolbar->addAction(QChar(0x2026), this, SLOT(showKeyMenu()))); //"..." button
+    key_menu_button = input_toolbuttons->addAction(toolbar->addAction(QChar(0x2026), this, SLOT(showKeyMenu()))); //"..." button
+    key_menu_button->setCheckable(true); //used to indicate wether a modifier key is still pressed
     input_toolbuttons->addAction(toolbar->addAction(tr("Tab"), this, SLOT(sendTab())));
     input_toolbuttons->addAction(toolbar->addAction(tr("Esc"), this, SLOT(sendEsc())));
     input_toolbuttons->addAction(toolbar->addAction(tr("PgUp"), this, SLOT(sendPgUp())));
@@ -321,6 +322,7 @@ void MainWindow::showKeyMenu()
 {
     key_menu->exec();
     vnc_view->sendKeySequence(key_menu->getKeySequence());
+    key_menu_button->setChecked(key_menu->isAltChecked() or key_menu->isWinChecked());
 }
 
 void MainWindow::showPreferences()

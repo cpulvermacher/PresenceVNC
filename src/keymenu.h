@@ -27,13 +27,17 @@ class KeyMenu : public QDialog
 {
     Q_OBJECT
 public:
-    KeyMenu(QWidget *parent);
-    QKeySequence getKeySequence() { return keysequence; }
+    explicit KeyMenu(QWidget *parent);
+    const QKeySequence& getKeySequence() const { return keysequence; }
+    bool isAltChecked() const { return alt->isChecked(); }
+    bool isWinChecked() const { return win->isChecked(); }
 public slots:
     virtual void accept();
     virtual int exec() { keysequence = QKeySequence(); return QDialog::exec(); }
 private:
-    QKeySequence keysequence;
+    QKeySequence keysequence; //key sequence last selected
+    QAction *alt;
+    QAction *win;
 };
 
 
@@ -41,11 +45,10 @@ class ActionTab : public QScrollArea
 {
     Q_OBJECT
 public:
-    ActionTab(KeyMenu *parent);
+    explicit ActionTab(KeyMenu *parent);
     void addAction(QAction *action); //adds action and connects it to keymenu->accept()
     void addAction(QString text, QKeySequence keysequence);
 private:
-    QWidget widget;
     QHBoxLayout layout;
     KeyMenu *keymenu;
 };

@@ -28,11 +28,11 @@ KeyMenu::KeyMenu(QWidget *parent):
 
     //modifiers
     ActionTab *mod_tab = new ActionTab(this);
-    QAction *win = new QAction(tr("Win"), this);
+    win = new QAction(tr("Win"), this);
     win->setShortcut(Qt::META);
     win->setCheckable(true);
     mod_tab->addAction(win);
-    QAction *alt = new QAction(tr("Alt"), this);
+    alt = new QAction(tr("Alt"), this);
     alt->setShortcut(Qt::ALT);
     alt->setCheckable(true);
     mod_tab->addAction(alt);
@@ -84,8 +84,9 @@ ActionTab::ActionTab(KeyMenu *parent):
     keymenu(parent)
 {
     setWidgetResizable(true);
-    setWidget(&widget);
-    widget.setLayout(&layout);
+    QWidget *widget = new QWidget(this);
+    setWidget(widget);
+    widget->setLayout(&layout);
 }
 
 void ActionTab::addAction(QString text, QKeySequence keysequence)

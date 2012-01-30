@@ -61,11 +61,13 @@ private:
 
     VncView *vnc_view;
     ScrollArea *scroll_area;
+
     QToolBar *toolbar;
     QSlider *zoom_slider;
     QAction *scaling, *show_toolbar, *disconnect_action;
     QActionGroup *input_toolbuttons;
     KeyMenu *key_menu;
+    QAction *key_menu_button;
     bool zoom_to_cursor;
 };
 #endif
