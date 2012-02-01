@@ -21,9 +21,7 @@
 
 #include "fullscreenexitbutton.h"
 
-#include <QScrollArea>
-#include <QLabel>
-#include <QTimer>
+#include <QtGui>
 
 //fixes tearing during scrolling and can display messages
 class ScrollArea : public QScrollArea
