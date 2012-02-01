@@ -17,7 +17,6 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
    */
 #include "connectdialog.h"
-#include "fullscreenexitbutton.h"
 #include "keymenu.h"
 #include "mainwindow.h"
 #include "preferences.h"
@@ -40,7 +39,7 @@
 MainWindow::MainWindow(QString url, int quality, int listen_port, bool view_only):
     QMainWindow(0),
     vnc_view(0),
-    scroll_area(new ScrollArea(0)),
+    scroll_area(new ScrollArea(this)),
     input_toolbuttons(new QActionGroup(this)),
     key_menu(0)
 {
@@ -134,8 +133,7 @@ MainWindow::MainWindow(QString url, int quality, int listen_port, bool view_only
 
     setCentralWidget(scroll_area);
 
-    FullScreenExitButton* fullscreen_exit_button = new FullScreenExitButton(this);
-    connect(fullscreen_exit_button, SIGNAL(clicked()),
+    connect(scroll_area, SIGNAL(fullscreenButtonClicked()),
             this, SLOT(toggleFullscreen()));
 
     grabZoomKeys(true);
