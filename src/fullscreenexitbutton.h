@@ -27,14 +27,7 @@
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
-**
-**
-**
-**
-**
-**
-**
-**
+
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
@@ -42,8 +35,8 @@
 #ifndef FULLSCREENEXITBUTTON_H
 #define FULLSCREENEXITBUTTON_H
 
-#include <QtGui/qtoolbutton.h>
-#include <QtGui/qevent.h>
+#include <QToolButton>
+#include <QEvent>
 #include <QTimer>
 
 class FullScreenExitButton : public QToolButton
@@ -52,11 +45,13 @@ class FullScreenExitButton : public QToolButton
 public:
     inline explicit FullScreenExitButton(QWidget *parent);
 
+public slots:
+    inline void reenable();
 protected:
     inline bool eventFilter(QObject *obj, QEvent *ev);
 
 private:
-    QTimer timer;
+    QTimer hide_timer;
 };
 
 FullScreenExitButton::FullScreenExitButton(QWidget *parent)
@@ -85,9 +80,9 @@ FullScreenExitButton::FullScreenExitButton(QWidget *parent)
     setAutoFillBackground(true);
 
     // hide after 4s of inactivity
-    connect(&timer, SIGNAL(timeout()), this, SLOT(hide()));
-    timer.setInterval(4000);
-    timer.setSingleShot(true);
+    connect(&hide_timer, SIGNAL(timeout()), this, SLOT(hide()));
+    hide_timer.setInterval(4000);
+    hide_timer.setSingleShot(true);
 
     // install an event filter to listen for the parent's events
     parent->installEventFilter(this);
@@ -97,6 +92,8 @@ FullScreenExitButton::FullScreenExitButton(QWidget *parent)
 
 bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
 {
+    if(!isEnabled())
+        return QToolButton::eventFilter(obj, ev);
     if (obj != parent())
         return QToolButton::eventFilter(obj, ev);
 
@@ -113,13 +110,13 @@ bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
         setVisible(isFullScreen);
         if (isFullScreen)
             raise();
-        timer.start();
+        hide_timer.start();
         break;
         // fall through
     case QEvent::Resize:
         if (isVisible()) {
             move(parent->width() - width(), parent->height() - height());
-            timer.start();
+            hide_timer.start();
         }
         break;
     default:
@@ -127,6 +124,18 @@ bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
     }
 
     return QToolButton::eventFilter(obj, ev);
+}
+
+void FullScreenExitButton::reenable()
+{
+    setEnabled(true);
+
+    const QWidget *parent = parentWidget();
+    const bool isFullScreen = parent->windowState() & Qt::WindowFullScreen;
+    setVisible(isFullScreen);
+    if (isFullScreen)
+        raise();
+    hide_timer.start();
 }
 
 #endif

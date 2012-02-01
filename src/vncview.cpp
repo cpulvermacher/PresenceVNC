@@ -254,9 +254,9 @@ void VncView::outputErrorMessage(const QString &message)
         return;
     }
 
-    startQuitting();
-
     emit errorMessage(i18n("VNC failure"), message);
+
+    startQuitting();
 }
 
 void VncView::updateImage(int x, int y, int w, int h)

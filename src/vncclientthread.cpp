@@ -146,20 +146,15 @@ void VncClientThread::outputHandler(const char *format, ...)
     if ((message.contains("Couldn't convert ")) ||
             (message.contains("Unable to connect to VNC server")))
         outputErrorMessageString = i18n("Server not found.");
-
-    if ((message.contains("VNC connection failed: Authentication failed, too many tries")) ||
+    else if ((message.contains("VNC connection failed: Authentication failed, too many tries")) ||
             (message.contains("VNC connection failed: Too many authentication failures")))
         outputErrorMessageString = i18n("VNC authentication failed because of too many authentication tries.");
-
-    if (message.contains("VNC connection failed: Authentication failed"))
+    else if (message.contains("VNC connection failed: Authentication failed"))
         outputErrorMessageString = i18n("VNC authentication failed.");
-
-    if (message.contains("VNC server closed connection"))
+    else if (message.contains("VNC server closed connection"))
         outputErrorMessageString = i18n("VNC server closed connection.");
-
-    // internal messages, not displayed to user
-    if (message.contains("VNC server supports protocol version 3.889")) // see http://bugs.kde.org/162640
-        outputErrorMessageString = "INTERNAL:APPLE_VNC_COMPATIBILTY";
+    else if (message.contains("VNC server supports protocol version 3.889")) // see http://bugs.kde.org/162640
+        outputErrorMessageString = "INTERNAL:APPLE_VNC_COMPATIBILTY"; // internal messages, not displayed to user
 }
 
 VncClientThread::VncClientThread(QObject *parent)
@@ -191,12 +186,11 @@ VncClientThread::~VncClientThread()
 void VncClientThread::checkOutputErrorMessage()
 {
     if (!outputErrorMessageString.isEmpty()) {
-        kDebug(5011) << outputErrorMessageString;
         QString errorMessage = outputErrorMessageString;
         outputErrorMessageString.clear();
         // show authentication failure error only after the 3rd unsuccessful try
         if ((errorMessage != i18n("VNC authentication failed.")) || m_passwordError)
-            outputErrorMessage(errorMessage);
+            emit outputErrorMessage(errorMessage);
     }
 }
 
