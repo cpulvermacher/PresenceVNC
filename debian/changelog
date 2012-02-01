@@ -3,6 +3,7 @@ presencevnc (0.8) unstable; urgency=low
   * Add --viewonly, --listen and --help command line options
   * Use less CPU when display is off
   * Improve performance of partial repaints, scrolling more fluent
+  * Show more detailed error messages in UI
 
  -- Christian Pulvermacher <pulvermacher@gmx.de>  Thu, 28 Oct 2010 19:48:01 +0200
 

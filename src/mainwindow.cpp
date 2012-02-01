@@ -207,6 +207,8 @@ void MainWindow::connectToHost(QString url, int quality, int listen_port, bool v
 
     connect(vnc_view, SIGNAL(statusChanged(RemoteView::RemoteStatus)),
             this, SLOT(statusChanged(RemoteView::RemoteStatus)));
+    connect(vnc_view, SIGNAL(errorMessage(QString, QString)),
+        scroll_area, SLOT(showMessage(QString, QString)));
     scroll_area->setWidget(vnc_view);
     vnc_view->start();
     setWindowTitle(QString("Presence VNC - %1").arg(vnc_view->host()) + (view_only?tr(" [View Only]"):""));

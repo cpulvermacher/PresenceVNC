@@ -26,10 +26,12 @@
 //fixes tearing during scrolling and can display messages
 class ScrollArea : public QScrollArea
 {
+    Q_OBJECT
 public:
     explicit ScrollArea(QWidget *parent):
-        QScrollArea(parent) {
-        message.setParent(this);
+        QScrollArea(parent),
+        message(this)
+    {
         message.setVisible(false);
         message.setAlignment(Qt::AlignCenter);
         message.setWordWrap(true);
@@ -54,11 +56,15 @@ public:
 #endif
     }
 
+public slots:
     void showMessage(const QString &s) {
         message.setText(s);
         message.show();
         message_timer.start();
     }
+
+    //provided for convenience
+    void showMessage(QString /*title*/, QString msg) { showMessage(msg); }
 protected:
     virtual void resizeEvent(QResizeEvent* ev) {
         QScrollArea::resizeEvent(ev);
