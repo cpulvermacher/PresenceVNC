@@ -362,11 +362,11 @@ void VncView::setZoomLevel(int level)
         magnification = (level)/90.0*(1.0 - fit_screen_magnification) + fit_screen_magnification;
     }
 
-    if(magnification < 0			//remote display smaller than local?
-            or magnification != magnification)	//nan
+    //remote display smaller than local (or NAN)?
+    if(magnification < 0 or magnification != magnification)
         magnification = 1.0;
 
-    m_verticalFactor = m_horizontalFactor =	magnification;
+    m_verticalFactor = m_horizontalFactor = magnification;
     resize(m_frame.width()*magnification, m_frame.height()*magnification);
 }
 
@@ -390,7 +390,17 @@ void VncView::paintEvent(QPaintEvent *event)
 
     //split update region into smaller non-intersecting rectangles and only paint those
     QPainter painter(this);
-    foreach(const QRect& update_rect, event->region().rects()) {
+    foreach(QRect update_rect, event->region().rects()) {
+        if(m_horizontalFactor == 2.0 and m_verticalFactor == 2.0) {
+            //grow client side updates to multiples of 2 to avoid artifacts
+            update_rect.adjust(
+                    -update_rect.x()%2,
+                    -update_rect.y()%2,
+                    0, 0);
+            update_rect.adjust(0, 0,
+                    (update_rect.x()+update_rect.width())%2,
+                    (update_rect.y()+update_rect.height())%2);
+        }
         const int sx = qRound(update_rect.x()/m_horizontalFactor);
         const int sy = qRound(update_rect.y()/m_verticalFactor);
         const int sw = qRound(update_rect.width()/m_horizontalFactor);
@@ -568,8 +578,9 @@ void VncView::keyEventHandler(QKeyEvent *e)
         return;
     }
 
-// parts of this code are based on http://italc.sourcearchive.com/documentation/1.0.9.1/vncview_8cpp-source.html
+    // parts of this code are based on http://italc.sourcearchive.com/documentation/1.0.9.1/vncview_8cpp-source.html
     rfbKeySym k = e->nativeVirtualKey();
+
 
     // we do not handle Key_Backtab separately as the Shift-modifier
     // is already enabled
@@ -607,7 +618,7 @@ void VncView::keyEventHandler(QKeyEvent *e)
     else if(e->key() == Qt::Key_F7)
         current_zoom = right_zoom;
     else if (k) {
-        // kDebug(5011) << "got '" << e->text() << "'.";
+        //kDebug(5011) << "got '" << e->text() << "', nativeVirtualKey: " << k;
         vncThread.keyEvent(k, pressed);
     } else {
         kDebug(5011) << "nativeVirtualKey() for '" << e->text() << "' failed.";
