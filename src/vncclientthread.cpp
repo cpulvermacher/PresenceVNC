@@ -174,7 +174,7 @@ VncClientThread::~VncClientThread()
 {
     stop();
 
-    const bool quitSuccess = wait(1000);
+    const bool quitSuccess = wait(4000);
 
     if(!quitSuccess)
         kDebug(5011) << "~VncClientThread(): Quit failed";
