@@ -271,7 +271,7 @@ void MainWindow::statusChanged(RemoteView::RemoteStatus status)
 
         //exit fullscreen mode
         if(windowState() & Qt::WindowFullScreen)
-            setWindowState(windowState() ^ Qt::WindowFullScreen);
+            toggleFullscreen();
         break;
     case RemoteView::Disconnected:
 #ifdef Q_WS_MAEMO_5
