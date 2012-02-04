@@ -321,7 +321,11 @@ void MainWindow::toggleFullscreen()
 void MainWindow::showKeyMenu()
 {
     key_menu->exec();
-    vnc_view->sendKeySequence(key_menu->getKeySequence());
+    if(!key_menu)
+        return;
+
+    if(vnc_view)
+        vnc_view->sendKeySequence(key_menu->getKeySequence());
     key_menu_button->setChecked(key_menu->isAltChecked() or key_menu->isWinChecked());
 }
 
