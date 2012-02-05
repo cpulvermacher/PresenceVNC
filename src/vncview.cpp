@@ -757,15 +757,12 @@ void VncView::sendKey(Qt::Key key)
         k = 0xff67;
         break;
     case Qt::Key_Meta:
-    case Qt::MetaModifier:
         k = XK_Super_L;
         break;
     case Qt::Key_Alt:
-    case Qt::AltModifier:
         k = XK_Alt_L;
         break;
     case Qt::Key_Control:
-    case Qt::ControlModifier:
         k = XK_Control_L;
         break;
     default:
@@ -792,7 +789,7 @@ void VncView::sendKeySequence(QKeySequence keys)
     Q_ASSERT(keys.count() <= 1); //we can only handle a single combination
 
     //to get at individual key presses, we split 'keys' into its components
-    QList<int> key_list;
+    QList<Qt::Key> key_list;
     int pos = 0;
     while(true) {
         QString k = keys.toString().section('+', pos, pos);
@@ -807,18 +804,18 @@ void VncView::sendKeySequence(QKeySequence keys)
         } else if(k == "Meta") {
             key_list.append(Qt::Key_Meta);
         } else {
-            key_list.append(QKeySequence(k)[0]);
+            key_list.append((Qt::Key)QKeySequence(k)[0]);
         }
 
         pos++;
     }
 
     for(int i = 0; i < key_list.count(); i++)
-        sendKey(Qt::Key(key_list.at(i)));
+        sendKey(key_list.at(i));
 
     //release modifiers (everything before final key)
     for(int i = key_list.count()-2; i >= 0; i--)
-        sendKey(Qt::Key(key_list.at(i)));
+        sendKey(key_list.at(i));
 }
 
 void VncView::reloadSettings()
