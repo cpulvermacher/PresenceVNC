@@ -110,12 +110,10 @@ bool FullScreenExitButton::eventFilter(QObject *obj, QEvent *ev)
         setVisible(isFullScreen);
         if (isFullScreen)
             raise();
-        hide_timer.start();
-        break;
         // fall through
     case QEvent::Resize:
+        move(parent->width() - width(), parent->height() - height());
         if (isVisible()) {
-            move(parent->width() - width(), parent->height() - height());
             hide_timer.start();
         }
         break;
