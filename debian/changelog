@@ -3,10 +3,12 @@ presencevnc (0.8) unstable; urgency=low
   * Add --viewonly, --listen and --help command line options
   * Use less CPU when display is off
   * Improve performance of partial repaints, scrolling more fluent
-  * Don't use 32bit color on N900 (16bit display)
+  * Don't use 32bit color on N900 (16bit display). Greatly reduces transfer
+    rate when using high quality.
   * Show more detailed error messages in UI
+  * In portrait mode toolbar now only shows zoom slider and fullscreen button
 
- -- Christian Pulvermacher <pulvermacher@gmx.de>  Thu, 28 Oct 2010 19:48:01 +0200
+ -- Christian Pulvermacher <pulvermacher@gmx.de>  Sun, 12 Feb 2012 15:49:26 +0100
 
 presencevnc (0.7) unstable; urgency=low
 
