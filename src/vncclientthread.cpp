@@ -28,34 +28,29 @@
 
 static QString outputErrorMessageString;
 
+#ifdef Q_WS_MAEMO_5
+//N900 display has 16bit depth (R/G/B with 5/6/5 bpp)
+const int MAX_COLOR_DEPTH = 16;
+#else
+const int MAX_COLOR_DEPTH = 32;
+#endif
+
+
 rfbBool VncClientThread::newclient(rfbClient *cl)
 {
     VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);
     Q_ASSERT(t);
 
-    const int width = cl->width, height = cl->height, depth = cl->format.bitsPerPixel;
-    const int size = width * height * (depth / 8);
-    if (t->frameBuffer)
-        delete [] t->frameBuffer; // do not leak if we get a new framebuffer size
-    t->frameBuffer = new uint8_t[size];
-    cl->frameBuffer = t->frameBuffer;
-    memset(cl->frameBuffer, '\0', size);
-    cl->format.bitsPerPixel = 32;
-    cl->format.redShift = 16;
-    cl->format.greenShift = 8;
-    cl->format.blueShift = 0;
-    cl->format.redMax = 0xff;
-    cl->format.greenMax = 0xff;
-    cl->format.blueMax = 0xff;
-
     switch (t->quality()) {
     case RemoteView::High:
+        cl->format.bitsPerPixel = MAX_COLOR_DEPTH;
         cl->appData.useBGR233 = 0;
         cl->appData.encodingsString = "copyrect hextile raw";
         cl->appData.compressLevel = 0;
         cl->appData.qualityLevel = 9;
         break;
     case RemoteView::Medium:
+        cl->format.bitsPerPixel = 16;
         cl->appData.useBGR233 = 0;
         cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
         cl->appData.compressLevel = 5;
@@ -64,11 +59,37 @@ rfbBool VncClientThread::newclient(rfbClient *cl)
     case RemoteView::Low:
     case RemoteView::Unknown:
     default:
-        cl->appData.useBGR233 = 1;
+        cl->format.bitsPerPixel = 16; //TODO: add support for 8bit (needs color map)
         cl->appData.encodingsString = "tight zrle ultra copyrect hextile zlib corre rre raw";
         cl->appData.compressLevel = 9;
         cl->appData.qualityLevel = 1;
     }
+
+    if(cl->format.bitsPerPixel == 16) {
+        cl->format.depth = 16; //number of useful bits in the pixel value
+        cl->format.redShift = 11;
+        cl->format.greenShift = 5;
+        cl->format.blueShift = 0;
+        cl->format.redMax = 0x1f;
+        cl->format.greenMax = 0x3f;
+        cl->format.blueMax = 0x1f;
+    } else {
+        cl->format.depth = 24; //number of useful bits in the pixel value
+        cl->format.redShift = 16;
+        cl->format.greenShift = 8;
+        cl->format.blueShift = 0;
+        cl->format.redMax = 0xff;
+        cl->format.greenMax = 0xff;
+        cl->format.blueMax = 0xff;
+    }
+
+    if (t->frameBuffer)
+        delete [] t->frameBuffer; // do not leak if we get a new framebuffer size
+    const int size = cl->width * cl->height * (cl->format.bitsPerPixel / 8);
+    t->frameBuffer = new uint8_t[size];
+    cl->frameBuffer = t->frameBuffer;
+    memset(cl->frameBuffer, '\0', size);
+
 
     SetFormatAndEncodings(cl);
 
@@ -79,9 +100,12 @@ void VncClientThread::updatefb(rfbClient* cl, int x, int y, int w, int h)
 {
     //kDebug(5011) << "updated client: x: " << x << ", y: " << y << ", w: " << w << ", h: " << h;
 
-    const int width = cl->width, height = cl->height;
-
-    const QImage img(cl->frameBuffer, width, height, QImage::Format_RGB32);
+    const QImage img(
+            cl->frameBuffer,
+            cl->width,
+            cl->height,
+            (cl->format.bitsPerPixel==16)?QImage::Format_RGB16:QImage::Format_RGB32
+    );
 
     if (img.isNull()) {
         kDebug(5011) << "image not loaded";
