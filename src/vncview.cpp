@@ -618,7 +618,7 @@ void VncView::keyEventHandler(QKeyEvent *e)
     else if(e->key() == Qt::Key_F7)
         current_zoom = right_zoom;
     else if (k) {
-        //kDebug(5011) << "got '" << e->text() << "', nativeVirtualKey: " << k;
+        kDebug(5011) << "Key pressed: '" << e->text() << "', nativeVirtualKey: " << k;
         vncThread.keyEvent(k, pressed);
     } else {
         kDebug(5011) << "nativeVirtualKey() for '" << e->text() << "' failed.";
