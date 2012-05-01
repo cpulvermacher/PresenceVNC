@@ -25,15 +25,13 @@
 #define VNCVIEW_H
 
 #include "remoteview.h"
-#include "vncclientthread.h"
 
+#include <QMap>
+
+class QClipboard;
 class KConfigGroup {};
+class VncClientThread;
 
-#include <QClipboard>
-
-extern "C" {
-#include <rfb/rfbclient.h>
-}
 
 class VncView: public RemoteView
 {
@@ -57,8 +55,8 @@ public:
     void setViewOnly(bool viewOnly);
     void showDotCursor(DotCursorState state);
     void useFastTransformations(bool enabled);
-    QPoint cursorPosition() const { return QPoint(cursor_x, cursor_y); }
-    void setDisplayOff(bool off) { display_off = off; }
+    QPoint cursorPosition() const { return QPoint(m_cursor_x, m_cursor_y); }
+    void setDisplayOff(bool off) { m_display_off = off; }
 
 public slots:
     void setZoomLevel(int level = -1); //'level' doesn't correspond to actual magnification, though mapping is done here
@@ -73,32 +71,6 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void inputMethodEvent(QInputMethodEvent *event);
 
-private:
-    VncClientThread vncThread;
-    QClipboard *m_clipboard;
-    bool m_initDone;
-    int m_buttonMask;
-    QMap<unsigned int, bool> m_mods;
-    int m_x, m_y, m_w, m_h;
-    int cursor_x, cursor_y;
-    bool m_quitFlag;
-    bool m_firstPasswordTry;
-    bool m_dontSendClipboard;
-    qreal m_horizontalFactor;
-    qreal m_verticalFactor;
-    QImage m_frame;
-    bool m_forceLocalCursor;
-    int left_zoom, right_zoom;
-    bool disable_tapping;
-    RemoteView::Quality quality;
-    int listen_port;
-    Qt::TransformationMode transformation_mode;
-    bool display_off;
-
-    void keyEventHandler(QKeyEvent *e);
-    void unpressModifiers();
-    void wheelEventHandler(QWheelEvent *event);
-
 private slots:
     void mouseEventHandler(QMouseEvent *event = 0);
 
@@ -108,6 +80,32 @@ private slots:
     void outputErrorMessage(const QString &message);
     void clipboardSelectionChanged();
     void clipboardDataChanged();
+
+private:
+    VncClientThread *m_vncThread;
+    QClipboard *m_clipboard;
+    bool m_initDone;
+    int m_buttonMask;
+    QMap<unsigned int, bool> m_mods;
+    int m_x, m_y, m_w, m_h;
+    int m_cursor_x, m_cursor_y;
+    bool m_quitFlag;
+    bool m_firstPasswordTry;
+    bool m_dontSendClipboard;
+    qreal m_horizontalFactor;
+    qreal m_verticalFactor;
+    QImage m_frame;
+    bool m_forceLocalCursor;
+    int m_left_zoom, m_right_zoom;
+    bool m_disable_tapping;
+    RemoteView::Quality m_quality;
+    int m_listen_port;
+    Qt::TransformationMode m_transformation_mode;
+    bool m_display_off;
+
+    void keyEventHandler(QKeyEvent *e);
+    void unpressModifiers();
+    void wheelEventHandler(QWheelEvent *event);
 };
 
 #endif

@@ -22,13 +22,11 @@
 
 #include <QtGui>
 
-class QMaemo5ListPickSelector;
-
 class ConnectDialog : public QDialog
 {
     Q_OBJECT
 public:
-    ConnectDialog(QWidget *parent);
+    explicit ConnectDialog(QWidget *parent);
 public slots:
     virtual void accept();
 signals:

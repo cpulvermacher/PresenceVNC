@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "vncview.h"
+#include "vncclientthread.h"
 
 //for mouse button masks
 #include "rfb/rfbproto.h"
@@ -46,33 +47,34 @@ const int DOUBLE_TAP_UP_TIME = 500;
 
 VncView::VncView(QWidget *parent, const KUrl &url, RemoteView::Quality quality, int listen_port)
     : RemoteView(parent),
+      m_vncThread(new VncClientThread()),
       m_initDone(false),
       m_buttonMask(0),
-      cursor_x(0),
-      cursor_y(0),
+      m_cursor_x(0),
+      m_cursor_y(0),
       m_quitFlag(false),
       m_firstPasswordTry(true),
       m_dontSendClipboard(false),
       m_horizontalFactor(1.0),
       m_verticalFactor(1.0),
       m_forceLocalCursor(false),
-      quality(quality),
-      listen_port(listen_port),
-      transformation_mode(Qt::FastTransformation),
-      display_off(false)
+      m_quality(quality),
+      m_listen_port(listen_port),
+      m_transformation_mode(Qt::FastTransformation),
+      m_display_off(false)
 {
     m_url = url;
     m_host = url.host();
     m_port = url.port();
 
     //BlockingQueuedConnection can cause deadlocks when exiting, handled in startQuitting()
-    connect(&vncThread, SIGNAL(imageUpdated(int, int, int, int)), this, SLOT(updateImage(int, int, int, int)), Qt::BlockingQueuedConnection);
-    connect(&vncThread, SIGNAL(gotCut(const QString&)), this, SLOT(setCut(const QString&)), Qt::BlockingQueuedConnection);
-    connect(&vncThread, SIGNAL(passwordRequest()), this, SLOT(requestPassword()), Qt::BlockingQueuedConnection);
-    connect(&vncThread, SIGNAL(outputErrorMessage(QString)), this, SLOT(outputErrorMessage(QString)));
+    connect(m_vncThread, SIGNAL(imageUpdated(int, int, int, int)), this, SLOT(updateImage(int, int, int, int)), Qt::BlockingQueuedConnection);
+    connect(m_vncThread, SIGNAL(gotCut(const QString&)), this, SLOT(setCut(const QString&)), Qt::BlockingQueuedConnection);
+    connect(m_vncThread, SIGNAL(passwordRequest()), this, SLOT(requestPassword()), Qt::BlockingQueuedConnection);
+    connect(m_vncThread, SIGNAL(outputErrorMessage(QString)), this, SLOT(outputErrorMessage(QString)));
 
     //don't miss early connection failures
-    connect(&vncThread, SIGNAL(finished()), this, SLOT(startQuitting()));
+    connect(m_vncThread, SIGNAL(finished()), this, SLOT(startQuitting()));
 
     m_clipboard = QApplication::clipboard();
     connect(m_clipboard, SIGNAL(selectionChanged()), this, SLOT(clipboardSelectionChanged()));
@@ -86,9 +88,11 @@ VncView::~VncView()
     unpressModifiers();
 
     // Disconnect all signals so that we don't get any more callbacks from the client thread
-    vncThread.disconnect();
+    m_vncThread->disconnect();
 
     startQuitting();
+
+    delete m_vncThread;
 }
 
 bool VncView::eventFilter(QObject *obj, QEvent *event)
@@ -136,16 +140,16 @@ void VncView::startQuitting()
 
     m_quitFlag = true;
 
-    vncThread.stop();
+    m_vncThread->stop();
 
-    const bool quitSuccess = vncThread.wait(700);
+    const bool quitSuccess = m_vncThread->wait(700);
     if(!quitSuccess) {
-        //happens when vncThread wants to call a slot via BlockingQueuedConnection,
+        //happens when m_vncThread wants to call a slot via BlockingQueuedConnection,
         //needs an event loop in this thread so execution continues after 'emit'
         QEventLoop loop;
         if(!loop.processEvents())
             kDebug(5011) << "BUG: deadlocked, but no events to deliver?";
-        vncThread.wait(700);
+        m_vncThread->wait(700);
     }
     setStatus(Disconnected);
 }
@@ -157,19 +161,19 @@ bool VncView::isQuitting() const
 
 bool VncView::start()
 {
-    vncThread.setHost(m_host);
-    vncThread.setPort(m_port);
-    vncThread.setListenPort(listen_port); //if port is != 0, thread will listen for connections
-    vncThread.setQuality(quality);
+    m_vncThread->setHost(m_host);
+    m_vncThread->setPort(m_port);
+    m_vncThread->setListenPort(m_listen_port); //if port is != 0, thread will listen for connections
+    m_vncThread->setQuality(m_quality);
 
     // set local cursor on by default because low quality mostly means slow internet connection
-    if (quality == RemoteView::Low) {
+    if (m_quality == RemoteView::Low) {
         showDotCursor(RemoteView::CursorOn);
     }
 
     setStatus(Connecting);
 
-    vncThread.start();
+    m_vncThread->start();
     return true;
 }
 
@@ -190,7 +194,7 @@ void VncView::requestPassword()
     setStatus(Authenticating);
 
     if (!m_url.password().isNull()) {
-        vncThread.setPassword(m_url.password());
+        m_vncThread->setPassword(m_url.password());
         return;
     }
 
@@ -202,7 +206,7 @@ void VncView::requestPassword()
     if(m_firstPasswordTry and !password.isEmpty()) {
         kDebug(5011) << "Trying saved password";
         m_firstPasswordTry = false;
-        vncThread.setPassword(password);
+        m_vncThread->setPassword(password);
         return;
     }
     m_firstPasswordTry = false;
@@ -240,9 +244,9 @@ void VncView::requestPassword()
             settings.sync();
         }
 
-        vncThread.setPassword(password);
+        m_vncThread->setPassword(password);
     } else {
-        vncThread.setPassword(QString()); //null string to exit
+        m_vncThread->setPassword(QString()); //null string to exit
     }
 }
 
@@ -286,7 +290,7 @@ void VncView::updateImage(int x, int y, int w, int h)
         m_h+=2*y_extrapixels;
     }
 
-    m_frame = vncThread.image();
+    m_frame = m_vncThread->image();
 
     if (!m_initDone) { //TODO this seems an odd place for initialization
         setAttribute(Qt::WA_NoSystemBackground);
@@ -410,7 +414,7 @@ void VncView::paintEvent(QPaintEvent *event)
 
         painter.drawImage(update_rect,
                           m_frame.copy(sx, sy, sw, sh)
-                          .scaled(update_rect.size(), Qt::IgnoreAspectRatio, transformation_mode));
+                          .scaled(update_rect.size(), Qt::IgnoreAspectRatio, m_transformation_mode));
     }
 
     //draw local cursor ourselves, normal mouse pointer doesn't deal with scrolling
@@ -419,7 +423,7 @@ void VncView::paintEvent(QPaintEvent *event)
         painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
 #endif
         //rectangle size includes 1px pen width
-        painter.drawRect(cursor_x*m_horizontalFactor - CURSOR_SIZE/2, cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE-1, CURSOR_SIZE-1);
+        painter.drawRect(m_cursor_x*m_horizontalFactor - CURSOR_SIZE/2, m_cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE-1, CURSOR_SIZE-1);
     }
 
     RemoteView::paintEvent(event);
@@ -471,13 +475,13 @@ void VncView::mouseEventHandler(QMouseEvent *e)
     if(!e) { //flush held taps
         if(tap_detected) {
             m_buttonMask |= rfbButton1Mask;
-            vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+            m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
             m_buttonMask &= ~rfbButton1Mask;
-            vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+            m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
             tap_detected = false;
         } else if(double_tap_detected and press_time.elapsed() > TAP_PRESS_TIME) { //got tap + another press -> tap & drag
             m_buttonMask |= rfbButton1Mask;
-            vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+            m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
             double_tap_detected = false;
             tap_drag_detected = true;
         }
@@ -490,11 +494,11 @@ void VncView::mouseEventHandler(QMouseEvent *e)
         return;
     }
 
-    cursor_x = qRound(e->x()/m_horizontalFactor);
-    cursor_y = qRound(e->y()/m_verticalFactor);
-    vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask); // plain move event
+    m_cursor_x = qRound(e->x()/m_horizontalFactor);
+    m_cursor_y = qRound(e->y()/m_verticalFactor);
+    m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask); // plain move event
 
-    if(!disable_tapping and e->button() == Qt::LeftButton) { //implement touchpad-like input for left button
+    if(!m_disable_tapping and e->button() == Qt::LeftButton) { //implement touchpad-like input for left button
         if(e->type() == QEvent::MouseButtonPress or e->type() == QEvent::MouseButtonDblClick) {
             press_time.start();
             if(tap_detected and up_time.elapsed() < DOUBLE_TAP_UP_TIME) {
@@ -506,19 +510,19 @@ void VncView::mouseEventHandler(QMouseEvent *e)
         } else if(e->type() == QEvent::MouseButtonRelease) {
             if(tap_drag_detected) { //end tap & drag
                 m_buttonMask &= ~rfbButton1Mask;
-                vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+                m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
                 tap_drag_detected = false;
             } else if(double_tap_detected) { //double click
                 double_tap_detected = false;
 
                 m_buttonMask |= rfbButton1Mask;
-                vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+                m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
                 m_buttonMask &= ~rfbButton1Mask;
-                vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+                m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
                 m_buttonMask |= rfbButton1Mask;
-                vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+                m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
                 m_buttonMask &= ~rfbButton1Mask;
-                vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+                m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
             } else if(press_time.elapsed() < TAP_PRESS_TIME) { //tap
                 up_time.start();
                 tap_detected = true;
@@ -538,21 +542,21 @@ void VncView::mouseEventHandler(QMouseEvent *e)
             if (e->button() & Qt::RightButton)
                 m_buttonMask &= ~rfbButton3Mask;
         }
-        vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+        m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
     }
 
     //prevent local cursor artifacts
-    static int old_cursor_x = cursor_x;
-    static int old_cursor_y = cursor_y;
+    static int old_cursor_x = m_cursor_x;
+    static int old_cursor_y = m_cursor_y;
     if(((m_dotCursorState == CursorOn) || m_forceLocalCursor)
-            and (cursor_x != old_cursor_x or cursor_y != old_cursor_y)) {
+            and (m_cursor_x != old_cursor_x or m_cursor_y != old_cursor_y)) {
         //clear last position
         update(old_cursor_x*m_horizontalFactor - CURSOR_SIZE/2, old_cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
         //and refresh new one
-        update(cursor_x*m_horizontalFactor - CURSOR_SIZE/2, cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
+        update(m_cursor_x*m_horizontalFactor - CURSOR_SIZE/2, m_cursor_y*m_verticalFactor - CURSOR_SIZE/2, CURSOR_SIZE, CURSOR_SIZE);
 
-        old_cursor_x = cursor_x;
-        old_cursor_y = cursor_y;
+        old_cursor_x = m_cursor_x;
+        old_cursor_y = m_cursor_y;
     }
 }
 
@@ -567,8 +571,8 @@ void VncView::wheelEventHandler(QWheelEvent *event)
     const int x = qRound(event->x() / m_horizontalFactor);
     const int y = qRound(event->y() / m_verticalFactor);
 
-    vncThread.mouseEvent(x, y, m_buttonMask | eb);
-    vncThread.mouseEvent(x, y, m_buttonMask);
+    m_vncThread->mouseEvent(x, y, m_buttonMask | eb);
+    m_vncThread->mouseEvent(x, y, m_buttonMask);
 }
 
 void VncView::keyEventHandler(QKeyEvent *e)
@@ -614,12 +618,12 @@ void VncView::keyEventHandler(QKeyEvent *e)
 
     int current_zoom = -1;
     if(e->key() == Qt::Key_F8)
-        current_zoom = left_zoom;
+        current_zoom = m_left_zoom;
     else if(e->key() == Qt::Key_F7)
-        current_zoom = right_zoom;
+        current_zoom = m_right_zoom;
     else if (k) {
         kDebug(5011) << "Key pressed: '" << e->text() << "', nativeVirtualKey: " << k;
-        vncThread.keyEvent(k, pressed);
+        m_vncThread->keyEvent(k, pressed);
     } else {
         kDebug(5011) << "nativeVirtualKey() for '" << e->text() << "' failed.";
         return;
@@ -634,29 +638,29 @@ void VncView::keyEventHandler(QKeyEvent *e)
             m_buttonMask |= rfbButton1Mask;
         else
             m_buttonMask &= ~rfbButton1Mask;
-        vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+        m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
     } else if(current_zoom == 1) { //right click
         if(pressed)
             m_buttonMask |= rfbButton3Mask;
         else
             m_buttonMask &= ~rfbButton3Mask;
-        vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+        m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
     } else if(current_zoom == 2) { //middle click
         if(pressed)
             m_buttonMask |= rfbButton2Mask;
         else
             m_buttonMask &= ~rfbButton2Mask;
-        vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+        m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
     } else if(current_zoom == 3 and pressed) { //wheel up
-        vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask | rfbWheelUpMask);
-        vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+        m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask | rfbWheelUpMask);
+        m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
     } else if(current_zoom == 4 and pressed) { //wheel down
-        vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask | rfbWheelDownMask);
-        vncThread.mouseEvent(cursor_x, cursor_y, m_buttonMask);
+        m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask | rfbWheelDownMask);
+        m_vncThread->mouseEvent(m_cursor_x, m_cursor_y, m_buttonMask);
     } else if(current_zoom == 5) { //page up
-        vncThread.keyEvent(0xff55, pressed);
+        m_vncThread->keyEvent(0xff55, pressed);
     } else if(current_zoom == 6) { //page down
-        vncThread.keyEvent(0xff56, pressed);
+        m_vncThread->keyEvent(0xff56, pressed);
     }
 }
 
@@ -665,8 +669,8 @@ void VncView::unpressModifiers()
     const QList<unsigned int> keys = m_mods.keys();
     QList<unsigned int>::const_iterator it = keys.constBegin();
     while (it != keys.end()) {
-        vncThread.keyEvent(*it, false);
-        it++;
+        m_vncThread->keyEvent(*it, false);
+        ++it;
     }
     m_mods.clear();
 }
@@ -681,7 +685,7 @@ void VncView::clipboardSelectionChanged()
 
     const QString text = m_clipboard->text(QClipboard::Selection);
 
-    vncThread.clientCut(text);
+    m_vncThread->clientCut(text);
 }
 
 void VncView::clipboardDataChanged()
@@ -694,7 +698,7 @@ void VncView::clipboardDataChanged()
 
     const QString text = m_clipboard->text(QClipboard::Clipboard);
 
-    vncThread.clientCut(text);
+    m_vncThread->clientCut(text);
 }
 
 //fake key events
@@ -773,14 +777,14 @@ void VncView::sendKey(Qt::Key key)
     if (k == XK_Shift_L || k == XK_Control_L || k == XK_Meta_L || k == XK_Alt_L || k == XK_Super_L) {
         if (m_mods.contains(k)) { //release
             m_mods.remove(k);
-            vncThread.keyEvent(k, false);
+            m_vncThread->keyEvent(k, false);
         } else { //press
             m_mods[k] = true;
-            vncThread.keyEvent(k, true);
+            m_vncThread->keyEvent(k, true);
         }
     } else { //normal key
-        vncThread.keyEvent(k, true);
-        vncThread.keyEvent(k, false);
+        m_vncThread->keyEvent(k, true);
+        m_vncThread->keyEvent(k, false);
     }
 }
 
@@ -821,9 +825,9 @@ void VncView::sendKeySequence(QKeySequence keys)
 void VncView::reloadSettings()
 {
     QSettings settings;
-    left_zoom = settings.value("left_zoom", 0).toInt();
-    right_zoom = settings.value("right_zoom", 1).toInt();
-    disable_tapping = settings.value("disable_tapping", false).toBool();
+    m_left_zoom = settings.value("left_zoom", 0).toInt();
+    m_right_zoom = settings.value("right_zoom", 1).toInt();
+    m_disable_tapping = settings.value("disable_tapping", false).toBool();
 
     bool always_show_local_cursor = settings.value("always_show_local_cursor", false).toBool();
     showDotCursor(always_show_local_cursor?CursorOn:CursorOff);
@@ -845,17 +849,17 @@ void VncView::inputMethodEvent(QInputMethodEvent *event)
             kDebug(5011) << "unhandled key";
             continue;
         }
-        vncThread.keyEvent(k, true);
-        vncThread.keyEvent(k, false);
+        m_vncThread->keyEvent(k, true);
+        m_vncThread->keyEvent(k, false);
     }
 }
 
 void VncView::useFastTransformations(bool enabled)
 {
     if(enabled or zoomFactor() >= 1.0) {
-        transformation_mode = Qt::FastTransformation;
+        m_transformation_mode = Qt::FastTransformation;
     } else {
-        transformation_mode = Qt::SmoothTransformation;
+        m_transformation_mode = Qt::SmoothTransformation;
         update();
     }
 }

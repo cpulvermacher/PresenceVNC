@@ -106,13 +106,11 @@ public:
     void stop();
     void setHost(const QString &host);
     void setPort(int port);
-    void setListenPort(int port) { listen_port = port; }
+    void setListenPort(int port) { m_listen_port = port; }
     void setQuality(RemoteView::Quality quality);
     void setPassword(const QString &password);
     const QString password() const { return m_password; }
-
     RemoteView::Quality quality() const;
-    uint8_t *frameBuffer;
 
 signals:
     void imageUpdated(int x, int y, int w, int h);
@@ -128,27 +126,29 @@ public slots:
 protected:
     void run();
 
+private slots:
+    void checkOutputErrorMessage();
+
 private:
+    //callbacks for libvncclient
     static rfbBool newclient(rfbClient *cl);
     static void updatefb(rfbClient *cl, int x, int y, int w, int h);
     static void cuttext(rfbClient *cl, const char *text, int textlen);
     static char* passwdHandler(rfbClient *cl);
     static void outputHandler(const char *format, ...);
 
+    uint8_t *m_frameBuffer;
     QImage m_image;
-    rfbClient *cl;
+    rfbClient *m_cl;
     QString m_host;
     QString m_password;
-    int m_port, listen_port;
-    QMutex mutex;
+    int m_port, m_listen_port;
+    QMutex m_mutex;
     RemoteView::Quality m_quality;
     QQueue<ClientEvent* > m_eventQueue;
 
     volatile bool m_stopped;
     volatile bool m_passwordError;
-
-private slots:
-    void checkOutputErrorMessage();
 };
 
 #endif

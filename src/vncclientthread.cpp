@@ -38,7 +38,7 @@ const int MAX_COLOR_DEPTH = 32;
 
 rfbBool VncClientThread::newclient(rfbClient *cl)
 {
-    VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);
+    VncClientThread *t = static_cast<VncClientThread*>(rfbClientGetClientData(cl, 0));
     Q_ASSERT(t);
 
     switch (t->quality()) {
@@ -83,11 +83,10 @@ rfbBool VncClientThread::newclient(rfbClient *cl)
         cl->format.blueMax = 0xff;
     }
 
-    if (t->frameBuffer)
-        delete [] t->frameBuffer; // do not leak if we get a new framebuffer size
+    delete [] t->m_frameBuffer; // do not leak if we get a new framebuffer size
     const int size = cl->width * cl->height * (cl->format.bitsPerPixel / 8);
-    t->frameBuffer = new uint8_t[size];
-    cl->frameBuffer = t->frameBuffer;
+    t->m_frameBuffer = new uint8_t[size];
+    cl->frameBuffer = t->m_frameBuffer;
     memset(cl->frameBuffer, '\0', size);
 
 
@@ -111,7 +110,7 @@ void VncClientThread::updatefb(rfbClient* cl, int x, int y, int w, int h)
         kDebug(5011) << "image not loaded";
     }
 
-    VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);
+    VncClientThread *t = static_cast<VncClientThread*>(rfbClientGetClientData(cl, 0));
     Q_ASSERT(t);
 
     t->setImage(img);
@@ -125,7 +124,7 @@ void VncClientThread::cuttext(rfbClient* cl, const char *text, int textlen)
     kDebug(5011) << "cuttext: " << cutText;
 
     if (!cutText.isEmpty()) {
-        VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);
+        VncClientThread *t = static_cast<VncClientThread*>(rfbClientGetClientData(cl, 0));
         Q_ASSERT(t);
 
         t->emitGotCut(cutText);
@@ -136,7 +135,7 @@ char *VncClientThread::passwdHandler(rfbClient *cl)
 {
     kDebug(5011) << "password request" << kBacktrace();
 
-    VncClientThread *t = (VncClientThread*)rfbClientGetClientData(cl, 0);
+    VncClientThread *t = static_cast<VncClientThread*>(rfbClientGetClientData(cl, 0));
     Q_ASSERT(t);
 
     t->m_passwordError = true;
@@ -183,9 +182,9 @@ void VncClientThread::outputHandler(const char *format, ...)
 
 VncClientThread::VncClientThread(QObject *parent)
     : QThread(parent)
-    , frameBuffer(0)
+    , m_frameBuffer(0)
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
     m_stopped = false;
 
     QTimer *outputErrorMessagesCheckTimer = new QTimer(this);
@@ -203,8 +202,8 @@ VncClientThread::~VncClientThread()
     if(!quitSuccess)
         kDebug(5011) << "~VncClientThread(): Quit failed";
 
-    delete [] frameBuffer;
-    //cl is free()d when event loop exits.
+    delete [] m_frameBuffer;
+    //m_cl is free()d when event loop exits.
 }
 
 void VncClientThread::checkOutputErrorMessage()
@@ -220,13 +219,13 @@ void VncClientThread::checkOutputErrorMessage()
 
 void VncClientThread::setHost(const QString &host)
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
     m_host = host;
 }
 
 void VncClientThread::setPort(int port)
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
     m_port = port;
 }
 
@@ -242,13 +241,13 @@ RemoteView::Quality VncClientThread::quality() const
 
 void VncClientThread::setImage(const QImage &img)
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
     m_image = img;
 }
 
 const QImage VncClientThread::image(int x, int y, int w, int h)
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
 
     if (w == 0) // full image requested
         return m_image;
@@ -272,16 +271,16 @@ void VncClientThread::stop()
         return;
 
     //also abort listening for connections, should be safe without locking
-    if(listen_port)
-        cl->listenSpecified = false;
+    if(m_listen_port)
+        m_cl->listenSpecified = false;
 
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
     m_stopped = true;
 }
 
 void VncClientThread::run()
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
 
     int passwd_failures = 0;
     while (!m_stopped) { // try to connect as long as the server allows
@@ -290,29 +289,29 @@ void VncClientThread::run()
 
         rfbClientLog = outputHandler;
         rfbClientErr = outputHandler;
-        cl = rfbGetClient(8, 3, 4); // bitsPerSample, samplesPerPixel, bytesPerPixel
-        cl->MallocFrameBuffer = newclient;
-        cl->canHandleNewFBSize = true;
-        cl->GetPassword = passwdHandler;
-        cl->GotFrameBufferUpdate = updatefb;
-        cl->GotXCutText = cuttext;
-        rfbClientSetClientData(cl, 0, this);
+        m_cl = rfbGetClient(8, 3, 4); // bitsPerSample, samplesPerPixel, bytesPerPixel
+        m_cl->MallocFrameBuffer = newclient;
+        m_cl->canHandleNewFBSize = true;
+        m_cl->GetPassword = passwdHandler;
+        m_cl->GotFrameBufferUpdate = updatefb;
+        m_cl->GotXCutText = cuttext;
+        rfbClientSetClientData(m_cl, 0, this);
 
-        cl->serverHost = strdup(m_host.toUtf8().constData());
+        m_cl->serverHost = strdup(m_host.toUtf8().constData());
 
         if (m_port < 0 || !m_port) // port is invalid or empty...
             m_port = 5900; // fallback: try an often used VNC port
 
         if (m_port >= 0 && m_port < 100) // the user most likely used the short form (e.g. :1)
             m_port += 5900;
-        cl->serverPort = m_port;
+        m_cl->serverPort = m_port;
 
-        cl->listenSpecified = rfbBool(listen_port > 0);
-        cl->listenPort = listen_port;
+        m_cl->listenSpecified = rfbBool(m_listen_port > 0);
+        m_cl->listenPort = m_listen_port;
 
         kDebug(5011) << "--------------------- trying init ---------------------";
 
-        if (rfbInitClient(cl, 0, 0))
+        if (rfbInitClient(m_cl, 0, 0))
             break;
 
         //init failed...
@@ -324,26 +323,26 @@ void VncClientThread::run()
 
         //stop connecting
         m_stopped = true;
-        return; //no cleanup necessary, cl was free()d by rfbInitClient()
+        return; //no cleanup necessary, m_cl was free()d by rfbInitClient()
     }
 
     locker.unlock();
 
     // Main VNC event loop
     while (!m_stopped) {
-        const int i = WaitForMessage(cl, 500);
+        const int i = WaitForMessage(m_cl, 500);
         if(m_stopped or i < 0)
             break;
 
         if (i)
-            if (!HandleRFBServerMessage(cl))
+            if (!HandleRFBServerMessage(m_cl))
                 break;
 
         locker.relock();
 
         while (!m_eventQueue.isEmpty()) {
             ClientEvent* clientEvent = m_eventQueue.dequeue();
-            clientEvent->fire(cl);
+            clientEvent->fire(m_cl);
             delete clientEvent;
         }
 
@@ -352,7 +351,7 @@ void VncClientThread::run()
 
     // Cleanup allocated resources
     locker.relock();
-    rfbClientCleanup(cl);
+    rfbClientCleanup(m_cl);
     m_stopped = true;
 }
 
@@ -377,7 +376,7 @@ void ClientCutEvent::fire(rfbClient* cl)
 
 void VncClientThread::mouseEvent(int x, int y, int buttonMask)
 {
-    QMutexLocker lock(&mutex);
+    QMutexLocker lock(&m_mutex);
     if (m_stopped)
         return;
 
@@ -386,7 +385,7 @@ void VncClientThread::mouseEvent(int x, int y, int buttonMask)
 
 void VncClientThread::keyEvent(int key, bool pressed)
 {
-    QMutexLocker lock(&mutex);
+    QMutexLocker lock(&m_mutex);
     if (m_stopped)
         return;
 
@@ -395,7 +394,7 @@ void VncClientThread::keyEvent(int key, bool pressed)
 
 void VncClientThread::clientCut(const QString &text)
 {
-    QMutexLocker lock(&mutex);
+    QMutexLocker lock(&m_mutex);
     if (m_stopped)
         return;
 
