@@ -178,7 +178,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 void MainWindow::about()
 {
     QMessageBox::about(this, tr("About Presence VNC"),
-                       tr("<center><h1>Presence VNC 0.8</h1>\
+                       tr("<center><h1>Presence VNC 0.9</h1>\
                 <p>A touchscreen friendly VNC client</p>\
                 <p><a href=\"http://presencevnc.garage.maemo.org/\">http://presencevnc.garage.maemo.org/</a></p></center>\
                 <small><p>&copy;2010-2012 Christian Pulvermacher &lt;pulvermacher@gmx.de&gt;<br />\
