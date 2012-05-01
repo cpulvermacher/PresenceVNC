@@ -35,7 +35,12 @@ em {
  color: #c00;
 }
 img {
+ margin: 1em;
+ float: right;
  border: none;
+}
+h3 {
+ clear: right;
 }
 fieldset {
  padding: 5px;
@@ -47,12 +52,17 @@ samp, .red {
 #footer {
  border: 1px solid #AAA;
  text-align: center;
+ clear: both;
 }
 dl dt {
  font-weight: bold;
+ font-size: 0.9em;
  background-color: #EEE;
 }
 dl dd {
+}
+p {
+ margin-left: 10px;
 }
 pre {
  background-color: #EEE;
@@ -68,6 +78,10 @@ pre {
  float: left;
  list-style-type: none;
  margin: 10px;
+}
+.menu li {
+ margin-top: 0.3em;
+ margin-bottom: 0.3em;
 }
 input, textarea {
  margin: 3px;

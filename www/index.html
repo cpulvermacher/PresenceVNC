@@ -22,18 +22,29 @@
 
 <div class="main">
 <h2>Features</h2>
+<p><img src="portrait.png" alt="Presence VNC main window, portrait mode" /></p>
+
 <ul>
  <li>Viewport can be dragged around without using scrollbars</li>
  <li>Touchpad-like mouse input: Tap the screen for a single click, tap twice for a double click, single tap plus dragging motion to drag objects on the remote desktop</li>
- <li>Fit remote desktop to screen</li>
- <li>Configurable zoom buttons</li>
+ <li>Magnification can be changed via zoom slider (double-click for 1:1)</li>
+ <li>Configurable volume buttons</li>
  <li>Portrait mode support</li>
  <li>Support for server-initiated connections (Listen for Incoming Connections)</li>
 </ul>
 
 <h2>Download</h2>
 <p>
-Presence VNC can be <a href="http://maemo.org/downloads/product/raw/Maemo5/presencevnc/?get_installfile">installed from Maemo Extras</a>, older versions and source code are available from the <a href="https://garage.maemo.org/frs/?group_id=1831">project filelist</a>.
+Presence VNC for <strong>Nokia N900</strong> can be <a href="http://maemo.org/downloads/product/raw/Maemo5/presencevnc/?get_installfile">installed from Maemo Extras</a>, older versions and source code are available from the <a href="https://garage.maemo.org/frs/?group_id=1831">project filelist</a>.
+The current development version is accessible through a <a href="https://garage.maemo.org/scm/?group_id=1831">git repository</a>:
+</p>
+<pre>
+git clone https://vcs.maemo.org/git/presencevnc
+</pre>
+
+<p>
+A port for the <strong>Nokia N9</strong> can be found <a href="http://talk.maemo.org/showthread.php?p=1194229#post1194229">in this thread</a>.
+
 </p>
 
 
@@ -57,8 +68,13 @@ You can specify the port to listen on after clicking the <strong>Listen</strong>
 Servers that support this feature include x11vnc (<tt>-connect</tt>), RealVNC and TightVNC (right-click on icon -&gt; "Add New Client").
 </p>
 
+
 <p>Please note that all data transferred using VNC (except your password) is <em>unencrypted</em>. That means your session could be viewed/recorded and even taken over by someone else on your network.
 To prevent this, you can use <a href="http://en.wikipedia.org/wiki/Secure_Shell">SSH</a> or <a href="http://en.wikipedia.org/wiki/Virtual_private_network">VPN</a> to create an encrypted tunnel for your VNC connection. (<a href="http://wiki.maemo.org/Presencevnc">HOWTO (SSH, Linux)</a>)</p>
+
+<p>When the <strong>View only</strong> option is selected, no mouse or keyboard events will be sent to the server.
+In this mode, you can also use the cursor keys on the keyboard to scroll the viewport.
+</p>
 
 
 <h3>Main window</h3>
@@ -114,13 +130,28 @@ To leave fullscreen mode, press the button in the lower right corner (visible fo
  Default: on</dd>
 </dl>
 
+<h3>Command line options</h3>
+<p>
+Connections can also be initiated from the command line. An overview of the syntax and available options can be displayed using the <tt>--help</tt> switch:
+</p>
 
-<!--
-<p><img src="main_fit_to_screen.png" alt="Presence VNC main window, lowest zoom level" /></p>
--->
+<pre>
+Usage: ./presencevnc [options] [URL [quality]]
+
+Options:
+ --help            Print this text and exit.
+ --listen [port]   Listen for incoming connections on given port, or 5500 if omitted. Cannot be used with an URL.
+ --viewonly        Don't send mouse/keyboard input to remote desktop. This is only useful if you also supply a URL, or --listen.
+
+URLs:
+ vnc://:password@server:display
+
+ Password and display can be omitted, e.g. vnc://server is a valid URL.
+ Optionally, you can define the quality as a second argument (1-3, where 1 is the best). Default is 2.
+</pre>
 
 </div>
 
-<p id="footer">&copy;2010 Christian Pulvermacher</p>
+<p id="footer">&copy;2010&ndash;2012 Christian Pulvermacher</p>
 </body>
 </html>
